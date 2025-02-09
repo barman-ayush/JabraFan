@@ -1,4 +1,4 @@
-import Questions from "@/app/components/Questions";
+import Questions from "@/components/Questions";
 
 type MatchPageProps = {
   params: {

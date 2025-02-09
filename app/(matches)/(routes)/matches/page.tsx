@@ -1,4 +1,4 @@
-import Matches from "@/app/components/Matches";
+import Matches from "@/components/Matches";
 import RcbImage from "@/public/images/RCB.jpg";
 import CskImage from "@/public/images/CSK.jpg";
 
