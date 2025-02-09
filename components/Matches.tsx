@@ -43,7 +43,7 @@ export default function Match({
   const containerClasses = `max-w-2xl mx-auto rounded-lg bg-gradient-to-b ${
     isDark
       ? "from-slate-800 to-slate-900 text-white p-4 border border-slate-700"
-      : "from-sky-50 to-blue-50 text-black p-4 border border-sky-200"
+      : "from-gray-100 to-gray-200 text-gray-900 p-4 border border-gray-300"
   }`;
 
   return (
@@ -87,7 +87,7 @@ export default function Match({
             href={`/matches/${id}`}
             className={`${isDark
               ? "bg-purple-600 hover:bg-purple-700"
-              : "bg-blue-500 hover:bg-blue-600"
+              : "bg-teal-500 hover:bg-teal-600"
             } text-white font-bold py-1 sm:py-2 px-4 sm:px-6 rounded-full
                transition duration-300 ease-in-out transform hover:scale-105 shadow-lg text-sm sm:text-base`}
           >
