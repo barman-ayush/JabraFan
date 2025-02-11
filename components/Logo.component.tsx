@@ -2,7 +2,7 @@ import { Fragment } from "react";
 
 const Logo = () => {
     return <Fragment>
-        <h1 className="text-xl" >Jabra Fan</h1>
+        <h1 className="text-3xl font-bold" >Jabra Fan</h1>
     </Fragment>
 }
 
