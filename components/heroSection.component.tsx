@@ -4,7 +4,7 @@ import { rubik } from "../styles/fonts";
 const HeroSection = () => {
   return (
     <Fragment>
-      <div className="container max-w-full bg-[url('/images.webp')] bg-cover dark:bg-none rounded-bl-3xl rounded-br-3xl">
+      <div className="container max-w-full bg-[url('/images.webp')] bg-cover bg-left dark:bg-[url('/nightbg.jpg')]  rounded-bl-3xl rounded-br-3xl">
         <div
           className="hero-container relative rounded-bl-3xl rounded-br-3xl bg-no-repeat bg-cover"
           style={{ backgroundImage: "url('/bg-1.png')", height: "100vh" }}
