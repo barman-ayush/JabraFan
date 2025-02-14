@@ -12,10 +12,14 @@ import { nanoid } from "nanoid";
 import Link from "next/link";
 import { ModeToggle } from "./ThemeToggle.component";
 import Logo from "./Logo.component";
+import { DrawerWrapper } from "./drawer.component";
 
 const Navbar = () => {
   return (
-    <Card className="container absolute bg-transparent top-0 py-3 px-4 border-0 flex items-center justify-between gap-6 rounded-2xl mt-5 z-5 dark:text-yellow-400 text-black  " style={{zIndex : "1000"}}>
+    <Card
+      className="container absolute bg-transparent top-0 py-3 px-4 border-0 flex items-center justify-between gap-6 rounded-2xl mt-5 z-5 dark:text-yellow-400 text-black  "
+      style={{ zIndex: "1000" }}
+    >
       <div className="img-wrapper ml-4">
         <Logo />
       </div>
@@ -37,9 +41,11 @@ const Navbar = () => {
 
       <div className="flex items-center">
         <ModeToggle />
-        <Button variant="secondary" className="hidden md:block px-2 ml-3">
-          Login
-        </Button>
+        <DrawerWrapper>
+          <Button variant="secondary" className="hidden md:block px-2 ml-3">
+            Login
+          </Button>
+        </DrawerWrapper>
         <Button className="hidden md:block ml-2 mr-2">Get Started</Button>
 
         <div className="flex md:hidden mr-2 items-center gap-2">
@@ -64,9 +70,11 @@ const Navbar = () => {
                 <a href="#faqs">FAQs</a>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Button variant="secondary" className="w-full text-sm">
-                  Login
-                </Button>
+                <DrawerWrapper>
+                  <Button variant="secondary" className="w-full text-sm">
+                    Login
+                  </Button>
+                </DrawerWrapper>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Button className="w-full text-sm">Get Started</Button>
