@@ -11,7 +11,7 @@ const Rewards = () => {
           className="data-container flex flex-row gap-4 flex-wrap md:flex-nowrap mx-10 my-10"
           style={{ width: "70%" }}
         >
-          <div className="text-container">
+          <div className="text-container" style={{width : "100%"}}>
             <p>
               Lorem ipsum dolor sit amet consectetur, adipisicing elit. Incidunt
               iure neque in. Voluptates vel non id quas minus reiciendis quam,
