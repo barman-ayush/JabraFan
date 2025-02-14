@@ -10,6 +10,9 @@ export default {
   theme: {
   	extend: {
   		colors: {
+			// Cutsom colors : 
+			"dark-primary" : "#FACC15", 
+			// Pre-Defined : 
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
