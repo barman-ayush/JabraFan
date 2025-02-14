@@ -76,7 +76,7 @@ export function DrawerWrapper({ children }: { children: React.ReactNode }) {
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
             <DrawerTitle>Login</DrawerTitle>
-            <DrawerDescription>Enter otp sent to +91 74******53</DrawerDescription>
+            <DrawerDescription>Enter the otp sent to +91 74******53</DrawerDescription>
           </DrawerHeader>
           <div className="p-4 pb-0 flex flex-row justify-center">
             <InputOTPBox/>
