@@ -1,4 +1,7 @@
+"use client";
+
 import Questions from "@/components/Questions";
+import React from "react";
 
 type MatchPageProps = {
   params: {
@@ -6,32 +9,34 @@ type MatchPageProps = {
   };
 };
 
-const sampleQuestions = [
-  {
-    id: 1,
-    question: "Who will score the first goal?",
-    options: ["Team A", "Team B", "No goals"],
-  },
-  {
-    id: 2,
-    question: "Will there be a red card?",
-    options: ["Yes", "No"],
-  },
-  {
-    id: 3,
-    question: "Total number of corners",
-    options: ["0-5", "6-10", "11+"],
-  },
-];
-
 export default function MatchPage({ params }: MatchPageProps) {
-  const { matchId } = params;
-  console.log(matchId)
+  const { matchId } = React.use(params);
+  const [questions, setQuestions] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    // Fetch match details
+    async function getMatch() {
+      const res = await fetch(
+        `http://localhost:3050/generate-contest?match_id=${matchId}&no_of_questions=${5}`
+      );
+      if (res.status !== 200) throw new Error("Failed to fetch match");
+      return res.json();
+    }
+
+    getMatch().then((questions) => {
+      setQuestions(questions);
+    });
+  }, [matchId]);
 
   return (
     <div className="p-4 space-y-4">
-      {sampleQuestions.map((que) => (
-        <Questions key={que.id} id={que.id} question={que.question} options={que.options} />
+      {questions.map((que, index) => (
+        <Questions
+          key={index}
+          id={index}
+          question={que}
+          options={["yes", "no"]}
+        />
       ))}
     </div>
   );

@@ -33,6 +33,15 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    
+    /* Used in matches and questions */
+    --primary-button: 172 70% 46%;
+    --primary-button-hover: 172 70% 40%;
+    --secondary-button: 265 89% 62%;
+    --secondary-button-hover: 265 89% 56%;
+    --gradient-start: 0 0% 96%;
+    --gradient-end: 0 0% 90%;
+    --border-color: 0 0% 80%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -59,6 +68,15 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Used in matches and questions */
+    --primary-button: 265 89% 62%;
+    --primary-button-hover: 265 89% 56%;
+    --secondary-button: 172 70% 46%;
+    --secondary-button-hover: 172 70% 40%;
+    --gradient-start: 215 25% 27%;
+    --gradient-end: 215 25% 20%;
+    --border-color: 215 25% 40%;
   }
 }
 

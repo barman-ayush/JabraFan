@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 
 type MatchProps = {
   id: number;
@@ -25,7 +24,7 @@ type MatchProps = {
     homeOvers: string;
     awayOvers: string;
   };
-}
+};
 
 export default function Match({
   id,
@@ -36,18 +35,8 @@ export default function Match({
   awayTeam,
   score,
 }: MatchProps) {
-
-  const { theme } = useTheme();
-  const isDark = theme === "dark" || !theme;
-  
-  const containerClasses = `max-w-2xl mx-auto rounded-lg bg-gradient-to-b ${
-    isDark
-      ? "from-slate-800 to-slate-900 text-white p-4 border border-slate-700"
-      : "from-gray-100 to-gray-200 text-gray-900 p-4 border border-gray-300"
-  }`;
-
   return (
-    <div className={containerClasses}>
+    <div className="max-w-2xl mx-auto rounded-lg bg-gradient-to-b from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))] p-4 border border-[hsl(var(--border-color))]">
       {/* Header */}
       <div className="text-center">
         <h1 className="text-xl font-semibold">{competition}</h1>
@@ -85,11 +74,7 @@ export default function Match({
           <p className="text-sm sm:text-xl font-bold">Vs</p>
           <Link
             href={`/matches/${id}`}
-            className={`${isDark
-              ? "bg-purple-600 hover:bg-purple-700"
-              : "bg-teal-500 hover:bg-teal-600"
-            } text-white font-bold py-1 sm:py-2 px-4 sm:px-6 rounded-full
-               transition duration-300 ease-in-out transform hover:scale-105 shadow-lg text-sm sm:text-base`}
+            className="bg-[hsl(var(--primary-button))] hover:bg-[hsl(var(--primary-button-hover))] text-white font-bold py-1 sm:py-2 px-4 sm:px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105 shadow-lg text-sm sm:text-base"
           >
             Start Bet
           </Link>
@@ -117,7 +102,6 @@ export default function Match({
             </p>
           </div>
         </div>
-
       </div>
     </div>
   );
