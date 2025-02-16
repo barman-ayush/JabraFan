@@ -1,60 +1,44 @@
+"use client";
 import Matches from "@/components/Matches";
-import RcbImage from "@/public/images/RCB.jpg";
-import CskImage from "@/public/images/CSK.jpg";
-
-const matches = [
-  {
-    id: 1,
-    competition: "Indian Premier League",
-    date: "Sunday, 3 September 2023",
-    time: "20:00",
-    homeTeam: {
-      name: "RCB",
-      logo: RcbImage.src,
-    },
-    awayTeam: {
-      name: "CSK",
-      logo: CskImage.src,
-    },
-    score: {
-      home: 167,
-      away: 144,
-      homeWickets: 5,
-      awayWickets: 7,
-      homeOvers: "20.0",
-      awayOvers: "20.0",
-    },
-  },
-  {
-    id: 2,
-    competition: "Indian Premier League",
-    date: "Monday, 4 September 2023",
-    time: "19:30",
-    homeTeam: {
-      name: "CSK",
-      logo: CskImage.src,
-    },
-    awayTeam: {
-      name: "RCB",
-      logo: RcbImage.src,
-    },
-    score: {
-      home: 189,
-      away: 156,
-      homeWickets: 3,
-      awayWickets: 8,
-      homeOvers: "20.0",
-      awayOvers: "19.2",
-    },
-  },
-];
+import React from "react";
+import { SportEvent, MatchResponse } from "@/utils/types";
 
 export default function Page() {
+  const [matches, setMatches] = React.useState<MatchResponse[]>([]);
+
+  React.useEffect(() => {
+    // Fetch matches
+    async function getMatches() {
+      const res = await fetch("http://localhost:3050/daily-live-schedule");
+      const matchList = await res.json();
+      if (matchList.status !== 200) throw new Error("Failed to fetch matches");
+      const liveMatches = matchList.data.sport_events.filter(
+        (match: SportEvent) => match.status === "live"
+      );
+
+      const matches = await Promise.all(
+        liveMatches.map(async (match: SportEvent) => {
+          const response = await fetch(
+            `http://localhost:3050/match-info/${match.id}`
+          );
+          return response.json();
+        })
+      );
+
+      return matches;
+    }
+
+    getMatches().then((matches) => {
+      setMatches(matches);
+    });
+  }, []);
+
   return (
     <div className="p-4 space-y-4">
-      {matches.map((match, index) => (
-        <Matches key={index} {...match} />
-      ))}
+      {matches.map((match) => {
+        if (match)
+          return <Matches key={match.data.sport_event.id} {...match} />;
+      })}
     </div>
   );
 }

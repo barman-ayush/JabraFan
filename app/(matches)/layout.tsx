@@ -8,8 +8,10 @@ export default function RootLayout({
 }) {
   return (
     <Fragment>
-      <Navbar />
-      {children}
+      <div className="nav-cont flex flex-row justify-center h-20">
+        <Navbar />
+      </div>
+      <div>{children}</div>
     </Fragment>
   );
 }
