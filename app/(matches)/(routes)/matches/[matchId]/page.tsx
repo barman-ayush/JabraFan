@@ -10,7 +10,7 @@ type MatchPageProps = {
 };
 
 export default function MatchPage({ params }: MatchPageProps) {
-  const { matchId } = React.use(params);
+  const { matchId } : {matchId : string} = params;
   const [questions, setQuestions] = React.useState<string[]>([]);
 
   React.useEffect(() => {
