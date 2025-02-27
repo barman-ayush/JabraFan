@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Minus, Plus } from "lucide-react";
-import { Bar, BarChart, ResponsiveContainer } from "recharts";
-
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 import {
   Drawer,
   DrawerClose,
@@ -16,75 +15,129 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { InputOTPBox } from "./InputOtp.component";
-
-const data = [
-  {
-    goal: 400,
-  },
-  {
-    goal: 300,
-  },
-  {
-    goal: 200,
-  },
-  {
-    goal: 300,
-  },
-  {
-    goal: 200,
-  },
-  {
-    goal: 278,
-  },
-  {
-    goal: 189,
-  },
-  {
-    goal: 239,
-  },
-  {
-    goal: 300,
-  },
-  {
-    goal: 200,
-  },
-  {
-    goal: 278,
-  },
-  {
-    goal: 189,
-  },
-  {
-    goal: 349,
-  },
-];
+import { motion, AnimatePresence } from "framer-motion";
 
 export function DrawerWrapper({ children }: { children: React.ReactNode }) {
-  const [goal, setGoal] = React.useState(350);
-
-  function onClick(adjustment: number) {
-    setGoal(Math.max(200, Math.min(400, goal + adjustment)));
-  }
+  const [step, setStep] = React.useState<"phone" | "loading" | "otp">("phone");
+  const [phoneNumber, setPhoneNumber] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+  
+  const handlePhoneSubmit = async () => {
+    if (!phoneNumber || phoneNumber.length < 10) return;
+    
+    setStep("loading");
+    
+    try {
+      // Replace with your actual API call to send OTP
+      const response = await fetch("/api/auth/sendotp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: `+91${phoneNumber}` }),
+      });
+      
+      if (!response.ok) throw new Error("Failed to send OTP");
+      
+      // Move to OTP step after 1.5 seconds for better UX
+      setTimeout(() => setStep("otp"), 1500);
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      setStep("phone"); // Go back to phone input on error
+    }
+  };
+  
+  const resetFlow = () => {
+    setStep("phone");
+    setPhoneNumber("");
+  };
 
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        {/* <Button variant="outline">{children}</Button> */}
         {children}
       </DrawerTrigger>
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
-          <DrawerHeader>
-            <DrawerTitle>Login</DrawerTitle>
+          <DrawerHeader className="py-4">
+            <DrawerTitle>
+              {step === "phone" ? "Enter your phone number" : 
+               step === "loading" ? "Sending verification code" : 
+               "Verify your phone number"}
+            </DrawerTitle>
             <DrawerDescription>
-              Enter the otp sent to +91 74******53
+              {step === "phone" ? "We'll send you a code to verify your phone number" : 
+               step === "loading" ? "Please wait..." : 
+               `Enter the 6-digit code sent to +91 ${phoneNumber}`}
             </DrawerDescription>
           </DrawerHeader>
-          <div className="p-4 pb-0 flex flex-row justify-center">
-            <InputOTPBox />
+          
+          <div className="px-4 py-4 relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              {step === "phone" && (
+                <motion.div
+                  key="phone-input"
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -100, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col gap-4"
+                >
+                  <div className="flex items-center">
+                    <span className="text-sm text-muted-foreground mr-2">+91</span>
+                    <Input
+                      type="tel"
+                      placeholder="Phone number"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      maxLength={10}
+                    />
+                  </div>
+                  <Button onClick={handlePhoneSubmit} disabled={phoneNumber.length < 10}>
+                    Send Code
+                  </Button>
+                </motion.div>
+              )}
+              
+              {step === "loading" && (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex flex-col items-center justify-center py-8"
+                >
+                  <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+                  <p className="text-sm text-muted-foreground">Sending verification code...</p>
+                </motion.div>
+              )}
+              
+              {step === "otp" && (
+                <motion.div
+                  key="otp-input"
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col gap-4"
+                >
+                  <div className="flex justify-center py-2">
+                    <InputOTPBox />
+                  </div>
+                  <div className="flex justify-between">
+                    <Button variant="ghost" size="sm" onClick={resetFlow}>
+                      Change Number
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      Resend Code
+                    </Button>
+                  </div>
+                  <Button>
+                    Verify
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+          
           <DrawerFooter>
-            <Button>Submit</Button>
             <DrawerClose asChild>
               <Button variant="outline">Cancel</Button>
             </DrawerClose>
