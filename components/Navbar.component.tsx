@@ -6,10 +6,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Menu } from "lucide-react";
 import { Card } from "@/components/ui/card";
-//   import ShadcnKit from "@/components/icons/shadcn-kit";
 import { Button } from "@/components/ui/button";
-import { nanoid } from "nanoid";
-import Link from "next/link";
 import { ModeToggle } from "./ThemeToggle.component";
 import Logo from "./Logo.component";
 import { DrawerWrapper } from "./drawer.component";
@@ -26,7 +23,7 @@ const Navbar = () => {
 
       <ul className="hidden dark:text-yellow-400 md:flex items-center gap-10 text-card-foreground">
         <li className="font-medium">
-          <a href="#home">Home</a>
+          <a href="/">Home</a>
         </li>
         <li>
           <a href="#features">Features</a>
@@ -58,7 +55,7 @@ const Navbar = () => {
 
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <a href="#home">Home</a>
+                <a href="/">Home</a>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <a href="#features">Features</a>
