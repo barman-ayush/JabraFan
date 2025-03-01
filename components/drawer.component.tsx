@@ -17,14 +17,16 @@ import {
 import { InputOTPBox } from "./InputOtp.component";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlash } from "./Flash.component";
+import { useDrawerContext } from "@/context/DrawerContext";
 
-export function DrawerWrapper({ children }: { children: React.ReactNode }) {
+export function DrawerComponent() {
   const { flash } = useFlash();
+  const { isOpen, setIsOpen } = useDrawerContext();
 
   const [step, setStep] = React.useState<"phone" | "loading" | "otp">("phone");
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
-  const [otp , setOtp] = React.useState("");
+  const [otp, setOtp] = React.useState("");
 
   const handlePhoneSubmit = async () => {
     if (!phoneNumber || phoneNumber.length < 10) return;
@@ -57,23 +59,24 @@ export function DrawerWrapper({ children }: { children: React.ReactNode }) {
 
   const handleVerifyOTP = async () => {
     try {
-      if(otp.length  != 6) throw new Error("Incomplete OTP !");
+      if (otp.length != 6) throw new Error("Incomplete OTP !");
       const response = await fetch("/api/auth/verifyotp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: `+91${phoneNumber}` , otp : otp}),
+        body: JSON.stringify({ phone: `+91${phoneNumber}`, otp: otp }),
       });
 
       if (!response.ok) throw new Error("Failed to send OTP");
       flash("Welcome to JabraFan !", { variant: "success" });
-    } catch (e : any) {
-      flash(e.message , {variant : "warning"})
+      setIsOpen(false);
+    } catch (e: any) {
+      flash(e.message, { variant: "warning" });
     }
   };
 
   return (
-    <Drawer>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
+    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      {/* <DrawerTrigger asChild>{children}</DrawerTrigger> */}
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader className="py-4">

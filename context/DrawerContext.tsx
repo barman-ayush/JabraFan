@@ -1,44 +1,22 @@
-// components/AuthDrawerContext.tsx
-"use client";
+"use client"
+import React, { Dispatch, ReactNode, SetStateAction, createContext, useContext, useState } from "react";
 
-import * as React from "react";
-
-type AuthDrawerContextType = {
-  openDrawer: (initialPhone?: string) => void;
-  closeDrawer: () => void;
-  isOpen: boolean;
-};
-
-const AuthDrawerContext = React.createContext<AuthDrawerContextType | null>(null);
-
-export function useAuthDrawer() {
-  const context = React.useContext(AuthDrawerContext);
-  if (!context) {
-    throw new Error("useAuthDrawer must be used within an AuthDrawerProvider");
-  }
-  return context;
+type DrawerContextType = {
+  isOpen : boolean;
+  setIsOpen : Dispatch<SetStateAction<boolean>>
 }
 
-export function AuthDrawerProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [initialPhone, setInitialPhone] = React.useState("");
+const DrawerContext = createContext<DrawerContextType>({isOpen : false ,setIsOpen : () => {}});
 
-  const openDrawer = React.useCallback((phone?: string) => {
-    if (phone) {
-      setInitialPhone(phone);
-    }
-    setIsOpen(true);
-  }, []);
-
-  const closeDrawer = React.useCallback(() => {
-    setIsOpen(false);
-    // Reset initialPhone after drawer closes
-    setTimeout(() => setInitialPhone(""), 300);
-  }, []);
-
-  return (
-    <AuthDrawerContext.Provider value={{ openDrawer, closeDrawer, isOpen }}>
+export function DrawerWrapper({children} : {children : ReactNode}){
+  const [isOpen, setIsOpen] = useState(false);
+  return(
+    <DrawerContext.Provider value={{isOpen , setIsOpen}}>
       {children}
-    </AuthDrawerContext.Provider>
-  );
+    </DrawerContext.Provider>
+  )
+}
+
+export function useDrawerContext(){
+  return useContext(DrawerContext);
 }
