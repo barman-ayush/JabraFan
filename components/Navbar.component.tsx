@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,14 +11,21 @@ import { Button } from "@/components/ui/button";
 import { ModeToggle } from "./ThemeToggle.component";
 import Logo from "./Logo.component";
 import { useDrawerContext } from "@/context/DrawerContext";
+import { useUserContext } from "@/context/UserContext";
+import { useCallback } from "react";
+import { ProfileButton } from "./ProfileButton.component";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
-  const {setIsOpen , isOpen} = useDrawerContext();
-  const handleDrawer = () => {
-    console.log("Clicked " , isOpen)
+  const { setIsOpen } = useDrawerContext();
+  const router = useRouter();
+
+  // console.log(" [ USER_CONTEXT ] : ", userData);
+
+  const handleDrawer = useCallback(() => {
+    console.log("Opening Drawer");
     setIsOpen(true);
-    console.log("After Clicked " , isOpen)
-  }
+  }, [setIsOpen]);
 
   return (
     <Card
@@ -45,44 +52,22 @@ const Navbar = () => {
       </ul>
 
       <div className="flex items-center">
-        <ModeToggle />
-        <Button variant="secondary" className="hidden md:block px-2 ml-3" onClick={handleDrawer}>
-          Login
-        </Button>
-        <Button className="hidden md:block ml-2 mr-2">Get Started</Button>
-
-        <div className="flex md:hidden mr-2 items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-5 w-5 rotate-0 scale-100" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <a href="/">Home</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <a href="#features">Features</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <a href="#pricing">Pricing</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <a href="#faqs">FAQs</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button variant="secondary" className="w-full text-sm" onClick={handleDrawer}>
-                  Login
-                </Button>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button className="w-full text-sm">Get Started</Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="mode hidden md:block">
+          <ModeToggle />
         </div>
+        <ProfileButton />
+        {/* {userData ? (
+          <ProfileButton/>
+        ) : (
+          <Button
+            variant="secondary"
+            className="hidden md:block px-2 ml-3 mx-4"
+            onClick={handleDrawer}
+          >
+            Login
+          </Button>
+        )} */}
+        <Button className="hidden md:block ml-2 mr-2" onClick={() => { router.push("/matches") }} >Get Started</Button>
       </div>
     </Card>
   );

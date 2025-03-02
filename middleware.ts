@@ -2,63 +2,88 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Routes that don't require authentication
+const CONFIG = {
+  redirectToLandingPage: true,
+  landingPageUrl: '/',
+};
+
 const publicRoutes = [
-  '/api/auth/sndotp',
+  '/api/auth/sendotp',
   '/api/auth/verifyotp',
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/',                  // Homepage
   '/about',
   '/contact',
   '/terms',
   '/privacy',
+  '/api/auth/parsecookie'
 ];
 
-// Check if the route is public
+const assetPatterns = [
+  '/static/',
+  '/_next/',
+  '/images/',
+  '/favicon.ico',
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.svg',
+  '.css',
+  '.js',
+];
+
 const isPublicRoute = (path: string) => {
-  return publicRoutes.some(route => path.startsWith(route)) || 
-         path.includes('/static/') || 
-         path.includes('/_next/') ||
-         path.includes('/favicon.ico');
+  if (path === '/' || path === '') {
+    return true;
+  }
+
+  if (publicRoutes.some(route => path.startsWith(route))) {
+    return true;
+  }
+
+  if (assetPatterns.some(pattern =>
+    path.includes(pattern) || path.endsWith(pattern)
+  )) {
+    return true;
+  }
+
+  return false;
 };
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  
-  // Check if this is a public route
+
   if (isPublicRoute(path)) {
     return NextResponse.next();
   }
-  
-  // Check for auth cookie
+
+  // Authentication check
   const authToken = request.cookies.get('auth_token')?.value;
-  
-  // If no auth token, redirect to login
+
   if (!authToken) {
-    const loginUrl = new URL('/login', request.url);
-    
-    // Add a redirect_to query param to redirect after login
-    loginUrl.searchParams.set('redirect_to', path);
-    
-    return NextResponse.redirect(loginUrl);
+    console.log(`Protected route access attempt: ${path}`);
+
+    if (CONFIG.redirectToLandingPage) {
+      const redirectUrl = new URL(CONFIG.landingPageUrl, request.nextUrl.origin);
+
+      redirectUrl.searchParams.set('isLoginNeeded', 'true');
+
+      const currentUrl = request.nextUrl.pathname;
+      if (request.nextUrl.search) {
+        redirectUrl.searchParams.set('redirect_url', `${currentUrl}${request.nextUrl.search}`);
+      } else {
+        redirectUrl.searchParams.set('redirect_url', currentUrl);
+      }
+
+      return NextResponse.redirect(redirectUrl);
+    }
   }
-  
-  // Continue if authenticated
+
   return NextResponse.next();
 }
 
-// Configure which routes use this middleware
+// Improved matcher configuration
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * We include public routes explicitly in the isPublicRoute function
-     */
-    '/((?!_next/static|_next/image).*)',
+    '/((?!_next/static|_next/image|_static|_vercel|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:jpg|jpeg|gif|png|svg|css|js)).*)',
   ],
 };

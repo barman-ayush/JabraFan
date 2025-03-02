@@ -18,15 +18,23 @@ import { InputOTPBox } from "./InputOtp.component";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlash } from "./Flash.component";
 import { useDrawerContext } from "@/context/DrawerContext";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useUserContext } from "@/context/UserContext";
 
 export function DrawerComponent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const { flash } = useFlash();
   const { isOpen, setIsOpen } = useDrawerContext();
+  const { setUserData } = useUserContext();
 
   const [step, setStep] = React.useState<"phone" | "loading" | "otp">("phone");
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isVerifying, setIsVerifying] = React.useState(false);
   const [otp, setOtp] = React.useState("");
+  const redirect_url = searchParams.get('redirect_url') || '/';
 
   const handlePhoneSubmit = async () => {
     if (!phoneNumber || phoneNumber.length < 10) return;
@@ -48,29 +56,56 @@ export function DrawerComponent() {
     } catch (error) {
       console.error("Error sending OTP:", error);
       flash("Error Sending OTP , Please retry !!", { variant: "error" });
-      setStep("phone"); // Go back to phone input on error
+      setStep("phone");
     }
   };
 
   const resetFlow = () => {
     setStep("phone");
     setPhoneNumber("");
+    setOtp("");
   };
 
   const handleVerifyOTP = async () => {
+    if (otp.length !== 6) {
+      flash("Incomplete OTP!", { variant: "warning" });
+      return;
+    }
+    
+    setIsVerifying(true);
+    
     try {
-      if (otp.length != 6) throw new Error("Incomplete OTP !");
       const response = await fetch("/api/auth/verifyotp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: `+91${phoneNumber}`, otp: otp }),
       });
 
-      if (!response.ok) throw new Error("Failed to send OTP");
-      flash("Welcome to JabraFan !", { variant: "success" });
+      const userData = (await response.json()).userData;
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to verify OTP");
+      }
+
+      console.log(" [ VERIFY_OTP_RESPONSE ] " ,userData)
+      setUserData(userData);
+      flash("Welcome to JabraFan!", { variant: "success" });
       setIsOpen(false);
+      
+      try {
+        const destinationURL = new URL(redirect_url, window.location.origin);
+        router.push(destinationURL.pathname + destinationURL.search);
+        console.log(" DESTINATION " , destinationURL);
+      } catch (error) {
+        router.push('/');
+      }
+      
+      resetFlow();
     } catch (e: any) {
-      flash(e.message, { variant: "warning" });
+      flash(e.message || "Verification failed", { variant: "warning" });
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -162,7 +197,19 @@ export function DrawerComponent() {
                       Resend Code
                     </Button>
                   </div>
-                  <Button onClick={handleVerifyOTP}>Verify</Button>
+                  <Button 
+                    onClick={handleVerifyOTP} 
+                    disabled={isVerifying || otp.length !== 6}
+                  >
+                    {isVerifying ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      "Verify"
+                    )}
+                  </Button>
                 </motion.div>
               )}
             </AnimatePresence>

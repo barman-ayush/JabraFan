@@ -1,11 +1,31 @@
+"use client"
 import Navbar from "@/components/Navbar.component";
-import React, { Fragment } from "react";
+import { useUserContext } from "@/context/UserContext";
+import React, { Fragment, useEffect } from "react";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  const { userData ,setUserData } = useUserContext();
+
+  const parseData = async() => {
+    const response = await (await fetch("/api/auth/parsecookie", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    })).json();
+    if(!response.success) return;
+    console.log(" RESPONSE_DATA : ",response);
+    setUserData(response.userData);
+  }
+
+  useEffect(() => {
+    if(!userData){
+      parseData()
+    }
+  } , []);
   return (
     <Fragment>
       <div className="nav-cont flex flex-row justify-center">

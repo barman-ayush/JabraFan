@@ -11,7 +11,7 @@ datasource db {
 model User{
   id         String      @id @default(uuid())
   name       String
-  src        String
+  src        String?     @db.Text
   phone      String      @unique
   credits    Int
 }

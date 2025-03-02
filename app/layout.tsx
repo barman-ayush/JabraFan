@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider.component";
 import { FlashProvider } from "@/components/Flash.component";
 import { DrawerWrapper } from "../context/DrawerContext";
 import { DrawerComponent } from "@/components/drawer.component";
+import { UserWrapper } from "@/context/UserContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,19 +34,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <FlashProvider>
-            <DrawerWrapper>
-              {children}
-              <DrawerComponent />
-            </DrawerWrapper>
-          </FlashProvider>
-        </ThemeProvider>
+        <UserWrapper>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <FlashProvider>
+              <DrawerWrapper>
+                {children}
+                <DrawerComponent />
+              </DrawerWrapper>
+            </FlashProvider>
+          </ThemeProvider>
+        </UserWrapper>
       </body>
     </html>
   );
