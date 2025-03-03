@@ -1,11 +1,4 @@
 "use client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Menu } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "./ThemeToggle.component";
@@ -18,6 +11,7 @@ import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const { setIsOpen } = useDrawerContext();
+  const { userData } = useUserContext()
   const router = useRouter();
 
   // console.log(" [ USER_CONTEXT ] : ", userData);
@@ -35,7 +29,6 @@ const Navbar = () => {
       <div className="img-wrapper ml-4">
         <Logo />
       </div>
-
       <ul className="hidden dark:text-yellow-400 md:flex items-center gap-10 text-card-foreground">
         <li className="font-medium">
           <a href="/">Home</a>
@@ -52,11 +45,10 @@ const Navbar = () => {
       </ul>
 
       <div className="flex items-center">
-        <div className="mode hidden md:block">
+        {/* <div className="mode hidden md:block">
           <ModeToggle />
-        </div>
-        <ProfileButton />
-        {/* {userData ? (
+        </div> */}
+        {userData ? (
           <ProfileButton/>
         ) : (
           <Button
@@ -66,7 +58,7 @@ const Navbar = () => {
           >
             Login
           </Button>
-        )} */}
+        )}
         <Button className="hidden md:block ml-2 mr-2" onClick={() => { router.push("/matches") }} >Get Started</Button>
       </div>
     </Card>
