@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider     = "mysql"
   url          = env("DATABASE_URL")
-  relationMode = "prisma"
 }
 
 model User{
@@ -14,7 +13,42 @@ model User{
   src        String?     @db.Text
   phone      String      @unique
   credits    Int
+
+  upiId       String?
+  winnings    Int     @default(0)
+
+  answeredQuestions Answers[]
+  redeemRequests    RedeemRequests[]
 }
+
+model Questions {
+  id       String  @id @default(cuid())
+  question String
+  answer   String?
+  matchId String
+ 
+  answers Answers[]
+}
+
+model Answers {
+  id     String @id @default(cuid())
+  answer String
+
+  userId     String
+  answeredBy User   @relation(fields: [userId], references: [id])
+
+  questionId String
+  answered   Questions @relation(fields: [questionId], references: [id])
+}
+
+model RedeemRequests {
+  id        String @id @default(cuid())
+  amount    Int
+  status    String
+  userId    String
+  requested User   @relation(fields: [userId], references: [id])
+}
+
 
 // Commands for updating database on the basis of schema 
 // ( For migration )
