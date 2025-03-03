@@ -123,7 +123,7 @@ export function MatchesManagement() {
   const selectedMatchData = selectedMatch ? matches.find((m) => m.id === selectedMatch) : null
 
   return (
-    <div className="space-y-6 mt-20 ml-20">
+    <div className="space-y-6 mx-3 md:mt-20 md:mx-20">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-1 overflow-hidden">
           <CardHeader>

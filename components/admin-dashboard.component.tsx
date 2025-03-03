@@ -50,11 +50,11 @@ export default function AdminDashboard() {
           </SidebarContent>
         </Sidebar>
 
-        <div className="flex-1 overflow-auto mt-16">
-          <div className="container max-w-6xl py-6">
+        <div className="flex-1 overflow-auto bg-background h-full mt-28 w-full">
+          <div className="container max-w-full py-6 h-full">
             <div className="flex items-center mb-6">
               <SidebarTrigger className="md:hidden mr-2" />
-              <h1 className="text-2xl font-bold ml-20">Admin Dashboard</h1>
+              <h1 className="text-2xl font-bold md:ml-20">Admin Dashboard</h1>
             </div>
 
             {activeTab === "matches" ? <MatchesManagement /> : <RedeemRequests />}
@@ -64,4 +64,3 @@ export default function AdminDashboard() {
     </SidebarProvider>
   )
 }
-

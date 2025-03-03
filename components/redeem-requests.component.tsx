@@ -82,7 +82,7 @@ export function RedeemRequests() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="">
         <CardHeader>
           <CardTitle>Redeem Requests</CardTitle>
           <CardDescription>Manage user requests to redeem their rewards</CardDescription>
