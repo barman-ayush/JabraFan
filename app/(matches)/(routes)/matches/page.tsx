@@ -15,17 +15,35 @@ export default function Page() {
       const liveMatches = matchList.data.sport_events.filter(
         (match: SportEvent) => match.status === "live"
       );
+      const notLiveMatches = matchList.data.sport_events.filter(
+        (match: SportEvent) => match.status !== "live"
+      );
+
+      const result = [];
 
       const matches = await Promise.all(
         liveMatches.map(async (match: SportEvent) => {
           const response = await fetch(
             `http://localhost:3050/match-info/${match.id}`
           );
-          return response.json();
+          const data = await response.json();
+          return data;
         })
       );
+      result.push(...matches);
 
-      return matches;
+      const matchesNotLive = await Promise.all(
+        notLiveMatches.map(async (match: SportEvent) => {
+          const response = await fetch(
+            `http://localhost:3050/match-info/${match.id}`
+          );
+          const data = await response.json();
+          return data;
+        })
+      );
+      result.push(...matchesNotLive);
+
+      return result;
     }
 
     getMatches().then((matches) => {
@@ -36,8 +54,10 @@ export default function Page() {
   return (
     <div className="p-4 space-y-4">
       {matches.map((match) => {
-        if (match)
+        if (match.status === 200) {
+          console.log(match);
           return <Matches key={match.data.sport_event.id} {...match} />;
+        }
       })}
     </div>
   );

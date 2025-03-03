@@ -92,4 +92,5 @@ export type MatchResponse = {
       }>;
     };
   };
+  status: number;
 };
