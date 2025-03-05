@@ -7,6 +7,7 @@ import {
     DialogTitle,
     DialogTrigger,
     DialogFooter,
+    DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
 type BetType = 'free' | 'paid';
 
@@ -36,19 +39,23 @@ export default function ConfirmBetDialog({
     const [amount, setAmount] = useState<string>("");
     const [betType, setBetType] = useState<BetType>('paid');
     const balance = betType === 'paid' ? 100 : 1000; // Money vs Points
+    const [open, setOpen] = useState(false);
 
     if (!selectedOption) {
         return (
             <Dialog>
                 <DialogTrigger asChild>{trigger}</DialogTrigger>
-                <DialogContent className="bg-gradient-to-b from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))] border-[hsl(var(--border-color))] w-[95%] max-w-md mx-auto rounded-lg">
+                <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle className="text-lg sm:text-xl font-semibold">
-                            Select an Option
-                        </DialogTitle>
+                        <DialogTitle>Select an Option</DialogTitle>
+                        <DialogDescription>
+                            Please select an option before confirming your bet.
+                        </DialogDescription>
                     </DialogHeader>
-                    <div className="text-sm sm:text-base">
-                        Please select an option before confirming your bet.
+                    <div className="flex justify-end mt-4">
+                        <Button variant="outline" onClick={() => setOpen(false)}>
+                            Close
+                        </Button>
                     </div>
                 </DialogContent>
             </Dialog>
@@ -56,38 +63,38 @@ export default function ConfirmBetDialog({
     }
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{trigger}</DialogTrigger>
-            <DialogContent className="bg-gradient-to-b from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))] border-[hsl(var(--border-color))] w-[95%] max-w-md mx-auto p-4 sm:p-6 rounded-lg">
+            <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle className="text-lg sm:text-xl font-semibold">
-                        Confirm Your Bet
-                    </DialogTitle>
+                    <DialogTitle>Confirm Your Bet</DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-4 py-2">
                     {/* Question and Answer Section */}
-                    <div className="space-y-2 rounded-lg bg-transparent p-3 sm:p-4">
-                        <div className="space-y-1">
-                            <Label className="text-sm sm:text-base text-[hsl(var(--muted-foreground))]">
-                                Question
-                            </Label>
-                            <p className="text-sm sm:text-base font-medium">{question}</p>
-                        </div>
-                        <div className="space-y-1">
-                            <Label className="text-sm sm:text-base text-[hsl(var(--muted-foreground))]">
-                                Your Answer
-                            </Label>
-                            <p className="text-sm sm:text-base font-medium text-[hsl(var(--primary))]">
-                                {selectedOption}
-                            </p>
-                        </div>
-                    </div>
+                    <Card className="bg-muted/50">
+                        <CardContent className="pt-6 space-y-3">
+                            <div className="space-y-1">
+                                <Label className="text-muted-foreground">
+                                    Question
+                                </Label>
+                                <p className="font-medium">{question}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <Label className="text-muted-foreground">
+                                    Your Answer
+                                </Label>
+                                <p className="font-medium text-primary">
+                                    {selectedOption}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-4">
                         {/* Bet Type Selector */}
                         <div className="space-y-2">
-                            <Label className="text-sm sm:text-base">
+                            <Label htmlFor="bet-type">
                                 Bet Type
                             </Label>
                             <Select
@@ -97,7 +104,7 @@ export default function ConfirmBetDialog({
                                     setAmount("");
                                 }}
                             >
-                                <SelectTrigger className="w-full bg-transparent border-[hsl(var(--border-color))]">
+                                <SelectTrigger id="bet-type" className="w-full">
                                     <SelectValue placeholder="Select bet type" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -108,23 +115,23 @@ export default function ConfirmBetDialog({
                         </div>
 
                         {/* Balance Display */}
-                        <div className="flex items-center justify-between">
-                            <Label className="text-sm sm:text-base text-[hsl(var(--muted-foreground))]">
+                        <div className="flex items-center justify-between rounded-md border p-3 bg-background">
+                            <Label className="text-muted-foreground">
                                 Available {betType === 'paid' ? 'Balance' : 'Points'}
                             </Label>
-                            <span className="text-sm sm:text-base font-semibold">
+                            <span className="font-semibold">
                                 {betType === 'paid' ? '$' : ''}{balance}
                             </span>
                         </div>
 
                         {/* Amount Input */}
                         <div className="space-y-2">
-                            <Label htmlFor="amount" className="text-sm sm:text-base">
+                            <Label htmlFor="amount">
                                 Bet {betType === 'paid' ? 'Amount' : 'Points'}
                             </Label>
                             <div className="relative">
                                 {betType === 'paid' && (
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                                         $
                                     </span>
                                 )}
@@ -136,29 +143,27 @@ export default function ConfirmBetDialog({
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
                                     className={cn(
-                                        "text-sm sm:text-base",
-                                        "bg-transparent border-[hsl(var(--border-color))]",
-                                        "placeholder:text-[hsl(var(--muted-foreground))]",
                                         betType === 'paid' ? "pl-7" : "pl-3"
                                     )}
                                     placeholder={`Enter ${betType === 'paid' ? 'amount' : 'points'}`}
                                 />
                             </div>
+                            {amount && Number(amount) > balance && (
+                                <div className="flex items-center text-destructive gap-1 text-sm mt-1">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <span>Amount exceeds available {betType === 'paid' ? 'balance' : 'points'}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 {/* Footer */}
-                <DialogFooter className="mt-4 sm:mt-6">
+                <DialogFooter>
                     <Button
                         type="submit"
                         disabled={!amount || Number(amount) > balance}
-                        className={cn(
-                            "w-full text-sm text-black bg-[hsl(var(--primary-button))] sm:text-base py-2 sm:py-2.5",
-                            !amount || Number(amount) > balance
-                                ? "opacity-50 cursor-not-allowed"
-                                : "text-white hover:bg-[hsl(var(--primary-button-hover))]"
-                        )}
+                        className="w-full"
                     >
                         Place {betType === 'paid' ? 'Bet' : 'Points Bet'}
                     </Button>

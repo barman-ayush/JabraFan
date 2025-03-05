@@ -20,13 +20,8 @@ export default function ProfilePage() {
   
   return (
     <SidebarProvider>
-      {/* Added pt-20 to push all content below navbar */}
       <div className="flex min-h-screen w-full bg-background pt-20">
-        {/* Added pt-5 to sidebar to prevent its content from overlapping */}
         <Sidebar variant="inset" className="border-r">
-          {/* <SidebarHeader className="flex items-center justify-center py-6 " style={{paddingTop : "50%"}}>
-            <h1 className="text-xl font-bold">My Account</h1>
-          </SidebarHeader> */}
           <SidebarContent className="" style={{paddingTop : "35%"}}>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -53,7 +48,6 @@ export default function ProfilePage() {
           </SidebarContent>
         </Sidebar>
         
-        {/* Added px-4 for better spacing on the content side */}
         <div className="flex-1 overflow-auto w-full px-4" >
           <div className="container py-6 pr-0 md:pr-32">
             <div className="flex items-center mb-6">
