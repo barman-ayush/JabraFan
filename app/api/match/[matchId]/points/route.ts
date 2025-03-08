@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { matchId: string } }
 ) {
   try {
-    const matchId = params.matchId;
+    const matchId = await params.matchId;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
 

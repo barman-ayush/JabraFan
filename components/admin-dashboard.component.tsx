@@ -4,7 +4,7 @@ import { useState } from "react"
 import {
   Sidebar,
   SidebarContent,
-  SidebarHeader,
+  // SidebarHeader,
   SidebarProvider,
   SidebarMenu,
   SidebarMenuItem,

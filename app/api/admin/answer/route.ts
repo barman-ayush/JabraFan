@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
                 id: questionId,
             },
             data: {
+                status: "answered",
                 answer,
             },
         });

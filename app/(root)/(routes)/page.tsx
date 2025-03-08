@@ -4,14 +4,14 @@ import FooterSection from "@/components/footer.component";
 import HeroSection from "@/components/heroSection.component";
 import Rewards from "@/components/rewards.components";
 import { useDrawerContext } from "@/context/DrawerContext";
-import { useUserContext } from "@/context/UserContext";
+// import { useUserContext } from "@/context/UserContext";
 import { useSearchParams } from "next/navigation";
 import { Fragment, useEffect, useRef } from "react";
 
 const LandingPage = () => {
   const searchParams = useSearchParams();
   const { setIsOpen } = useDrawerContext();
-  const { userData } = useUserContext();
+  // const { userData } = useUserContext();
   const initialized = useRef(false);
   console.log("Landing page");
 
