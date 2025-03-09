@@ -7,16 +7,12 @@ export async function GET(
 ) {
   try {
     const { searchParams } = new URL(request.url);
-    const matchId = params.matchId;
+    const matchId = await params.matchId;
     const noOfQuestions = searchParams.get("noOfQuestions") || "5";
 
     const response = await fetch(
       `${process.env.AI_SERVICE_URL}/generate-contest?match_id=${matchId}&no_of_questions=${noOfQuestions}`
     );
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch questions from AI service");
-    }
 
     const data = await response.json();
 
@@ -40,7 +36,7 @@ export async function POST(
   { params }: { params: { matchId: string } }
 ) {
   try {
-    const matchId = params.matchId;
+    const matchId = await params.matchId;
     const body = await request.json();
     const questions = body.questions;
 
@@ -49,7 +45,8 @@ export async function POST(
       await prismadb.questions.create({
         data: {
           matchId,
-          question: question.question,
+          text: question.text,
+          status: "unanswered",
         },
       });
     }

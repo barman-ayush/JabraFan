@@ -1,66 +1,49 @@
 "use client";
-import { matchesData } from "../../../../data/matches";
 import React, { useState } from "react";
-import { 
-  Card, 
+import {
+  Card,
   CardContent,
   CardDescription,
-  CardHeader, 
-  CardTitle 
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
-import { 
-  Tabs, 
-  TabsContent,
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Calendar,
-  Clock,
-  Trophy,
-  AlertCircle,
-  BarChart3
-} from "lucide-react";
+import { Calendar, Clock, Trophy, AlertCircle, BarChart3 } from "lucide-react";
 import Link from "next/link";
-
-interface Question {
-  id: string;
-  text: string;
-  status: string;
-  answer: string | null;
-}
-
-interface Match {
-  id: string;
-  team1: string;
-  team2: string;
-  date: string;
-  time: string;
-  league: string;
-  questions: Question[];
-}
+import { Match, Question } from "@/utils/types";
 
 export default function Page() {
   const [filter, setFilter] = useState("all");
-  
+  const [matchesData, setMatchesData] = useState<Match[]>([]);
+
+  React.useEffect(() => {
+    // Fetch matches data
+    fetch("/api/matches")
+      .then((res) => res.json())
+      .then((data) => setMatchesData(data));
+  }, []);
+
   const today = new Date();
-  
-  const upcomingMatches = matchesData.filter(match => {
-    const matchDate = new Date(`${match.date}T${match.time}`);
+
+  const upcomingMatches = matchesData.filter((match) => {
+    const matchDate = new Date(match.date);
     return matchDate > today;
   });
-  
-  const completedMatches = matchesData.filter(match => {
-    const matchDate = new Date(`${match.date}T${match.time}`);
+
+  const completedMatches = matchesData.filter((match) => {
+    const matchDate = new Date(match.date);
     return matchDate <= today;
   });
 
-  const totalQuestions = matchesData.reduce((acc, match) => acc + match.questions.length, 0);
-  
+  const totalQuestions = matchesData.reduce(
+    (acc, match) => acc + match.questions.length,
+    0
+  );
+
   const answeredQuestions = matchesData.reduce((acc, match) => {
-    return acc + match.questions.filter(q => q.status === "answered").length;
+    return acc + match.questions.filter((q) => q.status === "answered").length;
   }, 0);
 
   const getFilteredMatches = () => {
@@ -83,7 +66,7 @@ export default function Page() {
             {totalQuestions} questions ({answeredQuestions} answered)
           </p>
         </div>
-        
+
         <Tabs defaultValue="all" onValueChange={setFilter}>
           <TabsList>
             <TabsTrigger value="all">All Matches</TabsTrigger>
@@ -109,19 +92,27 @@ export default function Page() {
   );
 }
 
-function MatchCard({ match }: { match: any }) {
+function MatchCard({ match }: { match: Match }) {
   const today = new Date();
-  const matchDate = new Date(`${match.date}T${match.time}`);
+  const matchDate = new Date(match.date);
   const isUpcoming = matchDate > today;
-  
-  const formattedDate = matchDate.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short', 
-    day: 'numeric',
-    year: 'numeric'
+
+  const formattedDate = matchDate.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   });
 
-  const answeredCount = match.questions.filter((q: any) => q.status === "answered").length;
+  const formattedTime = matchDate.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+
+  const answeredCount = match.questions.filter(
+    (q: Question) => q.status === "answered"
+  ).length;
   const totalQuestions = match.questions.length;
 
   const teamColors: Record<string, string> = {
@@ -134,16 +125,20 @@ function MatchCard({ match }: { match: any }) {
     "Punjab Kings": "bg-red-100 text-red-800",
     "Rajasthan Royals": "bg-pink-100 text-pink-800",
     "Gujarat Titans": "bg-teal-100 text-teal-800",
-    "Lucknow Super Giants": "bg-green-100 text-green-800"
+    "Lucknow Super Giants": "bg-green-100 text-green-800",
   };
 
-  const getTeamColor = (teamName: any): string => {
+  const getTeamColor = (teamName: string): string => {
     return teamColors[teamName] || "bg-gray-100 text-gray-800";
   };
 
-  const getTeamAbbr = (teamName: any): string => {
-    return teamName.split(' ').map((word: any) => word[0]).join('').toUpperCase();
-  };
+  // const getTeamAbbr = (teamName: string): string => {
+  //   return teamName
+  //     .split(" ")
+  //     .map((word: string) => word[0])
+  //     .join("")
+  //     .toUpperCase();
+  // };
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
@@ -164,48 +159,56 @@ function MatchCard({ match }: { match: any }) {
         </div>
         <CardDescription className="flex items-center">
           <Calendar className="mr-1 h-4 w-4" />
-          {formattedDate} at {match.time}
+          {formattedDate} at {formattedTime}
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent className="pt-4 flex-grow flex flex-col">
         <div className="flex justify-between items-center">
           <div className="flex flex-col items-center text-center w-5/12">
-            <div className={`w-12 h-12 ${getTeamColor(match.team1)} rounded-full flex items-center justify-center mb-2`}>
-              {getTeamAbbr(match.team1)}
+            <div
+              className={`w-12 h-12 ${getTeamColor(
+                match.team1
+              )} rounded-full flex items-center justify-center mb-2`}
+            >
+              {match.team1}
             </div>
             <h3 className="font-semibold text-sm">{match.team1}</h3>
           </div>
-          
+
           <div className="flex flex-col items-center justify-center w-2/12">
             <div className="text-lg font-bold">VS</div>
           </div>
-          
+
           <div className="flex flex-col items-center text-center w-5/12">
-            <div className={`w-12 h-12 ${getTeamColor(match.team2)} rounded-full flex items-center justify-center mb-2`}>
-              {getTeamAbbr(match.team2)}
+            <div
+              className={`w-12 h-12 ${getTeamColor(
+                match.team2
+              )} rounded-full flex items-center justify-center mb-2`}
+            >
+              {match.team2}
             </div>
             <h3 className="font-semibold text-sm">{match.team2}</h3>
           </div>
         </div>
-        
+
         {match.questions.length > 0 && (
           <div className="mt-auto">
             <Separator className="my-4" />
             <div>
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium flex items-center text-sm">
-                  <BarChart3 className="mr-2 h-4 w-4" /> 
+                  <BarChart3 className="mr-2 h-4 w-4" />
                   Match Questions
                 </h4>
                 <Badge variant="outline" className="text-xs">
                   {answeredCount}/{totalQuestions} answered
                 </Badge>
               </div>
-              
+
               <div className="w-full">
-                <Link 
-                  href={`/matches/${match.id}`} 
+                <Link
+                  href={`/matches/${match.id}`}
                   className="flex items-center justify-between p-4 text-sm font-medium border rounded-md hover:bg-muted/50 transition-colors"
                 >
                   <span>View All Questions</span>

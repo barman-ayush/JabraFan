@@ -3,7 +3,29 @@ import prismadb from "@/lib/prismadb";
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, amount } = await req.json();
+    const { userId, amount, paymentMethod, paymentDetails } = await req.json();
+
+    // Validate required fields
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return NextResponse.json(
+        { error: "Valid amount is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!paymentMethod) {
+      return NextResponse.json(
+        { error: "Payment method is required" },
+        { status: 400 }
+      );
+    }
 
     const user = await prismadb.user.findUnique({
       where: {
@@ -11,9 +33,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (!user || user.winnings < amount) {
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    if (user.winnings < amount) {
       return NextResponse.json(
-        { error: "Insufficient balance" },
+        { error: "Insufficient balance", currentBalance: user.winnings },
         { status: 400 }
       );
     }
@@ -25,31 +51,47 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await prismadb.redeemRequests.create({
-      data: {
-        userId,
-        amount,
-        status: "pending",
-      },
-    });
-
-    await prismadb.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        winnings: {
-          decrement: amount,
+    // Use a transaction to ensure both operations succeed or fail together
+    const result = await prismadb.$transaction(async (prisma) => {
+      // Create the redeem request
+      const request = await prisma.redeemRequests.create({
+        data: {
+          userId,
+          amount,
+          status: "pending",
+          paymentMethod,
+          paymentDetails,
+          requestedAt: new Date(),
         },
-      },
+      });
+
+      // Update user balance
+      await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          winnings: {
+            decrement: amount,
+          },
+        },
+      });
+
+      return request;
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      requestId: result.id,
+      message: "Redemption request submitted successfully",
+    });
   } catch (error) {
     console.error("Error processing redemption:", error);
-    return NextResponse.json(
-      { error: "Failed to process redemption" },
-      { status: 500 }
-    );
+
+    // More specific error handling
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to process redemption";
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

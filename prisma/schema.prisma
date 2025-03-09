@@ -1,32 +1,45 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model User{
-  id         String      @id @default(uuid())
-  name       String
-  src        String?     @db.Text
-  phone      String      @unique
-  credits    Int
+model User {
+  id      String  @id @default(uuid())
+  name    String
+  src     String? @db.Text
+  phone   String  @unique
+  credits Int
 
-  upiId       String?
-  winnings    Int     @default(0)
+  upiId    String?
+  winnings Int     @default(0)
 
   answeredQuestions Answers[]
   redeemRequests    RedeemRequests[]
 }
 
+model Matches {
+  id     String   @id @default(cuid())
+  team1  String
+  team2  String
+  date   DateTime
+  league String
+
+  questions Questions[]
+}
+
 model Questions {
-  id       String  @id @default(cuid())
-  question String
-  answer   String?
+  id     String  @id @default(cuid())
+  text   String
+  status String
+  answer String?
+
   matchId String
- 
+  match   Matches @relation(fields: [matchId], references: [id])
+
   answers Answers[]
 }
 
@@ -42,13 +55,19 @@ model Answers {
 }
 
 model RedeemRequests {
-  id        String @id @default(cuid())
-  amount    Int
-  status    String
-  userId    String
-  requested User   @relation(fields: [userId], references: [id])
-}
+  id              String    @id @default(cuid())
+  amount          Int
+  status          String
+  userId          String
+  paymentMethod   String?
+  paymentDetails  String?
+  requestedAt     DateTime  @default(now())
+  processedAt     DateTime?
+  rejectionReason String?
 
+  // Keep the existing relation to User
+  requested User @relation(fields: [userId], references: [id])
+}
 
 // Commands for updating database on the basis of schema 
 // ( For migration )
