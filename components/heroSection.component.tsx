@@ -1,7 +1,15 @@
+"use client"
 import { Fragment } from "react";
 import { rubik } from "../styles/fonts";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 const HeroSection = () => {
+  const router = useRouter();
+  const redirect = (redirectTo : string) => {
+    router.push(redirectTo);
+  }
+
   return (
     <Fragment>
       <div className="container max-w-full bg-[url('/images.webp')] bg-cover bg-left dark:bg-[url('/nightbg.jpg')]  rounded-bl-3xl rounded-br-3xl">
@@ -28,6 +36,9 @@ const HeroSection = () => {
               Join thousands of IPL fans in making real-time predictions,
               unlocking rewards, and earning achievements.
             </p>
+            <Button onClick={() => {redirect("matches")}} className="dark:bg-yellow-300 bg-white text-black my-10" >
+              Get Started
+            </Button>
           </div>
         </div>
       </div>

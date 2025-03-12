@@ -162,7 +162,7 @@ export default function MatchPage({ params }: MatchPageProps) {
             </CardContent>
           </Card>
         ) : (
-          questions.map((question, index) => (
+          questions.map((question : any, index) => (
             <Card key={question.id || index} className="shadow-sm">
               <CardContent className="p-6">
                 <Questions

@@ -78,24 +78,40 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const match = body.match;
-
-    await prismadb.matches.create({
+    console.log("[ MATCH_CREATION_PAYLOAD ] : ", body);
+    
+    // Extract data from request body
+    const { matchId, team1, team2, date, league, questions } = body;
+    
+    // Create the match with its questions
+    const createdMatch = await prismadb.matches.create({
       data: {
-        team1: match.team1,
-        team2: match.team2,
-        date: match.date,
-        league: match.league,
+        id: matchId, // Use the provided ID from the API
+        team1,
+        team2,
+        date: new Date(date),
+        league,
         questions: {
-          create: match.questions,
+          create: questions.map((q: any) => ({
+            text: q.question,
+            status: q.status,
+            answer: q.answer,
+          })),
         },
       },
+      include: {
+        questions: true,
+      },
     });
-
-    return NextResponse.json({ success: true });
+    
+    return NextResponse.json(createdMatch);
   } catch (error) {
+    // Fix error handling
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error("Error creating match:", errorMessage);
+    
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: errorMessage },
       { status: 500 }
     );
   }

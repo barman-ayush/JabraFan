@@ -35,19 +35,19 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserWrapper>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
+          <DrawerWrapper>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
           >
-            <FlashProvider>
-              <DrawerWrapper>
+              <FlashProvider>
                 {children}
                 <DrawerComponent />
-              </DrawerWrapper>
-            </FlashProvider>
-          </ThemeProvider>
+              </FlashProvider>
+            </ThemeProvider>
+          </DrawerWrapper>
         </UserWrapper>
       </body>
     </html>

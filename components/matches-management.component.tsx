@@ -25,23 +25,38 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Loader2 } from "lucide-react";
 import { Match, Question } from "@/utils/types";
+import { useFlash } from "./Flash.component";
+
+// This interface represents the structure of questions returned from the API
+interface APIQuestion {
+  question: string;
+}
 
 export function MatchesManagement() {
+  const { flash } = useFlash();
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<string | null>(null);
-  const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
+  const [selectedQuestionIndices, setSelectedQuestionIndices] = useState<
+    number[]
+  >([]);
   const [answers, setAnswers] = useState<Record<string, "yes" | "no" | null>>(
     {}
   );
-  const [availableQuestions, setAvailableQuestions] = useState<Question[]>([]);
+  const [availableQuestions, setAvailableQuestions] = useState<APIQuestion[]>(
+    []
+  );
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+  const [isLoadingMatches, setIsLoadingMatches] = useState(true);
+  const [isAddingQuestion, setIsAddingQuestion] = useState(false);
+  const [isAnswering, setIsAnswering] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   React.useEffect(() => {
     const fetchAllMatches = async () => {
+      setIsLoadingMatches(true);
       try {
         const response = await fetch("/api/admin/matches");
-      
+
         if (!response.ok) {
           throw new Error(`Failed to fetch matches: ${response.status}`);
         }
@@ -50,6 +65,8 @@ export function MatchesManagement() {
         setMatches(data);
       } catch (error) {
         console.error("Failed to fetch matches:", error);
+      } finally {
+        setIsLoadingMatches(false);
       }
     };
 
@@ -67,12 +84,16 @@ export function MatchesManagement() {
         throw new Error(`Failed to generate questions: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log(data)
-      setAvailableQuestions(data || []);
+      const data: APIQuestion[] = await response.json();
+
+      setAvailableQuestions(Array.isArray(data) ? data : []);
+
+      if (Array.isArray(data) && data.length > 0) {
+        console.log("Question type check:", typeof data[0], data[0]);
+      }
     } catch (error) {
       console.error("Error generating questions:", error);
-      // You could add error UI feedback here
+      flash("Error Generating Questions", { variant: "error" });
     } finally {
       setIsLoadingQuestions(false);
     }
@@ -80,7 +101,7 @@ export function MatchesManagement() {
 
   // Handle dialog open
   const handleOpenQuestionDialog = () => {
-    setSelectedQuestions([]); // Reset selections
+    setSelectedQuestionIndices([]); // Reset selections
     setDialogOpen(true);
     fetchGeneratedQuestions(); // Fetch questions when dialog opens
   };
@@ -111,74 +132,108 @@ export function MatchesManagement() {
   const handleSubmitAnswer = async (questionId: string) => {
     const answer = answers[questionId];
     if (answer) {
-      // In a real app, you would send this to your API
-      console.log(`Submitting answer for question ${questionId}: ${answer}`);
-      const response = await fetch("api/admin/answer", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Add proper headers
-        },
-        body: JSON.stringify({
-          questionId,
-          answer,
-        }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Error: ${response.status}`);
-      }
+      try {
+        setIsAnswering(true);
+        const response = await fetch("api/admin/answer", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            questionId,
+            answer,
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Error: ${response.status}`);
+        }
 
-      // Update the question status in our local state
-      setMatches((prev) =>
-        prev.map((match) => {
-          if (match.id === selectedMatch) {
-            return {
-              ...match,
-              questions: match.questions.map((q) => {
-                if (q.id === questionId) {
-                  return {
-                    ...q,
-                    status: "answered",
-                    answer,
-                  };
-                }
-                return q;
-              }),
-            };
-          }
-          return match;
-        })
-      );
+        // Update the question status in our local state
+        setMatches((prev) =>
+          prev.map((match) => {
+            if (match.id === selectedMatch) {
+              return {
+                ...match,
+                questions: match.questions.map((q) => {
+                  if (q.id === questionId) {
+                    return {
+                      ...q,
+                      status: "answered",
+                      answer,
+                    };
+                  }
+                  return q;
+                }),
+              };
+            }
+            return match;
+          })
+        );
+
+        // Show success message
+        flash("Answer submitted successfully", { variant: "success" });
+      } catch (error) {
+        console.error("Error submitting answer:", error);
+        flash("Failed to submit answer", { variant: "error" });
+      }finally{
+        setIsAnswering(false);
+      }
     }
   };
 
-  const handleCheckQuestion = (questionId: string) => {
-    setSelectedQuestions((prev) => {
-      if (prev.includes(questionId)) {
-        return prev.filter((id) => id !== questionId);
+  const handleCheckQuestion = (index: number) => {
+    setSelectedQuestionIndices((prev) => {
+      if (prev.includes(index)) {
+        // removing that question from the selected ones
+        return prev.filter((i) => i !== index);
       } else {
-        return [...prev, questionId];
+        // adding that to the selected ones
+        return [...prev, index];
       }
     });
   };
 
   const handleAddQuestions = async () => {
-    if (selectedMatch && selectedQuestions.length > 0) {
+    if (
+      selectedMatch &&
+      selectedQuestionIndices.length > 0 &&
+      selectedMatchData
+    ) {
       try {
-        // Find full question objects for the selected IDs
-        const newQuestions = selectedQuestions.map((qId) => {
-          const question = availableQuestions.find((q) => q.id === qId);
+        setIsAddingQuestion(true);
+        console.log(
+          "[ ADD_CHECK ] : ",
+          selectedMatch,
+          selectedQuestionIndices,
+          selectedMatchData
+        );
+        // Convert selected questions to the format expected by the database
+        // Based on the Question interface from /utils/types.tsx
+        const newQuestions = selectedQuestionIndices.map((index) => {
+          // Handle both cases: if availableQuestions contains strings or objects
+          const questionData: APIQuestion = availableQuestions[index];
+          const questionText =
+            typeof questionData === "object" && questionData.question
+              ? questionData.question
+              : typeof questionData === "string"
+              ? questionData
+              : "";
+
+          // No ID needed as it will be generated by the ORM/database
           return {
-            id: qId,
-            text: question?.text || "",
-            status: "unanswered" as const,
+            question: questionText,
+            status: "unanswered",
             answer: null,
           };
         });
 
         // Check if this match already has questions (first time adding)
         const isFirstTimeAddingQuestions =
-          selectedMatchData && selectedMatchData.questions.length === 0;
+          selectedMatchData.questions.length === 0;
+
+        console.log("[ BEFORE_REQUESTS ]");
 
         if (isFirstTimeAddingQuestions) {
           // First create the match in the database
@@ -189,10 +244,10 @@ export function MatchesManagement() {
             },
             body: JSON.stringify({
               matchId: selectedMatch,
-              team1: selectedMatchData?.team1,
-              team2: selectedMatchData?.team2,
-              date: selectedMatchData?.date,
-              league: selectedMatchData?.league || "Unknown League",
+              team1: selectedMatchData.team1,
+              team2: selectedMatchData.team2,
+              date: selectedMatchData.date,
+              league: selectedMatchData.league || "Unknown League",
               questions: newQuestions,
             }),
           });
@@ -203,44 +258,41 @@ export function MatchesManagement() {
         } else {
           // Add questions to existing match
           const addQuestionsResponse = await fetch(
-            `/api/match/${selectedMatch}/newQuestions`,
+            `/api/admin/matches/${selectedMatch}/newquestions`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                matchId: selectedMatch,
                 questions: newQuestions,
               }),
             }
           );
-
           if (!addQuestionsResponse.ok) {
             throw new Error("Failed to add questions to match");
           }
         }
+        const updatedMatchResponse = await fetch(`/api/match/${selectedMatch}`);
+        if (updatedMatchResponse.ok) {
+          const updatedMatch = await updatedMatchResponse.json();
 
-        // Update local state
-        setMatches((prev) =>
-          prev.map((match) => {
-            if (match.id === selectedMatch) {
-              return {
-                ...match,
-                questions: [...match.questions, ...newQuestions],
-              };
-            }
-            return match;
-          })
-        );
+          // Update local state with the match data including DB-generated IDs
+          setMatches((prev) =>
+            prev.map((m) => (m.id === selectedMatch ? updatedMatch : m))
+          );
+        }
 
         // Reset selected questions and close dialog
-        setSelectedQuestions([]);
+        setIsAddingQuestion(false);
+        setSelectedQuestionIndices([]);
         setDialogOpen(false);
+
+        // Show success message
+        flash("Questions added successfully", { variant: "success" });
       } catch (error) {
         console.error("Failed to add questions:", error);
-        // You could add error handling UI feedback here with a toast notification
-        alert("Failed to add questions to match. Please try again.");
+        flash("Failed to add questions to match", { variant: "error" });
       }
     }
   };
@@ -261,23 +313,40 @@ export function MatchesManagement() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-[calc(100vh-12rem)] overflow-y-auto">
-              {matches.map((match) => (
-                <Button
-                  key={match.id}
-                  variant={selectedMatch === match.id ? "default" : "outline"}
-                  className="w-full justify-start text-left"
-                  onClick={() => handleSelectMatch(match.id)}
-                >
-                  <div className="flex flex-col items-start w-full overflow-hidden">
-                    <span className="truncate w-full">
-                      {match.team1} vs {match.team2}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {match.date}
-                    </span>
-                  </div>
-                </Button>
-              ))}
+              {isLoadingMatches ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Loading matches...
+                  </p>
+                </div>
+              ) : matches.length > 0 ? (
+                matches.map((match) => (
+                  <Button
+                    key={match.id}
+                    variant={selectedMatch === match.id ? "default" : "outline"}
+                    className="w-full justify-start text-left"
+                    onClick={() => handleSelectMatch(match.id)}
+                  >
+                    <div className="flex flex-col items-start w-full overflow-hidden">
+                      <span className="truncate w-full">
+                        {match.team1} vs {match.team2}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(match.date).toLocaleString("en-IN", {
+                          timeZone: "Asia/Kolkata",
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
+                      </span>
+                    </div>
+                  </Button>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No matches found</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -292,7 +361,11 @@ export function MatchesManagement() {
               </CardTitle>
               <CardDescription>
                 {selectedMatchData
-                  ? selectedMatchData.date
+                  ? new Date(selectedMatchData.date).toLocaleString("en-IN", {
+                      timeZone: "Asia/Kolkata",
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }) + " IST"
                   : "Click on a match to view and manage its questions"}
               </CardDescription>
             </div>
@@ -326,24 +399,25 @@ export function MatchesManagement() {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {availableQuestions.map((question) => (
+                        {availableQuestions.map((questionText: any, index) => (
                           <div
-                            key={question.id}
+                            key={index}
                             className="flex items-start space-x-3 py-2"
                           >
                             <Checkbox
-                              id={question.id}
-                              checked={selectedQuestions.includes(question.id)}
-                              onCheckedChange={() =>
-                                handleCheckQuestion(question.id)
-                              }
+                              id={`question-${index}`}
+                              checked={selectedQuestionIndices.includes(index)}
+                              onCheckedChange={() => handleCheckQuestion(index)}
                             />
                             <div className="grid gap-1.5 leading-none">
                               <Label
-                                htmlFor={question.id}
+                                htmlFor={`question-${index}`}
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                               >
-                                {question.text}
+                                {typeof questionText === "object" &&
+                                questionText.question
+                                  ? questionText.question
+                                  : questionText}
                               </Label>
                             </div>
                           </div>
@@ -355,18 +429,50 @@ export function MatchesManagement() {
                   <DialogFooter className="mt-4">
                     <Button
                       variant="outline"
-                      onClick={() => setSelectedQuestions([])}
+                      onClick={() => setSelectedQuestionIndices([])}
                     >
                       Clear
                     </Button>
                     <Button
                       onClick={handleAddQuestions}
                       disabled={
-                        selectedQuestions.length === 0 || isLoadingQuestions
+                        selectedQuestionIndices.length === 0 ||
+                        isLoadingQuestions ||
+                        isAddingQuestion
                       }
                     >
-                      Add {selectedQuestions.length} Question
-                      {selectedQuestions.length !== 1 ? "s" : ""}
+                      {isAddingQuestion ? (
+                        <>
+                          <span className="mr-2">
+                            <svg
+                              className="animate-spin h-4 w-4"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                              ></path>
+                            </svg>
+                          </span>
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          Add {selectedQuestionIndices.length} Question
+                          {selectedQuestionIndices.length !== 1 ? "s" : ""}
+                        </>
+                      )}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -378,7 +484,7 @@ export function MatchesManagement() {
             {selectedMatchData ? (
               selectedMatchData.questions.length > 0 ? (
                 <div className="space-y-6">
-                  {selectedMatchData.questions.map((question) => (
+                  {selectedMatchData.questions.map((question: Question) => (
                     <div key={question.id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start mb-3">
                         <div className="space-y-1">
@@ -429,10 +535,38 @@ export function MatchesManagement() {
 
                           <Button
                             onClick={() => handleSubmitAnswer(question.id)}
-                            disabled={!answers[question.id]}
+                            disabled={!answers[question.id] || isAnswering}
                             size="sm"
                           >
-                            Submit Answer
+                            {isAnswering ? (
+                              <>
+                                <span className="mr-2">
+                                  <svg
+                                    className="animate-spin h-4 w-4"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                                    ></path>
+                                  </svg>
+                                </span>
+                                Submitting...
+                              </>
+                            ) : (
+                              <>Submit Answer</>
+                            )}
                           </Button>
                         </div>
                       )}

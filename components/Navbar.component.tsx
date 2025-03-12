@@ -40,7 +40,7 @@ const Navbar = () => {
           <a href="/">Home</a>
         </li>
         <li>
-          <a href="#features">Features</a>
+          <a href="/matches">Matches</a>
         </li>
         <li>
           <a href="#pricing">Pricing</a>
@@ -128,7 +128,7 @@ const Navbar = () => {
                 <a href="/">Home</a>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <a href="#features">Features</a>
+                <a href="/matches">Matches</a>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <a href="#pricing">Pricing</a>

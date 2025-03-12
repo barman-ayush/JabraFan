@@ -6,8 +6,9 @@ export async function GET(
   { params }: { params: { matchId: string } }
 ) {
   try {
+    console.log("New Questions route is hit")
     const { searchParams } = new URL(request.url);
-    const matchId = await params.matchId;
+    const matchId = (await params).matchId;
     const noOfQuestions = searchParams.get("noOfQuestions") || "5";
 
     const response = await fetch(
@@ -15,6 +16,7 @@ export async function GET(
     );
 
     const data = await response.json();
+    // console.log("[ FETCHED QUESTIONS ] : " , data);
 
     const questions = data.map((question: string) => {
       return {
@@ -36,7 +38,7 @@ export async function POST(
   { params }: { params: { matchId: string } }
 ) {
   try {
-    const matchId = await params.matchId;
+    const matchId = (await params).matchId;
     const body = await request.json();
     const questions = body.questions;
 

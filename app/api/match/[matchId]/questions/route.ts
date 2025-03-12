@@ -6,7 +6,7 @@ export async function GET(
     { params }: { params: { matchId: string } }
 ) {
     try {
-        const matchId = params.matchId;
+        const matchId = (await params).matchId;
 
         const questions = await prismadb.questions.findMany({
             where: {
