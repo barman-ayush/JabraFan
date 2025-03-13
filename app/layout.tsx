@@ -41,7 +41,7 @@ export default function RootLayout({
               defaultTheme="system"
               enableSystem
               disableTransitionOnChange
-          >
+            >
               <FlashProvider>
                 {children}
                 <DrawerComponent />

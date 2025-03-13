@@ -11,6 +11,7 @@ export type Match = {
   team2: string;
   date: string;
   league: string;
+  isCompleted : boolean;
   questions: Question[];
 };
 

@@ -2,8 +2,10 @@ import { ErrorLogger } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import prismadb from "@/lib/prismadb";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
+
 
 export async function POST(req: Request) {
     try {
@@ -12,8 +14,10 @@ export async function POST(req: Request) {
         if (!token) {
             return NextResponse.json({ success : false , error: "Not Logged In" }, { status: 401 });
         }
-        const decodedData = jwt.verify(token, JWT_SECRET);
-        return NextResponse.json({ success : true , userData: decodedData }, { status: 200 });
+        const decodedData : any = jwt.verify(token, JWT_SECRET);
+        const userData = await prismadb.user.findUnique({where : {id : decodedData.id}})
+        console.log("[ PARSE_COOKIE_POST ]" , userData);
+        return NextResponse.json({ success : true , userData: userData }, { status: 200 });
     } catch (e) {
         return ErrorLogger("[ PARSE_COOKIE_POST ] : ", e);
     }

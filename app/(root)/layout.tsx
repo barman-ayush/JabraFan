@@ -17,7 +17,6 @@ export default function RootLayout({
       headers: { "Content-Type": "application/json" },
     })).json();
     if(!response.success) return;
-    console.log(" RESPONSE_DATA : ",response);
     setUserData(response.userData);
   }
 

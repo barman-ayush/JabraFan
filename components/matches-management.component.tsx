@@ -282,7 +282,7 @@ export function MatchesManagement() {
             prev.map((m) => (m.id === selectedMatch ? updatedMatch : m))
           );
         }
-
+        
         // Reset selected questions and close dialog
         setIsAddingQuestion(false);
         setSelectedQuestionIndices([]);
@@ -297,10 +297,44 @@ export function MatchesManagement() {
     }
   };
 
-  const selectedMatchData = selectedMatch
-    ? matches.find((m) => m.id === selectedMatch)
-    : null;
+  const handleEndContest = async() => {
+    try{
+      if(!selectedMatch){
+        flash("Please select a match to end" , {variant : "error"});
+        return;
+      }
+      if(!isAllAnswered()){
+        flash("Answer all question before ending" , {variant : "warning"});
+        return;
+      }
+      const response = await fetch(`/api/admin/matches/${selectedMatch}/endmatch`);
+      const updatedMatch = await response.json();
+      if(!response.ok){
+        flash("Couldn't end match" , {variant : "error"});
+        return;
+      }
+      setMatches((prev) =>
+        prev.map((m) => (m.id === selectedMatch ? updatedMatch.data : m))
+      );
+      flash("Updated Successfully");
+    }catch(e){
+      flash("Could Not End Contest" , {variant : "error"});
+    }
+  }
+  const isAllAnswered = () => {
+    if(!selectedMatch || !(selectedMatchData?.questions)) return false;
+    return selectedMatchData?.questions.every((q) => {
+      q.answer !== null && 
+      q.answer !== undefined &&
+      q.status !== "unanswered"
+    })
+  }
 
+  
+  const selectedMatchData = selectedMatch
+  ? matches.find((m) => m.id === selectedMatch)
+  : null;
+  
   return (
     <div className="space-y-6 mx-3 md:mt-20 md:mx-20">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -373,11 +407,20 @@ export function MatchesManagement() {
             {selectedMatchData && (
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button onClick={handleOpenQuestionDialog}>
+                  <Button onClick={handleOpenQuestionDialog} disabled={selectedMatchData.isCompleted}>
                     <Plus className="mr-2 h-4 w-4" />
-                    Generate Questions
+                    {
+                      selectedMatchData.isCompleted ? 
+                      "Contest has ended !!"
+                      :
+                      "Generate Questions"  
+
+                    }
                   </Button>
                 </DialogTrigger>
+                <Button onClick={handleEndContest} variant={"destructive"} disabled={selectedMatchData.isCompleted}>
+                  End Contest
+                </Button>
                 <DialogContent className="sm:max-w-[525px]">
                   <DialogHeader>
                     <DialogTitle>Add Questions to Match</DialogTitle>

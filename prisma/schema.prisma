@@ -22,11 +22,12 @@ model User {
 }
 
 model Matches {
-  id     String   @id 
-  team1  String
-  team2  String
-  date   DateTime
-  league String
+  id            String   @id 
+  team1         String
+  team2         String
+  date          DateTime
+  league        String
+  isCompleted   Boolean  @default(false)
 
   questions Questions[]
 }

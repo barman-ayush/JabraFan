@@ -10,31 +10,36 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, Trophy, AlertCircle, BarChart3 } from "lucide-react";
+import { Calendar, Clock, Trophy, AlertCircle, BarChart3, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Match, Question } from "@/utils/types";
 
 export default function Page() {
+  const [isFetching, setIsFetching] = useState(true)
   const [filter, setFilter] = useState("all");
   const [matchesData, setMatchesData] = useState<Match[]>([]);
+
 
   React.useEffect(() => {
     // Fetch matches data
     fetch("/api/matches")
       .then((res) => res.json())
-      .then((data) => setMatchesData(data));
+      .then((data) =>{
+        console.log("FETCHED")
+        setMatchesData(data)
+        setIsFetching(false);
+      });
   }, []);
 
   const today = new Date();
+  console.log("[ MATCH_DATA ] : " , matchesData);
 
-  const upcomingMatches = matchesData.filter((match) => {
-    const matchDate = new Date(match.date);
-    return matchDate > today;
+  const onGoingMatches = matchesData.filter((match) => {
+    return !(match.isCompleted);
   });
 
   const completedMatches = matchesData.filter((match) => {
-    const matchDate = new Date(match.date);
-    return matchDate <= today;
+    return match.isCompleted;
   });
 
   const totalQuestions = matchesData.reduce(
@@ -48,8 +53,8 @@ export default function Page() {
 
   const getFilteredMatches = () => {
     switch (filter) {
-      case "upcoming":
-        return upcomingMatches;
+      case "ongoing":
+        return onGoingMatches;
       case "completed":
         return completedMatches;
       default:
@@ -70,14 +75,23 @@ export default function Page() {
         <Tabs defaultValue="all" onValueChange={setFilter}>
           <TabsList>
             <TabsTrigger value="all">All Matches</TabsTrigger>
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+            <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
             <TabsTrigger value="completed">Completed</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {getFilteredMatches().length === 0 ? (
+        {isFetching ? 
+          <>
+          <Card className="p-8 text-center md:col-span-2 flex flex-col items-center justify-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+            <p className="text-lg font-medium">Loading matches...</p>
+          </Card>
+        </>
+        : 
+        
+        getFilteredMatches().length === 0 ? (
           <Card className="p-8 text-center md:col-span-2">
             <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground" />
             <p className="mt-4 text-lg">No matches found</p>
@@ -86,7 +100,9 @@ export default function Page() {
           getFilteredMatches().map((match) => (
             <MatchCard key={match.id} match={match as Match} />
           ))
-        )}
+        )
+        
+        }
       </div>
     </div>
   );
@@ -95,7 +111,7 @@ export default function Page() {
 function MatchCard({ match }: { match: Match }) {
   const today = new Date();
   const matchDate = new Date(match.date);
-  const isUpcoming = matchDate > today;
+  const isOnGoing = matchDate > today;
 
   const formattedDate = matchDate.toLocaleDateString("en-US", {
     weekday: "short",
@@ -148,10 +164,10 @@ function MatchCard({ match }: { match: Match }) {
             <Trophy className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">{match.league}</CardTitle>
           </div>
-          {isUpcoming ? (
+          {isOnGoing ? (
             <Badge variant="outline" className="flex items-center">
               <Clock className="mr-1 h-3 w-3" />
-              Upcoming
+              Ongoing
             </Badge>
           ) : (
             <Badge variant="secondary">Completed</Badge>
