@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Trophy, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, Trophy, ArrowLeft, Users } from "lucide-react";
 import Link from "next/link";
 import { Match, Question } from "@/utils/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MatchLeaderboard from "@/components/leaderboard-matches.component";
 
 type MatchPageProps = {
   params: {
@@ -96,7 +98,7 @@ export default function MatchPage({ params }: MatchPageProps) {
   });
 
   return (
-    <div className="container mx-auto p-4 space-y-6 max-w-3xl">
+    <div className="container mx-auto p-4 space-y-6 max-w-4xl">
       <div className="flex items-center mb-6">
         <Button
           variant="ghost"
@@ -123,8 +125,12 @@ export default function MatchPage({ params }: MatchPageProps) {
                 <Clock className="mr-1 h-3 w-3" />
                 Upcoming
               </Badge>
-            ) : (
+            ) : match.isCompleted ? (
               <Badge variant="secondary">Completed</Badge>
+            ) : (
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                Live
+              </Badge>
             )}
           </div>
           <CardDescription className="flex items-center mt-2">
@@ -145,36 +151,59 @@ export default function MatchPage({ params }: MatchPageProps) {
         </CardContent>
       </Card>
 
-      <div className="flex items-center justify-between mt-10 mb-4">
-        <h2 className="text-2xl font-bold">Match Questions</h2>
-        <Badge variant="outline" className="text-xs">
-          {questions.length} questions
-        </Badge>
-      </div>
+      <Tabs defaultValue="questions" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="questions" className="flex items-center">
+            <Clock className="h-4 w-4 mr-2" />
+            Questions
+          </TabsTrigger>
+          <TabsTrigger value="leaderboard" className="flex items-center">
+            <Users className="h-4 w-4 mr-2" />
+            Leaderboard
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="questions" className="mt-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Match Questions</h2>
+            <Badge variant="outline" className="text-xs">
+              {questions.length} questions
+            </Badge>
+          </div>
 
-      <div className="space-y-4">
-        {questions.length === 0 ? (
-          <Card className="shadow-sm">
-            <CardContent className="p-10 text-center">
-              <p className="text-muted-foreground">
-                No questions available for this match
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          questions.map((question : any, index) => (
-            <Card key={question.id || index} className="shadow-sm">
-              <CardContent className="p-6">
-                <Questions
-                  id={question.id}
-                  question={question}
-                  options={["yes", "no"]}
-                />
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
+          <div className="space-y-4">
+            {questions.length === 0 ? (
+              <Card className="shadow-sm">
+                <CardContent className="p-10 text-center">
+                  <p className="text-muted-foreground">
+                    No questions available for this match
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              questions.map((question : any, index) => (
+                <Card key={question.id || index} className="shadow-sm">
+                  <CardContent className="p-6">
+                    <Questions
+                      id={index} // Using index for unique ID
+                      question={question}
+                      options={["yes", "no"]}
+                    />
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="leaderboard" className="mt-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Match Standings</h2>
+          </div>
+          
+          <MatchLeaderboard matchId={matchId} matchDate={matchDate} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

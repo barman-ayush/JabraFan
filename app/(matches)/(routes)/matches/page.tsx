@@ -109,9 +109,13 @@ export default function Page() {
 }
 
 function MatchCard({ match }: { match: Match }) {
-  const today = new Date();
+  const now = new Date();
   const matchDate = new Date(match.date);
-  const isOnGoing = matchDate > today;
+  
+  // Determine match status based on data
+  const isUpcoming = matchDate > now;
+  const isLive = !match.isCompleted && !isUpcoming;
+  const isCompleted = match.isCompleted;
 
   const formattedDate = matchDate.toLocaleDateString("en-US", {
     weekday: "short",
@@ -148,14 +152,6 @@ function MatchCard({ match }: { match: Match }) {
     return teamColors[teamName] || "bg-gray-100 text-gray-800";
   };
 
-  // const getTeamAbbr = (teamName: string): string => {
-  //   return teamName
-  //     .split(" ")
-  //     .map((word: string) => word[0])
-  //     .join("")
-  //     .toUpperCase();
-  // };
-
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
       <CardHeader className="bg-muted/50 pb-2">
@@ -164,13 +160,20 @@ function MatchCard({ match }: { match: Match }) {
             <Trophy className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">{match.league}</CardTitle>
           </div>
-          {isOnGoing ? (
-            <Badge variant="outline" className="flex items-center">
+          
+          {/* Dynamic match status badge */}
+          {isCompleted ? (
+            <Badge variant="secondary">Completed</Badge>
+          ) : isLive ? (
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               <Clock className="mr-1 h-3 w-3" />
-              Ongoing
+              Live
             </Badge>
           ) : (
-            <Badge variant="secondary">Completed</Badge>
+            <Badge variant="outline" className="flex items-center">
+              <Clock className="mr-1 h-3 w-3" />
+              Upcoming
+            </Badge>
           )}
         </div>
         <CardDescription className="flex items-center">
