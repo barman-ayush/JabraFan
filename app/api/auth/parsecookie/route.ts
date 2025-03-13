@@ -15,8 +15,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ success : false , error: "Not Logged In" }, { status: 401 });
         }
         const decodedData : any = jwt.verify(token, JWT_SECRET);
+        console.log("[ PARSE_COOKIE_DECODED]" , decodedData);
         const userData = await prismadb.user.findUnique({where : {id : decodedData.id}})
-        console.log("[ PARSE_COOKIE_POST ]" , userData);
         return NextResponse.json({ success : true , userData: userData }, { status: 200 });
     } catch (e) {
         return ErrorLogger("[ PARSE_COOKIE_POST ] : ", e);

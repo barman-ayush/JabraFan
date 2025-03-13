@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { matchId: string } }
 ) {
   try {
-    const matchId = await params.matchId;
+    const matchId = (await params).matchId;
 
     const match = await prismadb.matches.findUnique({
       where: { id: matchId },

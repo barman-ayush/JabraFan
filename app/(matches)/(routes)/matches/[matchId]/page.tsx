@@ -166,8 +166,8 @@ export default function MatchPage({ params }: MatchPageProps) {
             <Card key={question.id || index} className="shadow-sm">
               <CardContent className="p-6">
                 <Questions
-                  id={index}
-                  question={question.text}
+                  id={question.id}
+                  question={question}
                   options={["yes", "no"]}
                 />
               </CardContent>
