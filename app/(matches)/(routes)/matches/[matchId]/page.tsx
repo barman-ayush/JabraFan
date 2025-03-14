@@ -1,6 +1,8 @@
 "use client";
 
 import Questions from "@/components/Questions";
+// import MatchLeaderboard from "@/components/MatchLeaderboard";
+// import MatchEarnings from "@/components/MatchEarnings";
 import React from "react";
 import {
   Card,
@@ -12,11 +14,12 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Trophy, ArrowLeft, Users } from "lucide-react";
+import { Calendar, Clock, Trophy, ArrowLeft, Users, Coins, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Match, Question } from "@/utils/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchLeaderboard from "@/components/leaderboard-matches.component";
+import MatchEarnings from "@/components/match-earning.component";
 
 type MatchPageProps = {
   params: {
@@ -25,7 +28,7 @@ type MatchPageProps = {
 };
 
 export default function MatchPage({ params }: MatchPageProps) {
-  const { matchId } = params;
+  const { matchId } =  params;
   const [questions, setQuestions] = React.useState<Question[]>([]);
   const [match, setMatch] = React.useState<Match>();
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -82,7 +85,12 @@ export default function MatchPage({ params }: MatchPageProps) {
   }
 
   const matchDate = new Date(match.date);
-  const isUpcoming = matchDate > new Date();
+  const now = new Date();
+  
+  // Determine match status based on data
+  const isUpcoming = matchDate > now;
+  const isLive = !match.isCompleted && !isUpcoming;
+  const isCompleted = match.isCompleted;
 
   const formattedDate = matchDate.toLocaleDateString("en-US", {
     weekday: "short",
@@ -120,16 +128,20 @@ export default function MatchPage({ params }: MatchPageProps) {
               <Trophy className="h-5 w-5 text-primary mr-2" />
               <CardTitle>{match.league}</CardTitle>
             </div>
-            {isUpcoming ? (
+            {isCompleted ? (
+              <Badge variant="secondary" className="flex items-center">
+                <CheckCircle className="mr-1 h-3 w-3" />
+                Completed
+              </Badge>
+            ) : isLive ? (
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                <Clock className="mr-1 h-3 w-3" />
+                Live
+              </Badge>
+            ) : (
               <Badge variant="outline" className="flex items-center">
                 <Clock className="mr-1 h-3 w-3" />
                 Upcoming
-              </Badge>
-            ) : match.isCompleted ? (
-              <Badge variant="secondary">Completed</Badge>
-            ) : (
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                Live
               </Badge>
             )}
           </div>
@@ -152,7 +164,7 @@ export default function MatchPage({ params }: MatchPageProps) {
       </Card>
 
       <Tabs defaultValue="questions" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="questions" className="flex items-center">
             <Clock className="h-4 w-4 mr-2" />
             Questions
@@ -160,6 +172,10 @@ export default function MatchPage({ params }: MatchPageProps) {
           <TabsTrigger value="leaderboard" className="flex items-center">
             <Users className="h-4 w-4 mr-2" />
             Leaderboard
+          </TabsTrigger>
+          <TabsTrigger value="earnings" className="flex items-center">
+            <Coins className="h-4 w-4 mr-2" />
+            Earnings
           </TabsTrigger>
         </TabsList>
         
@@ -202,6 +218,14 @@ export default function MatchPage({ params }: MatchPageProps) {
           </div>
           
           <MatchLeaderboard matchId={matchId} matchDate={matchDate} />
+        </TabsContent>
+        
+        <TabsContent value="earnings" className="mt-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Your Earnings</h2>
+          </div>
+          
+          <MatchEarnings matchId={matchId} matchDate={matchDate} />
         </TabsContent>
       </Tabs>
     </div>

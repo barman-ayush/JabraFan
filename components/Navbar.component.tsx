@@ -62,7 +62,7 @@ const Navbar = () => {
               
               <div className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
                 <Wallet size={16} className="text-green-600 dark:text-green-400" />
-                <span className="font-medium">₹{userData?.credits || 0}</span>
+                <span className="font-medium">₹{userData?.winnings || 0}</span>
               </div>
             </div>
             
@@ -87,7 +87,7 @@ const Navbar = () => {
                       <Wallet size={16} className="text-green-600" />
                       Cash
                     </span>
-                    <span className="font-bold">₹{userData?.credits || 0}</span>
+                    <span className="font-bold">₹{userData?.winnings || 0}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

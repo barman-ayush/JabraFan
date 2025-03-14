@@ -106,7 +106,7 @@ const MatchLeaderboard = ({ matchId, matchDate }: { matchId: string, matchDate: 
             Match Leaderboard
           </CardTitle>
           
-          {isCompleted ? (
+          {/* {isCompleted ? (
             <Badge variant="secondary" className="flex items-center">
               <CheckCircle className="mr-1 h-3 w-3" />
               Completed
@@ -116,7 +116,7 @@ const MatchLeaderboard = ({ matchId, matchDate }: { matchId: string, matchDate: 
               <Clock className="mr-1 h-3 w-3" />
               In Progress
             </Badge>
-          )}
+          )} */}
         </div>
         <CardDescription>
           {isCompleted 

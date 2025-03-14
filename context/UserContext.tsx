@@ -8,6 +8,8 @@ type UserProps = {
     src : string;
     phone : string;
     credits : number;
+    winnings : number;
+    upiId : string;
 }
 
 
