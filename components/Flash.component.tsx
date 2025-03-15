@@ -4,7 +4,7 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva} from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 // Define variants for flash notification styles

@@ -1,14 +1,13 @@
 "use client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "./ThemeToggle.component";
 import Logo from "./Logo.component";
 import { useDrawerContext } from "@/context/DrawerContext";
 import { useUserContext } from "@/context/UserContext";
 import { useCallback } from "react";
 import { ProfileButton } from "./ProfileButton.component";
-import { useRouter } from "next/navigation";
 import { Coins, Wallet, Menu } from "lucide-react";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,13 +18,12 @@ import {
 const Navbar = () => {
   const { setIsOpen } = useDrawerContext();
   const { userData } = useUserContext();
-  const router = useRouter();
-
+  
   const handleDrawer = useCallback(() => {
     console.log("Opening Drawer");
     setIsOpen(true);
   }, [setIsOpen]);
-
+  
   return (
     <Card
       className="container absolute bg-transparent top-0 py-3 px-4 border-0 flex items-center justify-between gap-6 rounded-2xl mt-5 z-5 dark:text-yellow-400 text-black w-full max-w-full"
@@ -37,19 +35,18 @@ const Navbar = () => {
       
       <ul className="hidden dark:text-yellow-400 md:flex items-center gap-10 text-card-foreground">
         <li className="font-medium">
-          <a href="/">Home</a>
+          <Link href="/">Home</Link>
         </li>
         <li>
-          <a href="/matches">Matches</a>
+          <Link href="/matches">Matches</Link>
         </li>
         <li>
-          <a href="#pricing">Pricing</a>
+          <Link href="#pricing">Pricing</Link>
         </li>
         <li>
-          <a href="#faqs">FAQs</a>
+          <Link href="#faqs">FAQs</Link>
         </li>
       </ul>
-
       <div className="flex items-center gap-2">
         {userData ? (
           <>
@@ -125,16 +122,16 @@ const Navbar = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <a href="/">Home</a>
+                <Link href="/" className="w-full">Home</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <a href="/matches">Matches</a>
+                <Link href="/matches" className="w-full">Matches</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <a href="#pricing">Pricing</a>
+                <Link href="#pricing" className="w-full">Pricing</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <a href="#faqs">FAQs</a>
+                <Link href="#faqs" className="w-full">FAQs</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

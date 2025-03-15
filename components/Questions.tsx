@@ -1,13 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import ConfirmBetDialog from "./ConfirmBetDialog";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardFooter,
-  CardDescription,
 } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -63,7 +61,8 @@ export default function Questions({ id, question, options }: QuestionProps) {
       const data = await response.json();
       if (data.success) setUserAnswer(selectedOption);
       flash("Bet placed successfully!", { variant: "info" });
-    } catch (e) {
+    } catch (e : any) {
+      console.log("Error " , e);
       flash("Answer Not Submitted!", { variant: "error" });
     } finally {
       setIsSubmitting(false);
@@ -261,14 +260,14 @@ export default function Questions({ id, question, options }: QuestionProps) {
                   <CheckIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="font-medium">Congratulations! Your answer was correct.</p>
-                    <p className="mt-1">You've earned credits for this correct prediction.</p>
+                    <p className="mt-1">You&apos;ve earned credits for this correct prediction.</p>
                   </div>
                 </>
               ) : (
                 <>
                   <XIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-medium">Your prediction didn't match the outcome.</p>
+                    <p className="font-medium">Your prediction didn&apos;t match the outcome.</p>
                     <p className="mt-1">The correct answer was: <span className="font-semibold">{question.answer}</span></p>
                   </div>
                 </>

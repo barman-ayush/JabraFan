@@ -5,7 +5,7 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 import { ErrorLogger } from "@/lib/utils";
 import prismadb from "@/lib/prismadb";
-import jwt, { Secret } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const defaultDpLink = "https://www.google.com/url?sa=i&url=https%3A%2F%2Ficonduck.com%2Ficons%2F6491%2Fprofile-default&psig=AOvVaw3zemqLK7JNwYOPOpT1diVO&ust=1740917134676000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCPiBqvPr6IsDFQAAAAAdAAAAABAE";
 

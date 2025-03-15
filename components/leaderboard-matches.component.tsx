@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Clock, CheckCircle, User } from "lucide-react";
+import { Trophy, Medal, User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserContext } from "@/context/UserContext";
 

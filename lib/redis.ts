@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 import { Redis } from 'ioredis';
 
 // Define a type for the global object with our redis property

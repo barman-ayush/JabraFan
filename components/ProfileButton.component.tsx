@@ -6,7 +6,6 @@ import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -16,11 +15,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserContext } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-type Checked = DropdownMenuCheckboxItemProps["checked"];
 
 export function ProfileButton() {
-  const { userData, setUserData } = useUserContext();
+  const { userData } = useUserContext();
   const router = useRouter();
 
   return (
@@ -38,16 +37,16 @@ export function ProfileButton() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <a href="/">Home</a>
+            <Link href="/">Home</Link>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => {router.push("/profile")}}>
-            <a >Profile</a>
+            <Link href={"/profile"}>Profile</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <a href="#pricing">Pricing</a>
+            <Link href="#pricing">Pricing</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <a href="#faqs">FAQs</a>
+            <Link href="#faqs">FAQs</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             {userData ? (

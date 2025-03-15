@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
 import * as React from "react";
@@ -12,7 +14,6 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import { InputOTPBox } from "./InputOtp.component";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,7 +32,6 @@ export function DrawerComponent() {
 
   const [step, setStep] = React.useState<"phone" | "loading" | "otp">("phone");
   const [phoneNumber, setPhoneNumber] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(false);
   const [otp, setOtp] = React.useState("");
   const redirect_url = searchParams.get('redirect_url') || '/';
@@ -97,7 +97,8 @@ export function DrawerComponent() {
         const destinationURL = new URL(redirect_url, window.location.origin);
         router.push(destinationURL.pathname + destinationURL.search);
         console.log(" DESTINATION " , destinationURL);
-      } catch (error) {
+      } catch (error : any) {
+        console.log("ERROR " , error);
         router.push('/');
       }
       

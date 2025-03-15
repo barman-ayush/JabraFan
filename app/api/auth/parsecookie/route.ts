@@ -8,7 +8,7 @@ import prismadb from "@/lib/prismadb";
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 
-export async function POST(req: Request) {
+export async function POST() {
     try {
         const cookieStore = await cookies();
         const token = cookieStore.get("auth_token")?.value;

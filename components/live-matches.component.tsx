@@ -5,8 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Tabs,
@@ -19,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import {
   Calendar,
   Clock,
-  Trophy,
   CheckCircle,
   AlertTriangle,
   Flag,

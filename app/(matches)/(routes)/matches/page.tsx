@@ -32,7 +32,6 @@ export default function Page() {
       });
   }, []);
 
-  const today = new Date();
   console.log("[ MATCH_DATA ] : " , matchesData);
 
   const onGoingMatches = matchesData.filter((match) => {

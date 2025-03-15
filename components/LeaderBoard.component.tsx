@@ -1,5 +1,4 @@
 import { Fragment } from "react";
-import LImage from "./Image.component";
 import { LeaderCard } from "./LeaderCard.component";
 const LeaderBoard = () => {
   return (

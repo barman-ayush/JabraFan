@@ -13,7 +13,6 @@ import {
   Award,
   Trophy,
   Medal,
-  Check,
   Clock,
   AlertCircle,
   Loader2
@@ -251,7 +250,7 @@ const MatchEarnings = ({ matchId, matchDate }: { matchId: string; matchDate: Dat
                   <div className="flex items-start">
                     <Clock className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
                     <p>
-                      You're currently ranked #{stats.userRank}. Answer more questions correctly to reach the top 3 and win prize money!
+                      You&apos;re currently ranked #{stats.userRank}. Answer more questions correctly to reach the top 3 and win prize money!
                     </p>
                   </div>
                 </div>

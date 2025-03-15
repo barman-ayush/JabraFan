@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import redis from "@/lib/redis";
-import ErrorHandler from "@/lib/errorHandler";
 import prismadb from "@/lib/prismadb";
 import twilio from "twilio";
 import crypto from "crypto";

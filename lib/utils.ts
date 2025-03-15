@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { clsx, type ClassValue } from "clsx"
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {

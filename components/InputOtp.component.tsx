@@ -4,7 +4,6 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp"
-import { useState } from "react";
 
 type InputOTPBoxProps = {
   value: string;
