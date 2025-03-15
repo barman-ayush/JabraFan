@@ -1,4 +1,4 @@
-// app/api/match/[matchId]/user-stats/route.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import prismadb from "@/lib/prismadb";
 

@@ -1,4 +1,4 @@
-// app/layout.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ErrorLogger } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";

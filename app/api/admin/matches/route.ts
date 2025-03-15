@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Match } from "@/utils/types";
 import { NextResponse, NextRequest } from "next/server";
 import prismadb from "@/lib/prismadb";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import LeaderBoard from "@/components/LeaderBoard.component";
 import FooterSection from "@/components/footer.component";

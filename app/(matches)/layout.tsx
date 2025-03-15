@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import Navbar from "@/components/Navbar.component";
 import { useUserContext } from "@/context/UserContext";
