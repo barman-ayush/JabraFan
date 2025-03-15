@@ -19,7 +19,6 @@ import Link from "next/link";
 
 export function ProfileButton() {
   const { userData } = useUserContext();
-  const router = useRouter();
 
   return (
     <div className="cont hover:cursor-pointer">
