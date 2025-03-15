@@ -36,7 +36,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { matchId: string } }
+  { params }: { params: any }
 ) {
   try {
     const matchId = (await params).matchId;

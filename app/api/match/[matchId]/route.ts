@@ -23,7 +23,7 @@ export async function GET(
   }
 }
 
-export async function POST(request: NextRequest, params: { matchId: string }) {
+export async function POST(request: NextRequest, { params }: { params: any }) {
   try {
     const body = await request.json();
     const { team1, team2, league, date } = body;
