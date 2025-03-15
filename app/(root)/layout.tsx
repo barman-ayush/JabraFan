@@ -2,7 +2,7 @@
 "use client"
 import Navbar from "@/components/Navbar.component";
 import { useUserContext } from "@/context/UserContext";
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, Suspense, useEffect } from "react";
 
 export default function RootLayout({
   children,
@@ -31,7 +31,11 @@ export default function RootLayout({
       <div className="nav-cont flex flex-row justify-center">
         <Navbar />
       </div>
-      <div className="h-full">{children}</div>
+      <div className="h-full">
+      <Suspense fallback={<div>Loading ...</div>}>
+        {children}
+        </Suspense>
+      </div>
     </Fragment>
   );
 }
