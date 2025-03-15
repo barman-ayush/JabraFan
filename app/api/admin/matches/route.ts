@@ -14,6 +14,7 @@ export type MatchResponse = {
         name: string;
       };
       scheduled: string;
+
       competitors: Array<{
         name: string;
         abbreviation: string;
@@ -42,13 +43,13 @@ export async function GET() {
     
     // Process backend matches
     res.forEach((element) => {
-      const obj = {
+      const obj: Match = {
         id: element.id,
         team1: element.competitors[0].name,
         team2: element.competitors[1].name,
         date: element.scheduled,
-        time: element.scheduled,
         league: element.tournament.name,
+        isCompleted: false, // Add the missing isCompleted property
         questions: [],
       };
       backendMatches.push(obj);
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest) {
         team2,
         date: new Date(date),
         league,
+        isCompleted: false, // Set default value for isCompleted
         questions: {
           create: questions.map((q: any) => ({
             text: q.question,
