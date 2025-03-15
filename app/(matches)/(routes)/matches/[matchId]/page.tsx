@@ -2,8 +2,6 @@
 "use client";
 
 import Questions from "@/components/Questions";
-// import MatchLeaderboard from "@/components/MatchLeaderboard";
-// import MatchEarnings from "@/components/MatchEarnings";
 import React from "react";
 import {
   Card,
@@ -22,14 +20,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchLeaderboard from "@/components/leaderboard-matches.component";
 import MatchEarnings from "@/components/match-earning.component";
 
-type MatchPageProps = {
-  params: {
-    matchId: string;
-  };
+type PageParams = {
+  matchId: string;
 };
 
-export default function MatchPage({ params }: MatchPageProps) {
-  const { matchId } =  params;
+export default function MatchPage({ params }: { params: PageParams }) {
+  const { matchId } = params;
   const [questions, setQuestions] = React.useState<Question[]>([]);
   const [match, setMatch] = React.useState<Match>();
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -198,7 +194,7 @@ export default function MatchPage({ params }: MatchPageProps) {
                 </CardContent>
               </Card>
             ) : (
-              questions.map((question : any, index) => (
+              questions.map((question, index) => (
                 <Card key={question.id || index} className="shadow-sm">
                   <CardContent className="p-6">
                     <Questions
