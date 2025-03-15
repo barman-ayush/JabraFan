@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { MatchResponse } from "@/utils/types";
 
-export default function Match(match: MatchResponse) {
+export default function Match(match: any) {
   const isMatchLive = match.data.sport_event_status.status === "live";
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
