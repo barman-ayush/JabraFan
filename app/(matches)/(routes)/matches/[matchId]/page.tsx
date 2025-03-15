@@ -24,7 +24,7 @@ type PageParams = {
   matchId: string;
 };
 
-export default function MatchPage({ params }: { params: PageParams }) {
+export default function MatchPage({ params }: { params: any }) {
   const { matchId } = params;
   const [questions, setQuestions] = React.useState<Question[]>([]);
   const [match, setMatch] = React.useState<Match>();
