@@ -26,24 +26,24 @@ const Navbar = () => {
   
   return (
     <Card
-      className="container absolute bg-transparent top-0 py-3 px-4 border-0 flex items-center justify-between gap-6 rounded-2xl mt-5 z-5 dark:text-yellow-400 text-black w-full max-w-full"
+      className="container absolute bg-transparent top-0 py-3 px-4 border-0 flex items-center justify-between gap-6 rounded-2xl mt-5 z-50 w-full max-w-full"
       style={{ zIndex: "1000" }}
     >
       <div className="img-wrapper">
         <Logo />
       </div>
       
-      <ul className="hidden dark:text-yellow-400 md:flex items-center gap-10 text-card-foreground">
-        <li className="font-medium">
+      <ul className="hidden md:flex items-center gap-10 text-white dark:text-yellow-400 drop-shadow-md">
+        <li className="font-medium hover:text-yellow-400 dark:hover:text-yellow-300 transition-colors">
           <Link href="/">Home</Link>
         </li>
-        <li>
+        <li className="hover:text-yellow-400 dark:hover:text-yellow-300 transition-colors">
           <Link href="/matches">Matches</Link>
         </li>
-        <li>
+        <li className="hover:text-yellow-400 dark:hover:text-yellow-300 transition-colors">
           <Link href="#pricing">Pricing</Link>
         </li>
-        <li>
+        <li className="hover:text-yellow-400 dark:hover:text-yellow-300 transition-colors">
           <Link href="#faqs">FAQs</Link>
         </li>
       </ul>
@@ -52,14 +52,14 @@ const Navbar = () => {
           <>
             {/* Desktop view for wallet info */}
             <div className="hidden md:flex items-center gap-3">
-              <div className="flex items-center gap-1 bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1.5 rounded-full">
+              <div className="flex items-center gap-1 bg-yellow-100/90 dark:bg-yellow-900/30 px-3 py-1.5 rounded-full">
                 <Coins size={16} className="text-yellow-600 dark:text-yellow-400" />
-                <span className="font-medium">{userData?.credits || 0} Credits</span>
+                <span className="font-medium text-black dark:text-yellow-400">{userData?.credits || 0} Credits</span>
               </div>
               
-              <div className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
+              <div className="flex items-center gap-1 bg-green-100/90 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
                 <Wallet size={16} className="text-green-600 dark:text-green-400" />
-                <span className="font-medium">₹{userData?.winnings || 0}</span>
+                <span className="font-medium text-black dark:text-green-400">₹{userData?.winnings || 0}</span>
               </div>
             </div>
             
@@ -67,8 +67,8 @@ const Navbar = () => {
             <div className="md:hidden flex items-center">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="mr-2">
-                    <Wallet className="h-5 w-5" />
+                  <Button variant="outline" size="icon" className="mr-2 bg-white/80 dark:bg-transparent border-white dark:border-yellow-400">
+                    <Wallet className="h-5 w-5 text-black dark:text-yellow-400" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
@@ -95,15 +95,15 @@ const Navbar = () => {
         ) : (
           <>
             <Button
-              variant="secondary"
-              className="hidden md:block"
+              variant="default"
+              className="hidden md:block bg-yellow-500 hover:bg-yellow-400 dark:bg-yellow-500 dark:hover:bg-yellow-400 text-black font-bold"
               onClick={handleDrawer}
             >
               Login
             </Button>
             <Button
-              variant="secondary"
-              className="md:hidden"
+              variant="default"
+              className="md:hidden bg-yellow-500 hover:bg-yellow-400 dark:bg-yellow-500 dark:hover:bg-yellow-400 text-black font-bold"
               size="sm"
               onClick={handleDrawer}
             >
@@ -116,8 +116,8 @@ const Navbar = () => {
         <div className="md:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-5 w-5" />
+              <Button variant="outline" size="icon" className="bg-white/80 dark:bg-transparent border-white dark:border-yellow-400">
+                <Menu className="h-5 w-5 text-black dark:text-yellow-400" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

@@ -25,47 +25,55 @@ export function ProfileButton() {
     <div className="cont hover:cursor-pointer">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
+          <Avatar className="border-2 border-white/80 dark:border-yellow-400 hover:border-yellow-400 dark:hover:border-yellow-300 transition-colors">
+            {userData?.src ? (
+              <AvatarImage src={userData.src} alt={userData?.name || "User"} />
+            ) : (
+              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+            )}
+            <AvatarFallback className="bg-yellow-500 text-black font-bold">
+              {userData?.name?.charAt(0) || "U"}
+            </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
-          <DropdownMenuLabel className="ml-4">
-            {userData?.name}
+          <DropdownMenuLabel className="ml-4 font-bold">
+            {userData?.name || "User"}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Link href="/">Home</Link>
+          <DropdownMenuItem className="hover:bg-yellow-50 dark:hover:bg-yellow-900/20 cursor-pointer">
+            <Link href="/" className="w-full">Home</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => {router.push("/profile")}}>
-            <Link href={"/profile"}>Profile</Link>
+          <DropdownMenuItem className="hover:bg-yellow-50 dark:hover:bg-yellow-900/20 cursor-pointer">
+            <Link href="/profile" className="w-full">Profile</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link href="#pricing">Pricing</Link>
+          <DropdownMenuItem className="hover:bg-yellow-50 dark:hover:bg-yellow-900/20 cursor-pointer">
+            <Link href="/admin" className="w-full">Admin</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link href="#faqs">FAQs</Link>
-          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem>
             {userData ? (
               <Button
-                variant="secondary"
-                className="px-2 ml-3 mx-4"
+                variant="outline"
+                className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/50"
               >
                 Logout
               </Button>
             ) : (
               <Button
-                variant="secondary"
-                className="w-full text-sm mx-4"
+                variant="default"
+                className="w-full bg-yellow-500 hover:bg-yellow-400 dark:bg-yellow-500 dark:hover:bg-yellow-400 text-black font-bold"
               >
                 Login
               </Button>
             )}
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Button className="w-full text-sm">Get Started</Button>
+            <Button 
+              className="w-full bg-yellow-500 hover:bg-yellow-400 dark:bg-yellow-500 dark:hover:bg-yellow-400 text-black font-bold"
+            >
+              Get Started
+            </Button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
