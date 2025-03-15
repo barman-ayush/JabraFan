@@ -1,11 +1,20 @@
-import ProfilePage from "@/components/profile-page.component";
-import { Fragment } from "react";
+"use client"
 
-const ProfilePageComponent = () => {
+import { UserProfile } from "@/components/profile-page.component"
+
+// import { UserProfile } from "./user-profile.component"
+
+export default function ProfilePage() {
+  
   return (
-    <Fragment>
-        <ProfilePage />
-    </Fragment>
-  );
-};
-export default ProfilePageComponent;
+    <div className="min-h-screen w-full bg-background pt-20">
+      <div className="container py-6 px-4 max-w-4xl mx-auto">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">My Profile</h1>
+        </div>
+        
+        <UserProfile />
+      </div>
+    </div>
+  )
+}

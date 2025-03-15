@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prismadb from "@/lib/prismadb";
 
+
+
+const MinimumWithdrawalAmount = 5;
+
 export async function POST(req: NextRequest) {
   try {
     const { userId, amount, paymentMethod, paymentDetails } = await req.json();
@@ -44,7 +48,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (amount < 500) {
+    if (amount < MinimumWithdrawalAmount) {
       return NextResponse.json(
         { error: "Minimum withdrawal is 500" },
         { status: 400 }
