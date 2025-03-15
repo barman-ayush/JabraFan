@@ -4,7 +4,7 @@ import prismadb from '@/lib/prismadb';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { phone: string } }
+    { params }: { params: any }
 ) {
     try {
         const phone = params.phone;

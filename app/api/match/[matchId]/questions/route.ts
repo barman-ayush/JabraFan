@@ -4,7 +4,7 @@ import prismadb from "@/lib/prismadb";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { matchId: string } }
+    { params }: { params: any }
 ) {
     try {
         const matchId = (await params).matchId;
