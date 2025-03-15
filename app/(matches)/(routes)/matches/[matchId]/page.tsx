@@ -20,10 +20,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchLeaderboard from "@/components/leaderboard-matches.component";
 import MatchEarnings from "@/components/match-earning.component";
 
-type PageParams = {
-  matchId: string;
-};
-
 export default function MatchPage({ params }: { params: any }) {
   const { matchId } = params;
   const [questions, setQuestions] = React.useState<Question[]>([]);
