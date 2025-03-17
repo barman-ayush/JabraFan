@@ -30,5 +30,3 @@ export function DrawerComponent() {
     </Drawer>
   );
 }
-
-// Create a new file called DrawerContent.tsx with this content:

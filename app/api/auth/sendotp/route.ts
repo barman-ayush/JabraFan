@@ -60,7 +60,7 @@ export async function POST(req: Request) {
             if(resend == "1") return new NextResponse("Can't find any user, please use your phone number again!", { status: 400 }); 
             userData = await prismadb.user.create({
                 data : {
-                    name : `user${phone}`,
+                    name : `NOT_ASSIGNED`,
                     src : defaultProfileImage,
                     phone,
                     credits : initialCredits,

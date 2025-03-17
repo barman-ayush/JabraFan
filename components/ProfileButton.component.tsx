@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,10 +14,32 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserContext } from "@/context/UserContext";
 import Link from "next/link";
-
+import { useFlash } from "@/components/Flash.component";
 
 export function ProfileButton() {
-  const { userData } = useUserContext();
+  const { userData, setUserData } = useUserContext();
+  const router = useRouter();
+  const { flash } = useFlash();
+
+  const handleLogOut = async() => {
+    try {
+      // Delete the auth_token cookie
+      document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      
+      // Clear user data from context
+      setUserData(null);
+      
+      // Show success message
+      flash("Logged out successfully", { variant: "success" });
+      
+      // Redirect to home page
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Error during logout:", error);
+      flash("Failed to log out", { variant: "error" });
+    }
+  }
 
   return (
     <div className="cont hover:cursor-pointer">
@@ -54,6 +76,7 @@ export function ProfileButton() {
               <Button
                 variant="outline"
                 className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/50"
+                onClick={handleLogOut}
               >
                 Logout
               </Button>

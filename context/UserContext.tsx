@@ -14,8 +14,8 @@ type UserProps = {
 
 
 type UserContextProps = {
-    userData : UserProps | undefined;
-    setUserData : Dispatch<SetStateAction<UserProps | undefined>>;
+    userData : UserProps | undefined | null;
+    setUserData : Dispatch<SetStateAction<UserProps | undefined | null>>;
 }
 
 
@@ -23,7 +23,7 @@ type UserContextProps = {
 const UserContext = createContext<UserContextProps>({userData : undefined , setUserData : () => {}});
 
 export function UserWrapper({children} : {children : ReactNode}){
-  const [userData, setUserData] = useState<UserProps | undefined>(undefined);
+  const [userData, setUserData] = useState<UserProps | undefined | null>(undefined);
   return(
     <UserContext.Provider value={{userData , setUserData}}>
       {children}
