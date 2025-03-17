@@ -33,7 +33,6 @@ const MatchLeaderboard = ({ matchId, matchDate }: { matchId: string, matchDate: 
       try {
         setIsLoading(true);
         const response = await fetch(`/api/match/${matchId}/leaderboard`);
-        
         if (!response.ok) {
           throw new Error('Failed to fetch leaderboard data');
         }

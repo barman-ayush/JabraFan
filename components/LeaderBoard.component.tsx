@@ -20,4 +20,4 @@ const LeaderBoard = () => {
     </Fragment>
   );
 };
-export default LeaderBoard;
+export default LeaderBoard
