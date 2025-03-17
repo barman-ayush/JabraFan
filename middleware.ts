@@ -1,6 +1,7 @@
 // middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { jwtVerify } from 'jose';
 
 const CONFIG = {
   redirectToLandingPage: true,
@@ -49,7 +50,20 @@ const isPublicRoute = (path: string) => {
   return false;
 };
 
-export function middleware(request: NextRequest) {
+// Function to decode JWT token
+const verifyToken = async (token: string) => {
+  try {
+    // Replace with your actual JWT secret from environment variables
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET || '');
+    const { payload } = await jwtVerify(token, secret);
+    return payload;
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return null;
+  }
+};
+
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   if (isPublicRoute(path)) {
@@ -64,7 +78,6 @@ export function middleware(request: NextRequest) {
 
     if (CONFIG.redirectToLandingPage) {
       const redirectUrl = new URL(CONFIG.landingPageUrl, request.nextUrl.origin);
-
       redirectUrl.searchParams.set('isLoginNeeded', 'true');
 
       const currentUrl = request.nextUrl.pathname;
@@ -74,6 +87,36 @@ export function middleware(request: NextRequest) {
         redirectUrl.searchParams.set('redirect_url', currentUrl);
       }
 
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
+
+  // Special check for admin routes
+  if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
+    try {
+      const decodedToken = await verifyToken(authToken as string);
+      
+      if (!decodedToken) {
+        const redirectUrl = new URL(CONFIG.landingPageUrl, request.nextUrl.origin);
+        redirectUrl.searchParams.set('isUnauthorized', 'true');
+        return NextResponse.redirect(redirectUrl);
+      }
+      
+      // Check if the phone number in the token matches the admin phone in env
+      const adminPhones = (process.env.ADMIN_PHONES || '').split(',').map(phone => phone.trim());
+      
+      if (!adminPhones.includes(decodedToken.phone as string)) {
+        console.log(`Unauthorized admin access attempt: ${path} by ${decodedToken.phone}`);
+        const redirectUrl = new URL(CONFIG.landingPageUrl, request.nextUrl.origin);
+        redirectUrl.searchParams.set('isUnauthorized', 'true');
+        return NextResponse.redirect(redirectUrl);
+      }
+      
+      console.log(`Admin access granted to ${decodedToken.name} (${decodedToken.phone})`);
+    } catch (error) {
+      console.error('Error in admin route check:', error);
+      const redirectUrl = new URL(CONFIG.landingPageUrl, request.nextUrl.origin);
+      redirectUrl.searchParams.set('isUnauthorized', 'true');
       return NextResponse.redirect(redirectUrl);
     }
   }

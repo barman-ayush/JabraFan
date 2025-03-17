@@ -41,10 +41,7 @@ const Navbar = () => {
           <Link href="/matches">Matches</Link>
         </li>
         <li className="hover:text-yellow-400 dark:hover:text-yellow-300 transition-colors">
-          <Link href="#pricing">Pricing</Link>
-        </li>
-        <li className="hover:text-yellow-400 dark:hover:text-yellow-300 transition-colors">
-          <Link href="#faqs">FAQs</Link>
+          <Link href="/admin">Admin</Link>
         </li>
       </ul>
       <div className="flex items-center gap-2">
@@ -128,10 +125,7 @@ const Navbar = () => {
                 <Link href="/matches" className="w-full">Matches</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="#pricing" className="w-full">Pricing</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="#faqs" className="w-full">FAQs</Link>
+                <Link href="/admin" className="w-full">Admin</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
