@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import { RedeemRequest } from "@/utils/types";
 // import { redeemRequestsData } from "@/data/redeem-requests"
 
@@ -36,6 +36,8 @@ export function RedeemRequests() {
   const [requests, setRequests] = useState<RedeemRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [loadingApproval, setLoadingApproval] = useState<string | null>(null);
+  const [loadingRejection, setLoadingRejection] = useState(false);
 
   React.useEffect(() => {
     async function fetchRedeemRequests() {
@@ -58,6 +60,8 @@ export function RedeemRequests() {
 
   const handleApprove = async (requestId: string) => {
     try {
+      setLoadingApproval(requestId);
+      
       // Call the API to approve the request
       const response = await fetch("/api/admin/redeemRequest", {
         method: "POST",
@@ -95,12 +99,16 @@ export function RedeemRequests() {
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
+    } finally {
+      setLoadingApproval(null);
     }
   };
 
   const handleReject = async () => {
     if (selectedRequest) {
       try {
+        setLoadingRejection(true);
+        
         // Call the API to reject the request
         const response = await fetch("/api/admin/redeemRequest", {
           method: "POST",
@@ -142,6 +150,8 @@ export function RedeemRequests() {
             error instanceof Error ? error.message : "Unknown error"
           }`
         );
+      } finally {
+        setLoadingRejection(false);
       }
     }
   };
@@ -221,6 +231,7 @@ export function RedeemRequests() {
                           variant="outline"
                           className="h-8 w-8 p-0"
                           onClick={() => openRejectDialog(request.id)}
+                          disabled={loadingApproval === request.id}
                         >
                           <X className="h-4 w-4" />
                           <span className="sr-only">Reject</span>
@@ -229,8 +240,13 @@ export function RedeemRequests() {
                           size="sm"
                           className="h-8 w-8 p-0 bg-green-500 hover:bg-green-600"
                           onClick={() => handleApprove(request.id)}
+                          disabled={loadingApproval === request.id}
                         >
-                          <Check className="h-4 w-4" />
+                          {loadingApproval === request.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Check className="h-4 w-4" />
+                          )}
                           <span className="sr-only">Approve</span>
                         </Button>
                       </div>
@@ -278,20 +294,32 @@ export function RedeemRequests() {
                 placeholder="Please explain why this request is being rejected..."
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
+                disabled={loadingRejection}
               />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedRequest(null)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedRequest(null)}
+              disabled={loadingRejection}
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleReject}
-              disabled={!rejectReason.trim()}
+              disabled={!rejectReason.trim() || loadingRejection}
             >
-              Reject Request
+              {loadingRejection ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Rejecting...
+                </>
+              ) : (
+                "Reject Request"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

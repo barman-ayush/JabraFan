@@ -47,21 +47,68 @@ export async function POST(request: Request) {
       );
     }
 
-    // Update the request status in the database
-    await prismadb.redeemRequests.update({
-      where: {
-        id: requestId,
-      },
-      data: {
-        status,
-        processedAt: new Date(),
-        rejectionReason: status === "rejected" ? rejectionReason : null,
-      },
+    // Use a transaction to handle all database operations atomically
+    const result = await prismadb.$transaction(async (tx) => {
+      // First, get the current request state
+      const currentRequest = await tx.redeemRequests.findUnique({
+        where: { id: requestId },
+        select: { status: true, userId: true, amount: true }
+      });
+
+      // Check if request exists
+      if (!currentRequest) {
+        throw new Error("Request not found");
+      }
+
+      // Only proceed if current status is "pending"
+      if (currentRequest.status !== "pending") {
+        throw new Error(`Request Already processed !!`);
+      }
+
+      // Update the request status
+      const updatedRequest = await tx.redeemRequests.update({
+        where: { id: requestId },
+        data: {
+          status,
+          processedAt: new Date(),
+          rejectionReason: status === "rejected" ? rejectionReason : null,
+        },
+      });
+
+      // If rejected, return the amount to user's winnings in the same transaction
+      if (status === "rejected") {
+        await tx.user.update({
+          where: { id: currentRequest.userId },
+          data: {
+            winnings: { increment: currentRequest.amount }
+          }
+        });
+      }
+
+      return updatedRequest;
     });
 
-    return NextResponse.json({ success: true }, { status: 200 });
-  } catch (error) {
+    console.log("[ UPDATED_DATA ] : ", result);
+    
+    return NextResponse.json({ 
+      success: true,
+      message: `Request ${status === "approved" ? "approved" : "rejected"} successfully`
+    }, { status: 200 });
+    
+  } catch (error: any) {
     console.error("Failed to update redeem request:", error);
+    
+    // Handle specific error messages from transaction
+    if (error.message === "Request not found") {
+      return NextResponse.json({ error: "Request not found" }, { status: 404 });
+    } 
+    
+    if (error.message.includes("Cannot update request with status")) {
+      return NextResponse.json({ 
+        error: "Cannot update this request as it's already processed" 
+      }, { status: 400 });
+    }
+    
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
