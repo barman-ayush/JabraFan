@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import Info from "@/components/Info.component";
 import LeaderBoard from "@/components/LeaderBoard.component";
+import AboutUs from "@/components/about-us.component";
 import FooterSection from "@/components/footer.component";
 import HeroSection from "@/components/heroSection.component";
-import Rewards from "@/components/rewards.components";
 import { useDrawerContext } from "@/context/DrawerContext";
 // import { useUserContext } from "@/context/UserContext";
 import { useSearchParams } from "next/navigation";
@@ -29,7 +30,8 @@ const LandingPage = () => {
     <Fragment>
       <HeroSection />
       <LeaderBoard />
-      <Rewards />
+      <Info/>
+      <AboutUs/>
       <FooterSection />
     </Fragment>
   );

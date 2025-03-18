@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Fragment } from "react";
 import { rubik } from "../styles/fonts";
 import { Button } from "./ui/button";
@@ -9,24 +9,27 @@ const HeroSection = () => {
   const router = useRouter();
   const redirect = (redirectTo: string) => {
     router.push(redirectTo);
-  }
+  };
 
   return (
     <Fragment>
       <div className="container max-w-full bg-[url('/images.webp')] bg-cover bg-center md:bg-left dark:bg-[url('/nightbg.jpg')] rounded-bl-3xl rounded-br-3xl">
         <div
           className="hero-container relative rounded-bl-3xl rounded-br-3xl bg-no-repeat bg-cover flex flex-col items-center md:block"
-          style={{ 
-            backgroundImage: "url('/bg-1.png')", 
+          style={{
+            backgroundImage: "url('/bg-1.png')",
             minHeight: "90vh",
-            height: "auto"
+            height: "auto",
           }}
         >
           {/* Semi-transparent overlay for better text readability */}
           <div className="absolute inset-0 bg-black bg-opacity-30 rounded-bl-3xl rounded-br-3xl"></div>
-          
+
           {/* Desktop image */}
-          <div className="hidden md:block absolute z-10" style={{ top: "10%", right: "15%", width: "60vh" }}>
+          <div
+            className="hidden md:block absolute z-10"
+            style={{ top: "10%", right: "15%", width: "60vh" }}
+          >
             <Image
               src="/herobg1.png"
               alt="IPL Fan Experience"
@@ -48,7 +51,7 @@ const HeroSection = () => {
               priority
             />
           </div>
-          
+
           {/* Text container - full width on mobile, positioned on desktop */}
           <div
             className={`${rubik.className} text-container px-6 py-8 md:p-0 text-center md:text-left z-10 relative md:absolute`}
@@ -64,8 +67,10 @@ const HeroSection = () => {
               Join thousands of IPL fans in making real-time predictions,
               unlocking rewards, and earning achievements.
             </p>
-            <Button 
-              onClick={() => {redirect("matches")}} 
+            <Button
+              onClick={() => {
+                redirect("matches");
+              }}
               className="bg-yellow-500 hover:bg-yellow-400 dark:bg-yellow-500 dark:hover:bg-yellow-400 text-black font-bold my-6 md:my-10 px-8 py-6 text-lg rounded-full hover:scale-105 transition-transform"
             >
               Get Started

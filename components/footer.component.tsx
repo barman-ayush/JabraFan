@@ -1,93 +1,54 @@
-import { ModeToggle } from "@/components/ui/mode-toggle";
-import {
-  Footer,
-  FooterColumn,
-  FooterBottom,
-  FooterContent,
-} from "@/components/ui/footer";
-import LaunchUI from "@/components/logos/launch-ui";
+// components/Footer.tsx
 import Link from "next/link";
 
-export default function FooterSection() {
+export function FooterSection() {
   return (
-    <footer className="w-full bg-background px-4">
-      <div className="mx-auto max-w-container">
-        <Footer>
-          <FooterContent>
-            <FooterColumn className="col-span-2 sm:col-span-3 md:col-span-1">
-              <div className="flex items-center gap-2">
-                <LaunchUI />
-                <h3 className="text-xl font-bold">Launch UI</h3>
-              </div>
-            </FooterColumn>
-            <FooterColumn>
-              <h3 className="text-md pt-1 font-semibold">Product</h3>
-              <Link
-                href="/"
-                className="text-sm text-muted-foreground"
-              >
-                Changelog
-              </Link>
-              <Link
-                href="/"
-                className="text-sm text-muted-foreground"
-              >
-                Documentation
-              </Link>
-            </FooterColumn>
-            <FooterColumn>
-              <h3 className="text-md pt-1 font-semibold">Company</h3>
-              <Link
-                href="/"
-                className="text-sm text-muted-foreground"
-              >
-                About
-              </Link>
-              <Link
-                href="/"
-                className="text-sm text-muted-foreground"
-              >
-                Careers
-              </Link>
-              <Link
-                href="/"
-                className="text-sm text-muted-foreground"
-              >
-                Blog
-              </Link>
-            </FooterColumn>
-            <FooterColumn>
-              <h3 className="text-md pt-1 font-semibold">Contact</h3>
-              <Link
-                href="/"
-                className="text-sm text-muted-foreground"
-              >
-                Discord
-              </Link>
-              <Link
-                href="/"
-                className="text-sm text-muted-foreground"
-              >
-                Twitter
-              </Link>
-              <Link
-                href="/"
-                className="text-sm text-muted-foreground"
-              >
-                Github
-              </Link>
-            </FooterColumn>
-          </FooterContent>
-          <FooterBottom>
-            <div>© 2025 Mikołaj Dobrucki. All rights reserved</div>
-            <div className="flex items-center gap-4">
-              <Link href="/">Privacy Policy</Link>
-              <Link href="/">Terms of Service</Link>
-              <ModeToggle />
-            </div>
-          </FooterBottom>
-        </Footer>
+    <footer className="w-full">
+      {/* Upper section (white background) */}
+      <div className="w-full bg-background border-t border-border py-16 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-medium text-muted-foreground mb-10">Contact Us</h2>
+          
+          <div className="border-t border-muted w-24 mx-auto mb-10"></div>
+          
+          <h3 className="text-xl font-medium text-foreground mb-6">
+            Would you like to provide your valuable feedback?
+          </h3>
+          
+          <p className="text-muted-foreground mb-6">
+            As the most passionate cricket-loving nation in the world, we understand that many of you have fantastic ideas for the sport.
+          </p>
+          
+          <p className="text-muted-foreground mb-10">
+            If there's any feature you'd like to see, please let us know. Just send a message to the email below and rest assured, we will do our utmost to fulfill your request.
+          </p>
+          
+          <p className="text-foreground font-medium text-lg mb-4">JabraFan</p>
+          
+          <a 
+            href="mailto:jabrafansindia@jabrafans.com" 
+            className="text-primary hover:text-primary/80 transition-colors"
+          >
+            jabrafansindia@jabrafans.com
+          </a>
+        </div>
+      </div>
+      
+      {/* Lower section (black background) */}
+      <div className="w-full bg-black py-6 px-4">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <Link 
+            href="/privacy-policy"
+            className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors"
+          >
+            PRIVACY POLICY
+          </Link>
+          
+          <p className="text-white/80 text-sm">JabraFans</p>
+        </div>
       </div>
     </footer>
   );
 }
+
+export default FooterSection;
