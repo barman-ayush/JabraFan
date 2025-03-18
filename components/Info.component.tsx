@@ -2,14 +2,11 @@ import {
     TrophyIcon,
     BrainIcon,
     CoinsIcon,
-    UsersIcon,
-    HeartIcon,
-    MessageCircleIcon,
     PiggyBankIcon,
     AwardIcon,
     SparklesIcon
   } from "lucide-react";
-  import { Item, ItemIcon, ItemTitle, ItemDescription } from "@/components/ui/item";
+  import { ItemIcon, ItemTitle, ItemDescription } from "@/components/ui/item";
   import { ReactNode } from "react";
   import { motion } from "framer-motion";
   
@@ -39,7 +36,7 @@ import {
         title: "Experience IPL Like Never Before",
         description: (
           <>
-            Put your cricket instincts to the test by answering questions like "Who will be today's top scorer?" and compete with fans across the globe. 🏏
+            Put your cricket instincts to the test by answering questions like &ldquo;Who will be today&apos;s top scorer?&rdquo; and compete with fans across the globe. 🏏
           </>
         ),
         icon: <BrainIcon className="size-5 stroke-1" />,
@@ -291,7 +288,7 @@ import {
               transition={{ delay: 0.8, duration: 0.5 }}
             >
               <p className="text-muted-foreground italic text-sm md:text-base px-4 py-3 border-l-4 border-primary/50 bg-primary/5 rounded-r-lg">
-                "{quote}"
+                &ldquo;{quote}&rdquo;
               </p>
             </motion.div>
           )}

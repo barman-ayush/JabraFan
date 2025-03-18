@@ -101,6 +101,7 @@ export function DrawerContentWithParams() {
         // User already has a name, complete the flow
         completeSignIn(userData);
       }
+      router.push("/");
     } catch (e: any) {
       flash(e.message || "Verification failed", { variant: "warning" });
     } finally {

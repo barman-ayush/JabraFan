@@ -20,7 +20,7 @@ export function FooterSection() {
           </p>
           
           <p className="text-muted-foreground mb-10">
-            If there's any feature you'd like to see, please let us know. Just send a message to the email below and rest assured, we will do our utmost to fulfill your request.
+            If there&apos;s any feature you&apos;d like to see, please let us know. Just send a message to the email below and rest assured, we will do our utmost to fulfill your request.
           </p>
           
           <p className="text-foreground font-medium text-lg mb-4">JabraFan</p>

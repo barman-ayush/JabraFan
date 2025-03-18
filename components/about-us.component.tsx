@@ -19,7 +19,7 @@ const AboutUsSection = () => {
         {/* Mission Statement / About Us - with semi-transparent background for readability */}
         <div className="text-center mb-16 max-w-4xl mx-auto bg-white/30 backdrop-blur-sm p-6 rounded-lg">
           <p className="text-base sm:text-lg md:text-xl text-gray-800 leading-relaxed font-medium">
-            At JabraFan, we're more than just fans – we're a community of
+            At JabraFan, we&apos;re more than just fans – we&apos;re a community of
             passionate IPL enthusiasts dedicated to bringing you closer to the
             game you love. Founded with the vision of creating a vibrant space
             for IPL superfans, our platform is built on the excitement, thrill,
