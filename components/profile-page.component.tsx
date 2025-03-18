@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Camera, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Camera, Clock, CheckCircle, XCircle, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useUserContext } from "@/context/UserContext";
@@ -36,6 +36,9 @@ export function UserProfile() {
   const router = useRouter();
   const { flash } = useFlash();
 
+  const [username, setUsername] = useState(userData?.name || "");
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [upiId, setUpiId] = useState(userData?.upiId || "");
   const [redeemAmount, setRedeemAmount] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
@@ -44,6 +47,14 @@ export function UserProfile() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingTransactions, setLoadingTransactions] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
+
+  useEffect(() => {
+    // Update state when userData changes
+    if (userData) {
+      setUsername(userData.name || "");
+      setUpiId(userData.upiId || "");
+    }
+  }, [userData]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -76,6 +87,55 @@ export function UserProfile() {
 
     fetchTransactions();
   }, [userData?.id]);
+
+  const handleUpdateUsername = async () => {
+    try {
+      setIsUpdatingUsername(true);
+
+      // Check if username has changed
+      if (username === userData?.name) {
+        flash("No changes detected.", { variant: "warning" });
+        setIsUpdatingUsername(false);
+        setIsEditingUsername(false);
+        return;
+      }
+
+      // Validate username
+      if (!username.trim()) {
+        flash("Username cannot be empty.", { variant: "error" });
+        setIsUpdatingUsername(false);
+        return;
+      }
+
+      const response = await fetch("/api/user/setname", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userData?.id,
+          name: username.trim(),
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        // Update user data in context
+        setUserData(result.userData);
+        flash("Username updated successfully!", { variant: "success" });
+        setIsEditingUsername(false);
+        router.refresh();
+      } else {
+        flash(result.error || "Failed to update username", { variant: "error" });
+      }
+    } catch (error) {
+      flash("An error occurred while updating username", { variant: "error" });
+      console.error(error);
+    } finally {
+      setIsUpdatingUsername(false);
+    }
+  };
 
   const handleUpdateProfile = async () => {
     try {
@@ -310,8 +370,65 @@ export function UserProfile() {
                 />
               </Label>
             </div>
-            <div className="mt-4 sm:mt-0 text-center sm:text-left">
-              <h2 className="text-xl font-semibold">{userData?.name}</h2>
+            <div className="mt-4 sm:mt-0 text-center sm:text-left flex-1">
+              {/* Username with Edit Button */}
+              <div className="flex items-center">
+                {isEditingUsername ? (
+                  <div className="flex-1">
+                    <Input
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Enter your username"
+                      className="mb-2"
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm"
+                        onClick={handleUpdateUsername} 
+                        disabled={isUpdatingUsername}
+                        className="text-xs"
+                      >
+                        {isUpdatingUsername ? (
+                          <div className="flex items-center gap-1">
+                            <div className="h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                            <span>Saving...</span>
+                          </div>
+                        ) : (
+                          "Save"
+                        )}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => {
+                          setIsEditingUsername(false);
+                          setUsername(userData?.name || "");
+                        }}
+                        className="text-xs"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-semibold">{userData?.name}</h2>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="ml-2 p-1 h-auto" 
+                      onClick={() => setIsEditingUsername(true)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                        <path d="m15 5 4 4"/>
+                      </svg>
+                    </Button>
+                  </>
+                )}
+              </div>
               <p className="text-gray-500">{userData?.phone}</p>
               <div className="mt-2">
                 <div className="text-sm font-medium">
@@ -368,8 +485,16 @@ export function UserProfile() {
                 <Button
                   onClick={handleRedeemRequest}
                   disabled={isRedeeming || !userData?.upiId}
+                  className="flex items-center gap-2"
                 >
-                  {isRedeeming ? "Processing..." : "Submit"}
+                  {isRedeeming ? (
+                    <>  
+                      <div className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
                 </Button>
               </div>
               <p className="text-sm text-gray-500 mt-2">
@@ -400,8 +525,19 @@ export function UserProfile() {
             </div>
 
             <div className="pt-2">
-              <Button onClick={handleUpdateProfile} disabled={isUpdating}>
-                {isUpdating ? "Updating..." : "Update UPI ID"}
+              <Button 
+                onClick={handleUpdateProfile} 
+                disabled={isUpdating}
+                className="flex items-center gap-2"
+              >
+                {isUpdating ? (
+                  <>
+                    <div className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update UPI ID"
+                )}
               </Button>
             </div>
           </div>

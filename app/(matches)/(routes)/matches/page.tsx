@@ -153,91 +153,99 @@ function MatchCard({ match }: { match: Match }) {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
-      <CardHeader className="bg-muted/50 pb-2">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Trophy className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">{match.league}</CardTitle>
+    <div 
+      className="group h-full transition-all duration-300 hover:translate-x-1"
+    >
+      <Card className="overflow-hidden h-full flex flex-col bg-amber-950 border border-amber-900 shadow-md transition-all duration-300 hover:shadow-xl">
+        <CardHeader className="bg-amber-900/80 pb-2 border-b border-amber-800">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="bg-amber-500/10 p-2 rounded-lg group-hover:bg-amber-500/20 transition-all duration-300">
+                <Trophy className="h-5 w-5 text-amber-400 group-hover:text-amber-300" />
+              </div>
+              <CardTitle className="text-lg font-bold text-amber-100">{match.league}</CardTitle>
+            </div>
+            
+            {/* Dynamic match status badge */}
+            {isCompleted ? (
+              <Badge variant="secondary" className="bg-amber-800 text-amber-100 hover:bg-amber-700">Completed</Badge>
+            ) : isLive ? (
+              <Badge variant="outline" className="bg-green-900 text-green-300 border-green-700 animate-pulse">
+                <Clock className="mr-1 h-3 w-3" />
+                Live
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="flex items-center bg-amber-800 text-amber-100 border-amber-700">
+                <Clock className="mr-1 h-3 w-3" />
+                Upcoming
+              </Badge>
+            )}
           </div>
-          
-          {/* Dynamic match status badge */}
-          {isCompleted ? (
-            <Badge variant="secondary">Completed</Badge>
-          ) : isLive ? (
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              <Clock className="mr-1 h-3 w-3" />
-              Live
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="flex items-center">
-              <Clock className="mr-1 h-3 w-3" />
-              Upcoming
-            </Badge>
+          <CardDescription className="flex items-center text-amber-200 ml-12">
+            <Calendar className="mr-1 h-4 w-4 text-amber-300" />
+            {formattedDate} at {formattedTime}
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="pt-6 pb-4 flex-grow flex flex-col">
+          <div className="flex justify-between items-center bg-amber-900/50 rounded-lg p-4 shadow-md transition-all duration-300 group-hover:bg-amber-900/70">
+            <div className="flex flex-col items-center text-center w-5/12">
+              <div
+                className={`w-14 h-14 ${getTeamColor(
+                  match.team1
+                )} rounded-full flex items-center justify-center mb-2 shadow-md transition-all duration-300 group-hover:shadow-lg`}
+              >
+                {match.team1.substring(0, 2)}
+              </div>
+              <h3 className="font-semibold text-sm text-amber-100">{match.team1}</h3>
+            </div>
+
+            <div className="flex flex-col items-center justify-center w-2/12">
+              <div className="text-lg font-bold text-amber-300 bg-amber-950 px-3 py-1 rounded-full border border-amber-800 transition-all duration-300 group-hover:border-amber-700">VS</div>
+            </div>
+
+            <div className="flex flex-col items-center text-center w-5/12">
+              <div
+                className={`w-14 h-14 ${getTeamColor(
+                  match.team2
+                )} rounded-full flex items-center justify-center mb-2 shadow-md transition-all duration-300 group-hover:shadow-lg`}
+              >
+                {match.team2.substring(0, 2)}
+              </div>
+              <h3 className="font-semibold text-sm text-amber-100">{match.team2}</h3>
+            </div>
+          </div>
+
+          {match.questions.length > 0 && (
+            <div className="mt-auto pt-4">
+              <Separator className="my-4 bg-amber-800" />
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-amber-500/10 p-2 rounded-lg group-hover:bg-amber-500/20 transition-all duration-300">
+                      <BarChart3 className="h-4 w-4 text-amber-400 group-hover:text-amber-300" />
+                    </div>
+                    <h4 className="font-medium text-sm text-amber-100">Match Questions</h4>
+                  </div>
+                  <Badge variant="outline" className="text-xs bg-amber-900 text-amber-100 border-amber-800">
+                    {answeredCount}/{totalQuestions} answered
+                  </Badge>
+                </div>
+
+                <div className="w-full pl-12">
+                  <Link
+                    href={`/matches/${match.id}`}
+                    className="flex items-center justify-between p-4 text-sm font-medium border border-amber-800 rounded-md bg-amber-900/50 hover:bg-amber-800 transition-all duration-300 group-hover:border-amber-700"
+                  >
+                    <span>View All Questions</span>
+                    <span className="text-amber-300 font-bold group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
           )}
-        </div>
-        <CardDescription className="flex items-center">
-          <Calendar className="mr-1 h-4 w-4" />
-          {formattedDate} at {formattedTime}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="pt-4 flex-grow flex flex-col">
-        <div className="flex justify-between items-center">
-          <div className="flex flex-col items-center text-center w-5/12">
-            <div
-              className={`w-12 h-12 ${getTeamColor(
-                match.team1
-              )} rounded-full flex items-center justify-center mb-2`}
-            >
-              {match.team1}
-            </div>
-            <h3 className="font-semibold text-sm">{match.team1}</h3>
-          </div>
-
-          <div className="flex flex-col items-center justify-center w-2/12">
-            <div className="text-lg font-bold">VS</div>
-          </div>
-
-          <div className="flex flex-col items-center text-center w-5/12">
-            <div
-              className={`w-12 h-12 ${getTeamColor(
-                match.team2
-              )} rounded-full flex items-center justify-center mb-2`}
-            >
-              {match.team2}
-            </div>
-            <h3 className="font-semibold text-sm">{match.team2}</h3>
-          </div>
-        </div>
-
-        {match.questions.length > 0 && (
-          <div className="mt-auto">
-            <Separator className="my-4" />
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium flex items-center text-sm">
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  Match Questions
-                </h4>
-                <Badge variant="outline" className="text-xs">
-                  {answeredCount}/{totalQuestions} answered
-                </Badge>
-              </div>
-
-              <div className="w-full">
-                <Link
-                  href={`/matches/${match.id}`}
-                  className="flex items-center justify-between p-4 text-sm font-medium border rounded-md hover:bg-muted/50 transition-colors"
-                >
-                  <span>View All Questions</span>
-                  <span className="text-primary">→</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

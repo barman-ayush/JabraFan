@@ -6,10 +6,12 @@ import {
     HeartIcon,
     MessageCircleIcon,
     PiggyBankIcon,
-    AwardIcon
+    AwardIcon,
+    SparklesIcon
   } from "lucide-react";
   import { Item, ItemIcon, ItemTitle, ItemDescription } from "@/components/ui/item";
   import { ReactNode } from "react";
+  import { motion } from "framer-motion";
   
   interface FeatureProps {
     title: string;
@@ -83,72 +85,215 @@ import {
     ],
     quote = "And of course, if we get enough love and engagement from you, we'll keep the excitement going by adding even more fun features like Fan of the Match, community conversations, Fan Feud challenges, and bigger prizes to make the experience even better!"
   }: IPLPromoProps) {
+    // Animation variants
+    const containerVariants = {
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: {
+          staggerChildren: 0.2,
+          delayChildren: 0.3
+        }
+      }
+    };
+  
+    const itemVariants = {
+      hidden: { y: 20, opacity: 0 },
+      visible: { 
+        y: 0, 
+        opacity: 1,
+        transition: { 
+          type: "spring", 
+          stiffness: 100,
+          damping: 10
+        }
+      }
+    };
+  
+    const titleVariants = {
+      hidden: { scale: 0.9, opacity: 0 },
+      visible: {
+        scale: 1,
+        opacity: 1,
+        transition: {
+          type: "spring",
+          stiffness: 100,
+          delay: 0.1
+        }
+      }
+    };
+  
+    // Define separate animations for shimmer effect
+    const shimmerAnimation = {
+      x: ["-100%", "200%"],
+      opacity: [0, 1, 0], 
+      transition: {
+        x: {
+          repeat: Infinity,
+          repeatType: "loop" as const,
+          duration: 3,
+          ease: "easeInOut"
+        },
+        opacity: {
+          repeat: Infinity,
+          repeatType: "loop" as const,
+          duration: 3,
+          times: [0, 0.5, 1],
+          ease: "easeInOut"
+        }
+      }
+    };
+  
     return (
-      <div className="py-8 bg-background">
+      <div className="py-12 bg-background overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-medium text-muted-foreground leading-tight">
-              {title}<br /><span className="text-foreground">{subtitle}</span>
-            </h2>
-            <div className="mt-6 border-t border-muted w-24 mx-auto"></div>
-          </div>
+          <motion.div 
+            className="text-center mb-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={titleVariants}
+          >
+            <motion.h2 
+              className="text-3xl md:text-5xl font-bold text-muted-foreground leading-tight"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              {title}<br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+                {subtitle}
+              </span>
+            </motion.h2>
+            <motion.div 
+              className="mt-6 border-t border-primary w-24 mx-auto"
+              initial={{ width: 0 }}
+              animate={{ width: 96 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            ></motion.div>
+          </motion.div>
   
           <div className="grid md:grid-cols-2 gap-8">
             {/* Left Column */}
-            <div>
-              <h3 className="text-2xl font-medium text-muted-foreground mb-4">
-                {leftTitle}
-              </h3>
-              <div className="space-y-6">
-                {leftFeatures.map((feature, index) => (
-                  <div key={index}>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="bg-primary/10 p-2 rounded-lg">
-                        <ItemIcon>{feature.icon}</ItemIcon>
+            <motion.div
+              className="relative rounded-xl p-1"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={containerVariants}
+            >
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/30 to-primary/5 blur-sm"></div>
+              <div className="relative bg-background/80 backdrop-blur-sm rounded-lg p-6 border border-primary/20 shadow-lg">
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent -skew-x-12"
+                  initial={{ opacity: 0, x: "-100%" }}
+                  animate={shimmerAnimation}
+                ></motion.div>
+                
+                <motion.h3 
+                  className="text-2xl font-bold text-foreground mb-6 flex items-center"
+                  variants={itemVariants}
+                >
+                  <SparklesIcon className="mr-2 text-primary h-5 w-5" />
+                  {leftTitle}
+                </motion.h3>
+                
+                <div className="space-y-8">
+                  {leftFeatures.map((feature, index) => (
+                    <motion.div 
+                      key={index}
+                      variants={itemVariants}
+                      whileHover={{ scale: 1.02, x: 5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                      className="group"
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <motion.div 
+                          className="bg-primary/10 p-3 rounded-lg shadow-md group-hover:bg-primary/20"
+                          whileHover={{ rotate: [0, -10, 10, -5, 0] }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <ItemIcon>{feature.icon}</ItemIcon>
+                        </motion.div>
+                        <ItemTitle className="text-lg font-bold text-foreground">
+                          {feature.title} {index === 0 && <span className="text-amber-500">👌</span>}
+                        </ItemTitle>
                       </div>
-                      <ItemTitle className="text-lg font-medium">
-                        {feature.title} {index === 0 && <span className="text-amber-500">👌</span>}
-                      </ItemTitle>
-                    </div>
-                    <ItemDescription className="pl-12 text-sm">
-                      {feature.description}
-                    </ItemDescription>
-                  </div>
-                ))}
+                      <ItemDescription className="pl-14 text-sm text-muted-foreground">
+                        {feature.description}
+                      </ItemDescription>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </motion.div>
   
             {/* Right Column */}
-            <div className="bg-muted/30 p-5 rounded-lg">
-              <h3 className="text-2xl font-medium text-muted-foreground mb-4">
-                {rightTitle}
-              </h3>
-              <div className="space-y-6">
-                {rightFeatures.map((feature, index) => (
-                  <div key={index}>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="bg-primary/10 p-2 rounded-lg">
-                        <ItemIcon>{feature.icon}</ItemIcon>
+            <motion.div
+              className="relative rounded-xl p-1"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={containerVariants}
+            >
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/30 to-primary/10 blur-sm"></div>
+              <div className="relative bg-muted/80 backdrop-blur-sm rounded-lg p-6 border border-amber-500/20 shadow-lg">
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent -skew-x-12"
+                  initial={{ opacity: 0, x: "-100%" }}
+                  animate={shimmerAnimation}
+                ></motion.div>
+                
+                <motion.h3 
+                  className="text-2xl font-bold text-foreground mb-6 flex items-center"
+                  variants={itemVariants}
+                >
+                  <SparklesIcon className="mr-2 text-amber-500 h-5 w-5" />
+                  {rightTitle}
+                </motion.h3>
+                
+                <div className="space-y-8">
+                  {rightFeatures.map((feature, index) => (
+                    <motion.div 
+                      key={index}
+                      variants={itemVariants}
+                      whileHover={{ scale: 1.02, x: 5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                      className="group"
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <motion.div 
+                          className="bg-amber-500/10 p-3 rounded-lg shadow-md group-hover:bg-amber-500/20"
+                          whileHover={{ rotate: [0, -10, 10, -5, 0] }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <ItemIcon>{feature.icon}</ItemIcon>
+                        </motion.div>
+                        <ItemTitle className="text-lg font-bold text-foreground">
+                          {feature.title} {index === 0 && <span className="text-amber-500">🎉</span>}
+                        </ItemTitle>
                       </div>
-                      <ItemTitle className="text-lg font-medium">
-                        {feature.title} {index === 0 && <span className="text-primary">🎉</span>}
-                      </ItemTitle>
-                    </div>
-                    <ItemDescription className="pl-12 text-sm">
-                      {feature.description}
-                    </ItemDescription>
-                  </div>
-                ))}
+                      <ItemDescription className="pl-14 text-sm text-muted-foreground">
+                        {feature.description}
+                      </ItemDescription>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
   
           {quote && (
-            <div className="mt-10 text-center max-w-5xl mx-auto">
-              <p className="text-muted-foreground italic text-sm">
+            <motion.div 
+              className="mt-12 text-center max-w-5xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+            >
+              <p className="text-muted-foreground italic text-sm md:text-base px-4 py-3 border-l-4 border-primary/50 bg-primary/5 rounded-r-lg">
                 "{quote}"
               </p>
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
