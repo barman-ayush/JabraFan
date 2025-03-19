@@ -54,7 +54,7 @@ export default function Leaderboard() {
         const result = await response.json()
         
         if (result.success && result.data) {
-          let users = result.data.map((user: any) => ({
+          const users = result.data.map((user: any) => ({
             id: user.id,
             name: user.name,
             credits: user.credits,

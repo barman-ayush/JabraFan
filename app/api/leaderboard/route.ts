@@ -3,7 +3,6 @@ import prismadb from "@/lib/prismadb";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-    request: NextRequest
 ) {
     try {
         // Fetch all users ordered by credits in descending order
