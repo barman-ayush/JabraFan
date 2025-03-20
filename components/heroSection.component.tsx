@@ -48,6 +48,7 @@ const HeroSection = () => {
           className="hero-container relative rounded-bl-3xl rounded-br-3xl bg-no-repeat bg-cover flex flex-col items-center justify-center"
           style={{
             backgroundImage: "url('/images/bg.png')",
+            backgroundSize: "100% 100%",
             minHeight: "90vh",
             height: "auto",
           }}

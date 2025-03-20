@@ -13,17 +13,17 @@ const AboutUsSection = () => {
 
       {/* Main Content with Background Image */}
       <div
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 bg-cover bg-center bg-no-repeat rounded-lg"
+        className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 bg-cover bg-center bg-no-repeat rounded-lg"
         style={{ backgroundImage: "url('/aboutus.jpg')" }}
       >
         {/* Mission Statement / About Us - with semi-transparent background for readability */}
         <div className="text-center mb-16 max-w-4xl mx-auto bg-white/30 backdrop-blur-sm p-6 rounded-lg">
           <p className="text-base sm:text-lg md:text-xl text-gray-800 leading-relaxed font-medium">
-            At JabraFan, we&apos;re more than just fans – we&apos;re a community of
-            passionate IPL enthusiasts dedicated to bringing you closer to the
-            game you love. Founded with the vision of creating a vibrant space
-            for IPL superfans, our platform is built on the excitement, thrill,
-            and camaraderie that cricket inspires
+            At JabraFan, we&apos;re more than just fans – we&apos;re a community
+            of passionate IPL enthusiasts dedicated to bringing you closer to
+            the game you love. Founded with the vision of creating a vibrant
+            space for IPL superfans, our platform is built on the excitement,
+            thrill, and camaraderie that cricket inspires
           </p>
         </div>
 

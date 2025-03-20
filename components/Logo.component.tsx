@@ -9,8 +9,7 @@ const Logo = () => {
                 <Image 
                     src={LogoImage} 
                     alt="Jabra Fan Logo" 
-                    width={60} 
-                    height={60}
+                    width={100}
                     className="object-contain"
                 />
                 <h1 className="text-3xl hidden md:block font-bold text-white dark:text-yellow-400 drop-shadow-md">

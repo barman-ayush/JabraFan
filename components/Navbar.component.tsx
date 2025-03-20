@@ -27,14 +27,14 @@ const Navbar = () => {
 
   return (
     <Card
-      className="container absolute bg-transparent top-0 py-3 px-4 border-0 flex items-center justify-between gap-6 rounded-2xl mt-5 z-50 w-full max-w-full"
+      className="container absolute bg-transparent top-0 px-4 border-0 flex items-center justify-between gap-6 rounded-2xl mt-5 z-50 w-full max-w-full"
       style={{ zIndex: "1000" }}
     >
       <div className="img-wrapper">
         <Logo />
       </div>
 
-      <ul className="hidden md:flex items-center gap-10 text-white dark:text-yellow-400 drop-shadow-md">
+      <ul className="hidden md:flex items-center pr-28 gap-10 text-white dark:text-yellow-400 drop-shadow-md">
         <li className="font-medium hover:text-yellow-400 dark:hover:text-yellow-300 transition-colors">
           <Link href="/">Home</Link>
         </li>

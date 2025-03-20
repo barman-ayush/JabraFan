@@ -72,7 +72,7 @@ export default function Page() {
           </p>
         </div>
 
-        <Tabs defaultValue="all" onValueChange={setFilter}>
+        <Tabs defaultValue="ongoing" onValueChange={setFilter}>
           <TabsList>
             <TabsTrigger value="all">All Matches</TabsTrigger>
             <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
