@@ -38,7 +38,7 @@ export default function RootLayout({
           <DrawerWrapper>
             <ThemeProvider
               attribute="class"
-              defaultTheme="system"
+              defaultTheme="dark"
               enableSystem
               disableTransitionOnChange
             >

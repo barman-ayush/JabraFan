@@ -21,25 +21,36 @@ export function ProfileButton() {
   const router = useRouter();
   const { flash } = useFlash();
 
-  const handleLogOut = async() => {
+  const handleLogOut = async () => {
     try {
-      // Delete the auth_token cookie
-      document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      
+      // Call the logout API endpoint
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to logout");
+      }
+
       // Clear user data from context
       setUserData(null);
-      
+
       // Show success message
       flash("Logged out successfully", { variant: "success" });
-      
-      // Redirect to home page
-      router.push("/");
+
+      // Redirect to home page and force a full page refresh
+      // This ensures all state is reset and the cookie change takes effect
+      router.push("/", { force: true });
       router.refresh();
     } catch (error) {
       console.error("Error during logout:", error);
       flash("Failed to log out", { variant: "error" });
     }
-  }
+  };
 
   return (
     <div className="cont hover:cursor-pointer">
@@ -62,13 +73,19 @@ export function ProfileButton() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="hover:bg-yellow-50 dark:hover:bg-yellow-900/20 cursor-pointer">
-            <Link href="/" className="w-full">Home</Link>
+            <Link href="/" className="w-full">
+              Home
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className="hover:bg-yellow-50 dark:hover:bg-yellow-900/20 cursor-pointer">
-            <Link href="/profile" className="w-full">Profile</Link>
+            <Link href="/profile" className="w-full">
+              Profile
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className="hover:bg-yellow-50 dark:hover:bg-yellow-900/20 cursor-pointer">
-            <Link href="/admin" className="w-full">Admin</Link>
+            <Link href="/admin" className="w-full">
+              Admin
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
@@ -90,9 +107,7 @@ export function ProfileButton() {
             )}
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Button 
-              className="w-full bg-yellow-500 hover:bg-yellow-400 dark:bg-yellow-500 dark:hover:bg-yellow-400 text-black font-bold"
-            >
+            <Button className="w-full bg-yellow-500 hover:bg-yellow-400 dark:bg-yellow-500 dark:hover:bg-yellow-400 text-black font-bold">
               Get Started
             </Button>
           </DropdownMenuItem>

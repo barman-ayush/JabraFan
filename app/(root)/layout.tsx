@@ -50,7 +50,7 @@ export default function RootLayout({
 
   return (
     <Fragment>
-      <div className="nav-cont flex flex-row justify-center">
+      <div className="nav-cont flex flex-row justify-center h-32">
         <Navbar />
       </div>
       <div className="h-full">
