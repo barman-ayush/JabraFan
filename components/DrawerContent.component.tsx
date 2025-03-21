@@ -25,17 +25,27 @@ export function DrawerContentWithParams() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { flash } = useFlash();
-  const { setIsOpen } = useDrawerContext();
-  const { setUserData } = useUserContext();
+  const { isOpen, setIsOpen } = useDrawerContext();
+  const { userData, setUserData } = useUserContext();
 
-  const [step, setStep] = React.useState<"phone" | "loading" | "otp" | "name">("phone");
+  const [step, setStep] = React.useState<"phone" | "loading" | "otp" | "name">(
+    "phone"
+  );
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [isVerifying, setIsVerifying] = React.useState(false);
   const [isUpdatingName, setIsUpdatingName] = React.useState(false);
   const [otp, setOtp] = React.useState("");
   const [userName, setUserName] = React.useState("");
   const [userId, setUserId] = React.useState("");
-  const redirect_url = searchParams.get('redirect_url') || '/';
+  const redirect_url = searchParams.get("redirect_url") || "/";
+
+  // Close drawer if user is already logged in
+  React.useEffect(() => {
+    if (isOpen && userData) {
+      setIsOpen(false);
+      flash("You are already logged in", { variant: "info" });
+    }
+  }, [isOpen, userData, setIsOpen, flash]);
 
   const handlePhoneSubmit = async () => {
     if (!phoneNumber || phoneNumber.length < 10) return;
@@ -74,9 +84,9 @@ export function DrawerContentWithParams() {
       flash("Incomplete OTP!", { variant: "warning" });
       return;
     }
-    
+
     setIsVerifying(true);
-    
+
     try {
       const response = await fetch("/api/auth/verifyotp", {
         method: "POST",
@@ -85,16 +95,19 @@ export function DrawerContentWithParams() {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || "Failed to verify OTP");
       }
 
       const userData = data.userData;
       console.log(" [ VERIFY_OTP_RESPONSE ] ", userData);
-      
+
       // Check if user needs to set a name
-      if (userData.name === "NOT_ASSIGNED" || userData.name === `user+91${phoneNumber}`) {
+      if (
+        userData.name === "NOT_ASSIGNED" ||
+        userData.name === `user+91${phoneNumber}`
+      ) {
         setUserId(userData.id);
         setStep("name");
       } else {
@@ -121,14 +134,14 @@ export function DrawerContentWithParams() {
       const response = await fetch("/api/user/setname", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           userId: userId,
-          name: userName.trim() 
+          name: userName.trim(),
         }),
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to update name");
       }
@@ -146,16 +159,16 @@ export function DrawerContentWithParams() {
     setUserData(userData);
     flash("Welcome to JabraFan!", { variant: "success" });
     setIsOpen(false);
-    
+
     try {
       const destinationURL = new URL(redirect_url, window.location.origin);
       router.push(destinationURL.pathname + destinationURL.search);
       console.log(" DESTINATION ", destinationURL);
     } catch (error: any) {
       console.log("ERROR ", error);
-      router.push('/');
+      router.push("/");
     }
-    
+
     resetFlow();
   };
 
@@ -194,9 +207,7 @@ export function DrawerContentWithParams() {
               className="flex flex-col gap-4"
             >
               <div className="flex items-center">
-                <span className="text-sm text-muted-foreground mr-2">
-                  +91
-                </span>
+                <span className="text-sm text-muted-foreground mr-2">+91</span>
                 <Input
                   type="tel"
                   placeholder="Phone number"
@@ -248,8 +259,8 @@ export function DrawerContentWithParams() {
                   Resend Code
                 </Button>
               </div>
-              <Button 
-                onClick={handleVerifyOTP} 
+              <Button
+                onClick={handleVerifyOTP}
                 disabled={isVerifying || otp.length !== 6}
               >
                 {isVerifying ? (
@@ -285,8 +296,8 @@ export function DrawerContentWithParams() {
                   This will be displayed on your profile
                 </p>
               </div>
-              <Button 
-                onClick={handleNameSubmit} 
+              <Button
+                onClick={handleNameSubmit}
                 disabled={isUpdatingName || !userName.trim()}
               >
                 {isUpdatingName ? (
