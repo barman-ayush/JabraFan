@@ -27,9 +27,7 @@ export default function RootLayout({
   };
 
   useEffect(() => {
-    if (!userData) {
-      parseData();
-    }
+    parseData();
   }, [userData, setUserData]);
 
   // Check for isUnauthorized parameter in URL and show flash message
@@ -54,9 +52,7 @@ export default function RootLayout({
         <Navbar />
       </div>
       <div className="h-full">
-        <Suspense fallback={<div>Loading ...</div>}>
-          {children}
-        </Suspense>
+        <Suspense fallback={<div>Loading ...</div>}>{children}</Suspense>
       </div>
     </Fragment>
   );

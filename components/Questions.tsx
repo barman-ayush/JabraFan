@@ -62,7 +62,7 @@ export default function Questions({ id, question, options }: QuestionProps) {
       }
       const data = await response.json();
       if (data.success) setUserAnswer(selectedOption);
-      flash("Bet placed successfully!", { variant: "info" });
+      flash("Prediction submitted successfully!", { variant: "info" });
     } catch (e : any) {
       console.log("Error " , e);
       flash("Answer Not Submitted!", { variant: "error" });
@@ -156,12 +156,12 @@ export default function Questions({ id, question, options }: QuestionProps) {
           ) : isAnsweredByUser ? (
             <div className="flex items-center text-green-600">
               <CheckCircle className="h-5 w-5 mr-1" />
-              <span className="text-sm font-medium">Your bet placed</span>
+              <span className="text-sm font-medium">Your prediction submitted</span>
             </div>
           ) : (
             <div className="flex items-center text-blue-600">
               <Clock className="h-5 w-5 mr-1" />
-              <span className="text-sm font-medium">Open for betting</span>
+              <span className="text-sm font-medium">Open for predictions</span>
             </div>
           )}
         </div>
@@ -262,7 +262,7 @@ export default function Questions({ id, question, options }: QuestionProps) {
                   <CheckIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="font-medium">Congratulations! Your answer was correct.</p>
-                    <p className="mt-1">You&apos;ve earned credits for this correct prediction.</p>
+                    <p className="mt-1">You&apos;ve earned points for this correct prediction.</p>
                   </div>
                 </>
               ) : (
@@ -283,7 +283,7 @@ export default function Questions({ id, question, options }: QuestionProps) {
             <div className="flex items-start">
               <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
               <p>
-                This question has already been answered by the admin. Betting is
+                This question has already been answered by the admin. Predictions are
                 closed for this question.
               </p>
             </div>
@@ -294,7 +294,7 @@ export default function Questions({ id, question, options }: QuestionProps) {
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
             <div className="flex items-start">
               <CheckCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-              <p>Your bet has been placed. Waiting for the final result.</p>
+              <p>Your prediction has been submitted. Waiting for the final result.</p>
             </div>
           </div>
         )}
@@ -311,19 +311,19 @@ export default function Questions({ id, question, options }: QuestionProps) {
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Placing Bet...
+                Submitting...
               </>
             ) : (
-              "Place Bet"
+              "Submit Prediction"
             )}
           </Button>
         ) : isAnsweredByUser ? (
           <Button size="lg" disabled variant="outline" className="font-medium">
-            Bet Placed
+            Prediction Submitted
           </Button>
         ) : (
           <Button size="lg" disabled variant="outline" className="font-medium">
-            Betting Closed
+            Predictions Closed
           </Button>
         )}
       </CardFooter>

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Trophy, ArrowLeft, Users, Coins, CheckCircle } from "lucide-react";
+import { Calendar, Clock, Trophy, ArrowLeft, Users, Gift, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Match, Question } from "@/utils/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -114,43 +114,45 @@ export default function MatchPage({ params }: { params: any }) {
         </Button>
       </div>
 
-      <Card className="shadow-sm">
-        <CardHeader className="pb-2">
+      <Card className="shadow-sm bg-purple-950 border border-purple-900">
+        <CardHeader className="pb-2 border-b border-purple-800">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
-              <Trophy className="h-5 w-5 text-primary mr-2" />
-              <CardTitle>{match.league}</CardTitle>
+              <div className="bg-pink-500/10 p-2 rounded-lg mr-2">
+                <Trophy className="h-5 w-5 text-pink-400" />
+              </div>
+              <CardTitle className="text-pink-100">{match.league}</CardTitle>
             </div>
             {isCompleted ? (
-              <Badge variant="secondary" className="flex items-center">
+              <Badge variant="secondary" className="bg-purple-800 text-pink-100 hover:bg-purple-700">
                 <CheckCircle className="mr-1 h-3 w-3" />
                 Completed
               </Badge>
             ) : isLive ? (
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              <Badge variant="outline" className="bg-green-900 text-green-300 border-green-700 animate-pulse">
                 <Clock className="mr-1 h-3 w-3" />
                 Live
               </Badge>
             ) : (
-              <Badge variant="outline" className="flex items-center">
+              <Badge variant="outline" className="flex items-center bg-purple-800 text-pink-100 border-purple-700">
                 <Clock className="mr-1 h-3 w-3" />
                 Upcoming
               </Badge>
             )}
           </div>
-          <CardDescription className="flex items-center mt-2">
-            <Calendar className="mr-1 h-4 w-4" />
+          <CardDescription className="flex items-center mt-2 text-pink-200">
+            <Calendar className="mr-1 h-4 w-4 text-pink-300" />
             {formattedDate} at {formattedTime}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-purple-900/50">
           <div className="flex justify-center items-center gap-x-10 py-6">
             <div className="text-center flex-1">
-              <h2 className="text-2xl font-bold">{match.team1}</h2>
+              <h2 className="text-2xl font-bold text-pink-100">{match.team1}</h2>
             </div>
-            <div className="text-xl font-bold text-muted-foreground">vs</div>
+            <div className="text-xl font-bold text-pink-300">vs</div>
             <div className="text-center flex-1">
-              <h2 className="text-2xl font-bold">{match.team2}</h2>
+              <h2 className="text-2xl font-bold text-pink-100">{match.team2}</h2>
             </div>
           </div>
         </CardContent>
@@ -160,23 +162,23 @@ export default function MatchPage({ params }: { params: any }) {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="questions" className="flex items-center">
             <Clock className="h-4 w-4 mr-2" />
-            Questions
+            Predictions
           </TabsTrigger>
           <TabsTrigger value="leaderboard" className="flex items-center">
             <Users className="h-4 w-4 mr-2" />
             Leaderboard
           </TabsTrigger>
           <TabsTrigger value="earnings" className="flex items-center">
-            <Coins className="h-4 w-4 mr-2" />
-            Earnings
+            <Gift className="h-4 w-4 mr-2" />
+            Rewards
           </TabsTrigger>
         </TabsList>
         
         <TabsContent value="questions" className="mt-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Match Questions</h2>
+            <h2 className="text-2xl font-bold">Match Predictions</h2>
             <Badge variant="outline" className="text-xs">
-              {questions.length} questions
+              {questions.length} predictions
             </Badge>
           </div>
 
@@ -185,7 +187,7 @@ export default function MatchPage({ params }: { params: any }) {
               <Card className="shadow-sm">
                 <CardContent className="p-10 text-center">
                   <p className="text-muted-foreground">
-                    No questions available for this match
+                    No predictions available for this match
                   </p>
                 </CardContent>
               </Card>
@@ -215,7 +217,7 @@ export default function MatchPage({ params }: { params: any }) {
         
         <TabsContent value="earnings" className="mt-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Your Earnings</h2>
+            <h2 className="text-2xl font-bold">Your Rewards</h2>
           </div>
           
           <MatchEarnings matchId={matchId} matchDate={matchDate} />
