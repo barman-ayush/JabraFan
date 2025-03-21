@@ -6,7 +6,10 @@ export async function POST() {
     const cookieStore = cookies();
 
     // Clear the auth token by setting an expired cookie with the same path and name
-    cookieStore.set("auth_token", "", {
+    (
+      await // Clear the auth token by setting an expired cookie with the same path and name
+      cookieStore
+    ).set("auth_token", "", {
       expires: new Date(0),
       path: "/",
     });

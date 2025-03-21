@@ -44,7 +44,7 @@ export function ProfileButton() {
 
       // Redirect to home page and force a full page refresh
       // This ensures all state is reset and the cookie change takes effect
-      router.push("/", { force: true });
+      router.push("/");
       router.refresh();
     } catch (error) {
       console.error("Error during logout:", error);
