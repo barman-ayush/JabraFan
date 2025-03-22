@@ -15,20 +15,19 @@ export default function RootLayout({
   const { flash } = useFlash(); // Get the flash function from your hook
   const searchParams = useSearchParams(); // Get search parameters from URL
 
-  const parseData = async () => {
-    const response = await (
-      await fetch("/api/auth/parsecookie", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
-    ).json();
-    if (!response.success) return;
-    setUserData(response.userData);
-  };
-
   useEffect(() => {
+    const parseData = async () => {
+      const response = await (
+        await fetch("/api/auth/parsecookie", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        })
+      ).json();
+      if (!response.success) return;
+      setUserData(response.userData);
+    };
     parseData();
-  }, [userData, setUserData]);
+  }, [setUserData]);
 
   // Check for isUnauthorized parameter in URL and show flash message
   useEffect(() => {

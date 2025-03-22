@@ -13,12 +13,34 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Trophy, ArrowLeft, Users, Gift, CheckCircle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Trophy,
+  ArrowLeft,
+  Users,
+  Gift,
+  CheckCircle,
+} from "lucide-react";
 import Link from "next/link";
 import { Match, Question } from "@/utils/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchLeaderboard from "@/components/leaderboard-matches.component";
 import MatchEarnings from "@/components/match-earning.component";
+import Image from "next/image";
+
+const teamImageMap: Record<string, string> = {
+  "Mumbai Indians": "/images/MI.png",
+  "Chennai Super Kings": "/images/CSK.png",
+  "Royal Challengers Bangaluru": "/images/RCB.png",
+  "Kolkata Knight Riders": "/images/KKR.png",
+  "Delhi Capitals": "/images/DC.jpg",
+  "Sunrisers Hyderabad": "/images/SRH.png",
+  "Punjab Kings": "/images/PBKS.png",
+  "Rajasthan Royals": "/images/RR.png",
+  "Gujarat Titans": "/images/GT.png",
+  "Lucknow Super Giants": "/images/LSG.png",
+};
 
 export default function MatchPage({ params }: { params: any }) {
   const { matchId } = params;
@@ -79,7 +101,7 @@ export default function MatchPage({ params }: { params: any }) {
 
   const matchDate = new Date(match.date);
   const now = new Date();
-  
+
   // Determine match status based on data
   const isUpcoming = matchDate > now;
   const isLive = !match.isCompleted && !isUpcoming;
@@ -124,17 +146,26 @@ export default function MatchPage({ params }: { params: any }) {
               <CardTitle className="text-pink-100">{match.league}</CardTitle>
             </div>
             {isCompleted ? (
-              <Badge variant="secondary" className="bg-purple-800 text-pink-100 hover:bg-purple-700">
+              <Badge
+                variant="secondary"
+                className="bg-purple-800 text-pink-100 hover:bg-purple-700"
+              >
                 <CheckCircle className="mr-1 h-3 w-3" />
                 Completed
               </Badge>
             ) : isLive ? (
-              <Badge variant="outline" className="bg-green-900 text-green-300 border-green-700 animate-pulse">
+              <Badge
+                variant="outline"
+                className="bg-green-900 text-green-300 border-green-700 animate-pulse"
+              >
                 <Clock className="mr-1 h-3 w-3" />
                 Live
               </Badge>
             ) : (
-              <Badge variant="outline" className="flex items-center bg-purple-800 text-pink-100 border-purple-700">
+              <Badge
+                variant="outline"
+                className="flex items-center bg-purple-800 text-pink-100 border-purple-700"
+              >
                 <Clock className="mr-1 h-3 w-3" />
                 Upcoming
               </Badge>
@@ -146,13 +177,55 @@ export default function MatchPage({ params }: { params: any }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="bg-purple-900/50">
-          <div className="flex justify-center items-center gap-x-10 py-6">
+          <div className="flex justify-center items-center gap-x-8 py-6">
             <div className="text-center flex-1">
-              <h2 className="text-2xl font-bold text-pink-100">{match.team1}</h2>
+              <div className="flex flex-col items-center">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-purple-800 mb-3 bg-white/10 shadow-lg flex items-center justify-center">
+                  {teamImageMap[match.team1] ? (
+                    <Image
+                      src={teamImageMap[match.team1]}
+                      alt={match.team1}
+                      width={96}
+                      height={96}
+                      className="object-contain p-2"
+                    />
+                  ) : (
+                    <span className="text-2xl font-bold">
+                      {match.team1.substring(0, 2)}
+                    </span>
+                  )}
+                </div>
+                <h2 className="text-2xl font-bold text-pink-100">
+                  {match.team1}
+                </h2>
+              </div>
             </div>
-            <div className="text-xl font-bold text-pink-300">vs</div>
+
+            <div className="text-xl font-bold text-pink-300 bg-purple-950 rounded-full p-3 border border-purple-800 shadow-md">
+              VS
+            </div>
+
             <div className="text-center flex-1">
-              <h2 className="text-2xl font-bold text-pink-100">{match.team2}</h2>
+              <div className="flex flex-col items-center">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-purple-800 mb-3 bg-white/10 shadow-lg flex items-center justify-center">
+                  {teamImageMap[match.team2] ? (
+                    <Image
+                      src={teamImageMap[match.team2]}
+                      alt={match.team2}
+                      width={96}
+                      height={96}
+                      className="object-contain p-2"
+                    />
+                  ) : (
+                    <span className="text-2xl font-bold">
+                      {match.team2.substring(0, 2)}
+                    </span>
+                  )}
+                </div>
+                <h2 className="text-2xl font-bold text-pink-100">
+                  {match.team2}
+                </h2>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -173,7 +246,7 @@ export default function MatchPage({ params }: { params: any }) {
             Rewards
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="questions" className="mt-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Match Predictions</h2>
@@ -206,20 +279,20 @@ export default function MatchPage({ params }: { params: any }) {
             )}
           </div>
         </TabsContent>
-        
+
         <TabsContent value="leaderboard" className="mt-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Match Standings</h2>
           </div>
-          
+
           <MatchLeaderboard matchId={matchId} matchDate={matchDate} />
         </TabsContent>
-        
+
         <TabsContent value="earnings" className="mt-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Your Rewards</h2>
           </div>
-          
+
           <MatchEarnings matchId={matchId} matchDate={matchDate} />
         </TabsContent>
       </Tabs>
