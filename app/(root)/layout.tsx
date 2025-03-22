@@ -11,7 +11,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userData, setUserData } = useUserContext();
+  const {setUserData } = useUserContext();
   const { flash } = useFlash(); // Get the flash function from your hook
   const searchParams = useSearchParams(); // Get search parameters from URL
 

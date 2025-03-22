@@ -163,7 +163,7 @@ export function DrawerContentWithParams() {
     try {
       const destinationURL = new URL(redirect_url, window.location.origin);
       // router.push(destinationURL.pathname);
-      router.replace(destinationURL.pathname);
+      window.location.href = destinationURL.pathname;
       console.log(" DESTINATION ", destinationURL);
     } catch (error: any) {
       console.log("ERROR ", error);
