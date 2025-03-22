@@ -96,23 +96,23 @@ export async function middleware(request: NextRequest) {
   if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
     try {
       const decodedToken = await verifyToken(authToken as string);
-      
+
       if (!decodedToken) {
         const redirectUrl = new URL(CONFIG.landingPageUrl, request.nextUrl.origin);
         redirectUrl.searchParams.set('isUnauthorized', 'true');
         return NextResponse.redirect(redirectUrl);
       }
-      
+
       // Check if the phone number in the token matches the admin phone in env
       const adminPhones = (process.env.ADMIN_PHONES || '').split(',').map(phone => phone.trim());
-      
+
       if (!adminPhones.includes(decodedToken.phone as string)) {
         console.log(`Unauthorized admin access attempt: ${path} by ${decodedToken.phone}`);
         const redirectUrl = new URL(CONFIG.landingPageUrl, request.nextUrl.origin);
         redirectUrl.searchParams.set('isUnauthorized', 'true');
         return NextResponse.redirect(redirectUrl);
       }
-      
+
       console.log(`Admin access granted to ${decodedToken.name} (${decodedToken.phone})`);
     } catch (error) {
       console.error('Error in admin route check:', error);
