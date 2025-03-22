@@ -49,10 +49,7 @@ export function UserProfile() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const isFormInitialized = useRef(false);
 
-  // Replace the current useEffect that's causing the problem
   useEffect(() => {
-    // Only set the initial values when the component mounts or when userData first becomes available
-    // Use a ref to track if we've already initialized the form values
     if (userData && !isFormInitialized.current) {
       setUsername(userData.name || "");
       setUpiId(userData.upiId || "");
