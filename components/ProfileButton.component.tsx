@@ -42,10 +42,11 @@ export function ProfileButton() {
       // Show success message
       flash("Logged out successfully", { variant: "success" });
 
-      // Redirect to home page and force a full page refresh
-      // This ensures all state is reset and the cookie change takes effect
+      // Redirect to home page
       router.push("/");
-      router.refresh();
+
+      // Perform a hard refresh of the page
+      window.location.href = window.location.origin;
     } catch (error) {
       console.error("Error during logout:", error);
       flash("Failed to log out", { variant: "error" });

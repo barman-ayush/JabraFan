@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,14 +47,20 @@ export function UserProfile() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingTransactions, setLoadingTransactions] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
+  const isFormInitialized = useRef(false);
 
+  // Replace the current useEffect that's causing the problem
   useEffect(() => {
-    // Update state when userData changes
-    if (userData) {
+    // Only set the initial values when the component mounts or when userData first becomes available
+    // Use a ref to track if we've already initialized the form values
+    if (userData && !isFormInitialized.current) {
       setUsername(userData.name || "");
       setUpiId(userData.upiId || "");
+      isFormInitialized.current = true;
     }
   }, [userData]);
+
+  // Add this at the top of your component, with the other state declarations:
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -119,7 +125,7 @@ export function UserProfile() {
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
         // Update user data in context
         setUserData(result.userData);
@@ -127,7 +133,9 @@ export function UserProfile() {
         setIsEditingUsername(false);
         router.refresh();
       } else {
-        flash(result.error || "Failed to update username", { variant: "error" });
+        flash(result.error || "Failed to update username", {
+          variant: "error",
+        });
       }
     } catch (error) {
       flash("An error occurred while updating username", { variant: "error" });
@@ -327,9 +335,9 @@ export function UserProfile() {
   // Count transactions by status for the filter tabs
   const transactionCounts = {
     all: transactions.length,
-    pending: transactions.filter(t => t.status === "pending").length,
-    approved: transactions.filter(t => t.status === "approved").length,
-    rejected: transactions.filter(t => t.status === "rejected").length
+    pending: transactions.filter((t) => t.status === "pending").length,
+    approved: transactions.filter((t) => t.status === "approved").length,
+    rejected: transactions.filter((t) => t.status === "rejected").length,
   };
 
   return (
@@ -384,9 +392,9 @@ export function UserProfile() {
                       autoFocus
                     />
                     <div className="flex gap-2">
-                      <Button 
+                      <Button
                         size="sm"
-                        onClick={handleUpdateUsername} 
+                        onClick={handleUpdateUsername}
                         disabled={isUpdatingUsername}
                         className="text-xs"
                       >
@@ -399,9 +407,9 @@ export function UserProfile() {
                           "Save"
                         )}
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={() => {
                           setIsEditingUsername(false);
                           setUsername(userData?.name || "");
@@ -415,15 +423,26 @@ export function UserProfile() {
                 ) : (
                   <>
                     <h2 className="text-xl font-semibold">{userData?.name}</h2>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="ml-2 p-1 h-auto" 
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="ml-2 p-1 h-auto"
                       onClick={() => setIsEditingUsername(true)}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                        <path d="m15 5 4 4"/>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
+                      >
+                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                        <path d="m15 5 4 4" />
                       </svg>
                     </Button>
                   </>
@@ -488,7 +507,7 @@ export function UserProfile() {
                   className="flex items-center gap-2"
                 >
                   {isRedeeming ? (
-                    <>  
+                    <>
                       <div className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
                       Processing...
                     </>
@@ -525,8 +544,8 @@ export function UserProfile() {
             </div>
 
             <div className="pt-2">
-              <Button 
-                onClick={handleUpdateProfile} 
+              <Button
+                onClick={handleUpdateProfile}
                 disabled={isUpdating}
                 className="flex items-center gap-2"
               >
@@ -552,8 +571,8 @@ export function UserProfile() {
           </div>
 
           {/* Status filter tabs */}
-          <Tabs 
-            defaultValue="all" 
+          <Tabs
+            defaultValue="all"
             value={activeFilter}
             onValueChange={(value) => setActiveFilter(value as FilterType)}
             className="mb-6"
@@ -561,19 +580,30 @@ export function UserProfile() {
             <TabsList className="grid grid-cols-4 mb-4">
               <TabsTrigger value="all" className="flex gap-2 items-center">
                 All
-                <Badge variant="secondary" className="ml-1">{transactionCounts.all}</Badge>
+                <Badge variant="secondary" className="ml-1">
+                  {transactionCounts.all}
+                </Badge>
               </TabsTrigger>
               <TabsTrigger value="pending" className="flex gap-2 items-center">
-                <Clock className="h-3 w-3" />Pending
-                <Badge variant="secondary" className="ml-1">{transactionCounts.pending}</Badge>
+                <Clock className="h-3 w-3" />
+                Pending
+                <Badge variant="secondary" className="ml-1">
+                  {transactionCounts.pending}
+                </Badge>
               </TabsTrigger>
               <TabsTrigger value="approved" className="flex gap-2 items-center">
-                <CheckCircle className="h-3 w-3" />Approved
-                <Badge variant="secondary" className="ml-1">{transactionCounts.approved}</Badge>
+                <CheckCircle className="h-3 w-3" />
+                Approved
+                <Badge variant="secondary" className="ml-1">
+                  {transactionCounts.approved}
+                </Badge>
               </TabsTrigger>
               <TabsTrigger value="rejected" className="flex gap-2 items-center">
-                <XCircle className="h-3 w-3" />Rejected
-                <Badge variant="secondary" className="ml-1">{transactionCounts.rejected}</Badge>
+                <XCircle className="h-3 w-3" />
+                Rejected
+                <Badge variant="secondary" className="ml-1">
+                  {transactionCounts.rejected}
+                </Badge>
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -598,8 +628,8 @@ export function UserProfile() {
             </div>
           ) : filteredTransactions.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              {activeFilter === "all" 
-                ? "No transaction history found." 
+              {activeFilter === "all"
+                ? "No transaction history found."
                 : `No ${activeFilter} transactions found.`}
             </div>
           ) : (
