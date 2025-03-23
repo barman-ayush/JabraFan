@@ -19,7 +19,7 @@ import Image from "next/image";
 const teamImageMap: Record<string, string> = {
   "Mumbai Indians": "/images/MI.png",
   "Chennai Super Kings": "/images/CSK.png",
-  "Royal Challengers Bangaluru": "/images/RCB.png",
+  "Royal Challengers Bengaluru": "/images/RCB.png",
   "Kolkata Knight Riders": "/images/KKR.png",
   "Delhi Capitals": "/images/DC.jpg",
   "Sunrisers Hyderabad": "/images/SRH.png",

@@ -14,7 +14,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import LanguageSwitcher from "./GoogleTranslate.component";
 
 const Navbar = () => {
   const { setIsOpen } = useDrawerContext();
@@ -34,7 +33,7 @@ const Navbar = () => {
         <Logo />
       </div>
 
-      <ul className="hidden md:flex items-center pr-28 gap-10 text-indigo-700 dark:text-yellow-400 drop-shadow-md">
+      <ul className="hidden md:flex items-center pr-12 gap-10 text-indigo-700 dark:text-yellow-400 drop-shadow-md">
         <li className="font-medium hover:text-indigo-500 dark:hover:text-yellow-300 transition-colors">
           <Link href="/">Home</Link>
         </li>
@@ -43,9 +42,6 @@ const Navbar = () => {
         </li>
         <li className="hover:text-indigo-500 dark:hover:text-yellow-300 transition-colors">
           <Link href="/admin">Admin</Link>
-        </li>
-        <li className="hover:text-indigo-500 dark:hover:text-yellow-300 transition-colors">
-          <LanguageSwitcher />
         </li>
       </ul>
       <div className="flex items-center gap-2">
@@ -157,9 +153,6 @@ const Navbar = () => {
                 <Link href="/matches" className="w-full">
                   Matches
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <LanguageSwitcher />
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Link href="/admin" className="w-full">
