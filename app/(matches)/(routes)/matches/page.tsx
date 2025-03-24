@@ -309,7 +309,7 @@ function MatchCard({ match }: { match: Match }) {
                     variant="outline"
                     className="text-xs bg-purple-900 text-pink-100 border-purple-800"
                   >
-                    {answeredCount}/{totalQuestions} answered
+                    {answeredCount}/{totalQuestions} Validated by admin
                   </Badge>
                 </div>
 
