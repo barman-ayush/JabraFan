@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+mb-32 md:mb-0/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
@@ -205,7 +205,7 @@ export function DrawerContentWithParams() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -100, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-4 mb-32 md:mb-0"
             >
               <div className="flex items-center">
                 <span className="text-sm text-muted-foreground mr-2">+91</span>
@@ -232,7 +232,7 @@ export function DrawerContentWithParams() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-8"
+              className="flex flex-col items-center justify-center py-8 mb-32 md:mb-0"
             >
               <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
               <p className="text-sm text-muted-foreground">
@@ -247,7 +247,7 @@ export function DrawerContentWithParams() {
               initial={{ x: 100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-4 mb-32 md:mb-0"
             >
               <div className="flex justify-center py-2">
                 <InputOTPBox value={otp} onChange={setOtp} />
@@ -282,7 +282,7 @@ export function DrawerContentWithParams() {
               initial={{ x: 100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-4 mb-32 md:mb-0"
             >
               <div className="flex flex-col items-center justify-center py-2">
                 <UserCircle className="h-16 w-16 text-primary mb-4" />
@@ -317,7 +317,7 @@ export function DrawerContentWithParams() {
 
       <DrawerFooter>
         <DrawerClose asChild>
-          <Button variant="outline">Cancel</Button>
+          <Button variant="outline" className="mb-10 md:mb-0">Cancel</Button>
         </DrawerClose>
       </DrawerFooter>
     </div>
