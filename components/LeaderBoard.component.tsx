@@ -5,7 +5,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardContent } from "@/components/ui/card"
+// import { Card, CardContent } from "@/components/ui/card"
 import { Trophy, Medal } from "lucide-react"
 
 // Define the user type
@@ -208,7 +208,7 @@ export default function Leaderboard() {
       </div>
 
       {/* Top Users Cards - Mobile Friendly Alternative */}
-      <div className="mt-8 md:hidden space-y-3">
+      {/* <div className="mt-8 md:hidden space-y-3">
         {topUsers.map((user, index) => {
           return (
             <motion.div
@@ -243,8 +243,8 @@ export default function Leaderboard() {
               </Card>
             </motion.div>
           )
-        })}
-      </div>
+        })} */}
+      {/* </div> */}
     </div>
   )
 }
