@@ -1,4 +1,4 @@
-mb-32 md:mb-0/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
@@ -213,7 +213,7 @@ export function DrawerContentWithParams() {
                   type="tel"
                   placeholder="Phone number"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={(e : any) => setPhoneNumber(e.target.value)}
                   maxLength={10}
                 />
               </div>
@@ -290,7 +290,7 @@ export function DrawerContentWithParams() {
                   type="text"
                   placeholder="Enter your name"
                   value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
+                  onChange={(e : any) => setUserName(e.target.value)}
                   className="mb-2"
                 />
                 <p className="text-sm text-muted-foreground text-center">
