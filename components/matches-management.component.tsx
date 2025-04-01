@@ -51,6 +51,7 @@ export function MatchesManagement() {
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [endingQuestions, setEndingQuestions] = useState<Record<string, boolean>>({});
 
   React.useEffect(() => {
     const fetchAllMatches = async () => {
@@ -73,6 +74,61 @@ export function MatchesManagement() {
 
     fetchAllMatches();
   }, []);
+
+  const handleEndQues = async (questionId: string) => {
+    try {
+      // Set loading state for this specific question
+      setEndingQuestions(prev => ({ ...prev, [questionId]: true }));
+      
+      const response = await fetch("/api/admin/endques", {
+        method: "POST",
+        body: JSON.stringify({ questionId: questionId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to end question: ${response.status}`);
+      }
+
+      const receivedResponse = await response.json();
+      console.log("[ END_QUES ]", receivedResponse);
+      
+      if(!receivedResponse.success){
+        flash(receivedResponse.error , {variant : "error"});
+        return;
+      }
+      
+      const { data } = receivedResponse;
+      
+      // Update the match data in state with the updated question
+      setMatches(prevMatches => {
+        return prevMatches.map(match => {
+          if (match.id === selectedMatch) {
+            return {
+              ...match,
+              questions: match.questions.map(q => {
+                if (q.id === questionId) {
+                  return {
+                    ...q,
+                    isActive: false // Update isActive status from the response
+                  };
+                }
+                return q;
+              })
+            };
+          }
+          return match;
+        });
+      });
+      
+      flash("Question has been ended successfully", { variant: "success" });
+    } catch (e) {
+      console.error("Error ending question:", e);
+      flash("Internal Error", { variant: "error" });
+    } finally {
+      // Clear loading state for this question
+      setEndingQuestions(prev => ({ ...prev, [questionId]: false }));
+    }
+  };
 
   const fetchGeneratedQuestions = async () => {
     if (!selectedMatch) return;
@@ -145,7 +201,7 @@ export function MatchesManagement() {
             answer,
           }),
         });
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || `Error: ${response.status}`);
@@ -178,7 +234,7 @@ export function MatchesManagement() {
       } catch (error) {
         console.error("Error submitting answer:", error);
         flash("Failed to submit answer", { variant: "error" });
-      }finally{
+      } finally {
         setIsAnswering(false);
       }
     }
@@ -278,7 +334,7 @@ export function MatchesManagement() {
             prev.map((m) => (m.id === selectedMatch ? updatedMatch : m))
           );
         }
-        
+
         // Reset selected questions and close dialog
         setIsAddingQuestion(false);
         setSelectedQuestionIndices([]);
@@ -293,46 +349,47 @@ export function MatchesManagement() {
     }
   };
 
-  const handleEndContest = async() => {
-    try{
-      if(!selectedMatch){
-        flash("Please select a match to end" , {variant : "error"});
+  const handleEndContest = async () => {
+    try {
+      if (!selectedMatch) {
+        flash("Please select a match to end", { variant: "error" });
         return;
       }
-      if(!isAllAnswered()){
-        flash("Answer all question before ending" , {variant : "warning"});
+      if (!isAllAnswered()) {
+        flash("Answer all question before ending", { variant: "warning" });
         return;
       }
-      const response = await fetch(`/api/admin/matches/${selectedMatch}/endmatch`);
+      const response = await fetch(
+        `/api/admin/matches/${selectedMatch}/endmatch`
+      );
       const updatedMatch = await response.json();
-      if(!response.ok){
-        flash("Couldn&apos;t end match" , {variant : "error"});
+      if (!response.ok) {
+        flash("Couldn&apos;t end match", { variant: "error" });
         return;
       }
       setMatches((prev) =>
         prev.map((m) => (m.id === selectedMatch ? updatedMatch.data : m))
       );
       flash("Updated Successfully");
-    }catch(error){
-      console.log("ERROR" , error);
-      flash("Could Not End Contest" , {variant : "error"});
+    } catch (error) {
+      console.log("ERROR", error);
+      flash("Could Not End Contest", { variant: "error" });
     }
-  }
-  
-  const isAllAnswered = () => {
-    if(!selectedMatch || !(selectedMatchData?.questions)) return false;
-    return selectedMatchData?.questions.every((q) => {
-      return q.answer !== null && 
-             q.answer !== undefined &&
-             q.status !== "unanswered";
-    });
-  }
+  };
 
-  
+  const isAllAnswered = () => {
+    if (!selectedMatch || !selectedMatchData?.questions) return false;
+    return selectedMatchData?.questions.every((q) => {
+      return (
+        q.answer !== null && q.answer !== undefined && q.status !== "unanswered"
+      );
+    });
+  };
+
   const selectedMatchData = selectedMatch
-  ? matches.find((m) => m.id === selectedMatch)
-  : null;
-  
+    ? matches.find((m) => m.id === selectedMatch)
+    : null;
+
   return (
     <div className="space-y-6 mx-3 md:mt-20 md:mx-20">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -405,17 +462,21 @@ export function MatchesManagement() {
             {selectedMatchData && (
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button onClick={handleOpenQuestionDialog} disabled={selectedMatchData.isCompleted}>
+                  <Button
+                    onClick={handleOpenQuestionDialog}
+                    disabled={selectedMatchData.isCompleted}
+                  >
                     <Plus className="mr-2 h-4 w-4" />
-                    {
-                      selectedMatchData.isCompleted ? 
-                      "Contest has ended !!"
-                      :
-                      "Generate Questions"  
-                    }
+                    {selectedMatchData.isCompleted
+                      ? "Contest has ended !!"
+                      : "Generate Questions"}
                   </Button>
                 </DialogTrigger>
-                <Button onClick={handleEndContest} variant={"destructive"} disabled={selectedMatchData.isCompleted}>
+                <Button
+                  onClick={handleEndContest}
+                  variant={"destructive"}
+                  disabled={selectedMatchData.isCompleted}
+                >
                   End Contest
                 </Button>
                 <DialogContent className="sm:max-w-[525px]">
@@ -439,26 +500,32 @@ export function MatchesManagement() {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {availableQuestions.map((questionItem: APIQuestion, index) => (
-                          <div
-                            key={index}
-                            className="flex items-start space-x-3 py-2"
-                          >
-                            <Checkbox
-                              id={`question-${index}`}
-                              checked={selectedQuestionIndices.includes(index)}
-                              onCheckedChange={() => handleCheckQuestion(index)}
-                            />
-                            <div className="grid gap-1.5 leading-none">
-                              <Label
-                                htmlFor={`question-${index}`}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                {questionItem.question}
-                              </Label>
+                        {availableQuestions.map(
+                          (questionItem: APIQuestion, index) => (
+                            <div
+                              key={index}
+                              className="flex items-start space-x-3 py-2"
+                            >
+                              <Checkbox
+                                id={`question-${index}`}
+                                checked={selectedQuestionIndices.includes(
+                                  index
+                                )}
+                                onCheckedChange={() =>
+                                  handleCheckQuestion(index)
+                                }
+                              />
+                              <div className="grid gap-1.5 leading-none">
+                                <Label
+                                  htmlFor={`question-${index}`}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  {questionItem.question}
+                                </Label>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     )}
                   </ScrollArea>
@@ -526,19 +593,26 @@ export function MatchesManagement() {
                       <div className="flex justify-between items-start mb-3">
                         <div className="space-y-1">
                           <h3 className="font-medium">{question.text}</h3>
-                          <Badge
-                            variant={
-                              question.status === "answered"
-                                ? "default"
-                                : question.status === "unanswered"
-                                ? "outline"
-                                : "secondary"
-                            }
-                          >
-                            {question.status === "answered"
-                              ? `Answered: ${question.answer}`
-                              : question.status}
-                          </Badge>
+                          <div className="flex space-x-2">
+                            <Badge
+                              variant={
+                                question.status === "answered"
+                                  ? "default"
+                                  : question.status === "unanswered"
+                                  ? "outline"
+                                  : "secondary"
+                              }
+                            >
+                              {question.status === "answered"
+                                ? `Answered: ${question.answer}`
+                                : question.status}
+                            </Badge>
+                            {question.isActive === false && (
+                              <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
+                                Inactive
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -570,41 +644,40 @@ export function MatchesManagement() {
                             </div>
                           </RadioGroup>
 
-                          <Button
-                            onClick={() => handleSubmitAnswer(question.id)}
-                            disabled={!answers[question.id] || isAnswering}
-                            size="sm"
-                          >
-                            {isAnswering ? (
-                              <>
-                                <span className="mr-2">
-                                  <svg
-                                    className="animate-spin h-4 w-4"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <circle
-                                      className="opacity-25"
-                                      cx="12"
-                                      cy="12"
-                                      r="10"
-                                      stroke="currentColor"
-                                      strokeWidth="4"
-                                    ></circle>
-                                    <path
-                                      className="opacity-75"
-                                      fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                                    ></path>
-                                  </svg>
-                                </span>
-                                Submitting...
-                              </>
-                            ) : (
-                              <>Submit Answer</>
-                            )}
-                          </Button>
+                          <div className="flex space-x-4">
+                            <Button
+                              onClick={() => handleSubmitAnswer(question.id)}
+                              disabled={!answers[question.id] || isAnswering}
+                              size="sm"
+                            >
+                              {isAnswering ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Submitting...
+                                </>
+                              ) : (
+                                <>Submit Answer</>
+                              )}
+                            </Button>
+                            
+                            <Button
+                              onClick={() => handleEndQues(question.id)}
+                              disabled={endingQuestions[question.id] || question.isActive === false}
+                              size="sm"
+                              variant={question.isActive === false ? "outline" : "default"}
+                            >
+                              {endingQuestions[question.id] ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Ending...
+                                </>
+                              ) : question.isActive === false ? (
+                                <>Question Ended</>
+                              ) : (
+                                <>End Question</>
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       )}
                     </div>

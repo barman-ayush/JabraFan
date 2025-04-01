@@ -3,6 +3,8 @@ export type Question = {
   text: string;
   status: "answered" | "unanswered";
   answer: string | null;
+  isActive : boolean;
+
 };
 
 export type Match = {

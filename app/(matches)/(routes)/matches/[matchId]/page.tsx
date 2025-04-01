@@ -55,10 +55,10 @@ export default function MatchPage({ params }: { params: any }) {
       return data;
     }
 
-    getMatchData().then((matchData) => {
+    getMatchData().then((matchData : any) => {
       if (matchData) {
         setMatch(matchData);
-        setQuestions(matchData.questions || []);
+        setQuestions(matchData.questions.reverse() || []);
       }
 
       setLoading(false);

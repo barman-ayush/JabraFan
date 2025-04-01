@@ -4,15 +4,17 @@ import prismadb from "@/lib/prismadb";
 
 export async function POST(request: Request) {
   try {
-    const { questionId, answer, userId } = await request.json();
+    const { questionId, answer, userId  } = await request.json();
 
     // Basic validation
     if (!questionId || !answer || !userId) {
+
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
         { status: 400 }
       );
     }
+
 
     // Save Answer to database
     await prismadb.answers.create({

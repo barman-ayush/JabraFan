@@ -22,21 +22,22 @@ model User {
 }
 
 model Matches {
-  id            String   @id 
-  team1         String
-  team2         String
-  date          DateTime
-  league        String
-  isCompleted   Boolean  @default(false)
+  id          String   @id
+  team1       String
+  team2       String
+  date        DateTime
+  league      String
+  isCompleted Boolean  @default(false)
 
   questions Questions[]
 }
 
 model Questions {
-  id     String  @id @default(cuid())
-  text   String
-  status String
-  answer String?
+  id       String  @id @default(cuid())
+  text     String
+  status   String
+  answer   String?
+  isActive  Boolean? @default(true)
 
   matchId String
   match   Matches @relation(fields: [matchId], references: [id])

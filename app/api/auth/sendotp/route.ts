@@ -88,6 +88,7 @@ export async function POST(req: Request) {
         // Encrypt the OTP
         const algorithm = 'aes-256-ctr';
         const secretKey = process.env.OTP_SECRET_KEY || 'default-secret-key-change-in-production';
+        // const secretKey = crypto.createHash('sha256').update('your-secret').digest();
         const iv = crypto.randomBytes(16);
         console.log("Here 1" , secretKey);
         const cipher = crypto.createCipheriv(algorithm, secretKey, iv);

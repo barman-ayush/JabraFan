@@ -21,6 +21,7 @@ import {
   CheckIcon,
   XIcon,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { useUserContext } from "@/context/UserContext";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +35,9 @@ type QuestionProps = {
 export default function Questions({ id, question, options }: QuestionProps) {
   const { flash } = useFlash();
   const { userData } = useUserContext();
-  const [selectedOption, setSelectedOption] = React.useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = React.useState<string | null>(
+    null
+  );
   const [userAnswer, setUserAnswer] = useState<string | null | undefined>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,10 +46,16 @@ export default function Questions({ id, question, options }: QuestionProps) {
 
   const isAnsweredByAdmin = question.status === "answered";
   const isAnsweredByUser = userAnswer !== null && userAnswer !== undefined;
+  const isQuestionActive = question.isActive;
 
   const handleSubmitAnswer = async () => {
     try {
       setIsSubmitting(true);
+      // Is the question active to be answered
+      if (!question.isActive) {
+        flash("Question not active !", { variant: "warning" });
+        return;
+      }
       // Update userAnswer state to track that user has answered
       const response = await fetch("/api/user/answer", {
         method: "POST",
@@ -63,8 +72,8 @@ export default function Questions({ id, question, options }: QuestionProps) {
       const data = await response.json();
       if (data.success) setUserAnswer(selectedOption);
       flash("Prediction submitted successfully!", { variant: "info" });
-    } catch (e : any) {
-      console.log("Error " , e);
+    } catch (e: any) {
+      console.log("Error ", e);
       flash("Answer Not Submitted!", { variant: "error" });
     } finally {
       setIsSubmitting(false);
@@ -79,16 +88,16 @@ export default function Questions({ id, question, options }: QuestionProps) {
         const response = await fetch(
           `/api/user/answer?userId=${userData?.id}&questionId=${question.id}`
         );
-        
+
         if (!response.ok) {
           console.error("Failed to fetch user answer");
           setIsLoading(false);
           return;
         }
-        
+
         const data = await response.json();
         console.log(" [FETCHED_ANSWER_BY_USER] ", data);
-        
+
         if (data.success && data.answer) {
           setUserAnswer(data.answer.answer);
         } else {
@@ -100,7 +109,7 @@ export default function Questions({ id, question, options }: QuestionProps) {
         setIsLoading(false);
       }
     };
-    
+
     if (userData?.id && question.id) {
       getUserAnswer();
     } else {
@@ -113,18 +122,6 @@ export default function Questions({ id, question, options }: QuestionProps) {
     return (
       isAnsweredByAdmin && isAnsweredByUser && userAnswer === question.answer
     );
-  };
-
-  // Card tag for question status
-  const renderStatusTag = () => {
-    if (isAnsweredByAdmin && isAnsweredByUser) {
-      return (
-        <Badge className={isUserAnswerCorrect() ? "bg-green-500" : "bg-red-500"}>
-          {isUserAnswerCorrect() ? "Correct" : "Incorrect"}
-        </Badge>
-      );
-    }
-    return null;
   };
 
   if (isLoading) {
@@ -141,29 +138,39 @@ export default function Questions({ id, question, options }: QuestionProps) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          {/* Question title on its own row for mobile, alongside tags on larger screens */}
+          <div className="mb-2 md:mb-0">
             <CardTitle className="text-xl">{question.text}</CardTitle>
-            {renderStatusTag()}
           </div>
 
-          {/* Status indicators */}
-          {isAnsweredByAdmin ? (
-            <div className="flex items-center text-amber-600">
-              <CheckCircle className="h-5 w-5 mr-1" />
-              <span className="text-sm font-medium">Answered by admin</span>
+          {/* Status indicators in a separate row on mobile, right-aligned */}
+          <div className="flex justify-end md:justify-start items-center">
+            <div className="ml-2">
+              {isAnsweredByAdmin ? (
+                <div className=""></div>
+              ) : isAnsweredByUser ? (
+                <div className="flex items-center text-green-600">
+                  <CheckCircle className="h-5 w-5 mr-1" />
+                  <span className="text-sm font-medium">
+                    Prediction submitted
+                  </span>
+                </div>
+              ) : !isQuestionActive ? (
+                <div className="flex items-center text-amber-600">
+                  <AlertTriangle className="h-5 w-5 mr-1" />
+                  <span className="text-sm font-medium">Prediction Closed</span>
+                </div>
+              ) : (
+                <div className="flex items-center text-blue-600">
+                  <Clock className="h-5 w-5 mr-1" />
+                  <span className="text-sm font-medium">
+                    Open for predictions
+                  </span>
+                </div>
+              )}
             </div>
-          ) : isAnsweredByUser ? (
-            <div className="flex items-center text-green-600">
-              <CheckCircle className="h-5 w-5 mr-1" />
-              <span className="text-sm font-medium">Your prediction submitted</span>
-            </div>
-          ) : (
-            <div className="flex items-center text-blue-600">
-              <Clock className="h-5 w-5 mr-1" />
-              <span className="text-sm font-medium">Open for predictions</span>
-            </div>
-          )}
+          </div>
         </div>
       </CardHeader>
 
@@ -172,22 +179,24 @@ export default function Questions({ id, question, options }: QuestionProps) {
           value={userAnswer || selectedOption || ""}
           onValueChange={setSelectedOption}
           className="space-y-3"
-          disabled={isAnsweredByAdmin || isAnsweredByUser}
+          disabled={isAnsweredByAdmin || isAnsweredByUser || !isQuestionActive}
         >
           {options.map((option, index) => {
             // Determine the styling for each option
-            let optionClass = "flex items-center space-x-2 rounded-lg border p-3 transition-colors ";
-            
+            let optionClass =
+              "flex items-center space-x-2 rounded-lg border p-3 transition-colors ";
+
             // User's selected answer
             if (userAnswer === option) {
               if (isAnsweredByAdmin) {
-                optionClass += userAnswer === question.answer 
-                  ? "border-green-500 bg-green-50/70 " 
-                  : "border-red-500 bg-red-50/70 ";
+                optionClass +=
+                  userAnswer === question.answer
+                    ? "border-green-500 bg-green-50/70 "
+                    : "border-red-500 bg-red-50/70 ";
               } else {
                 optionClass += "border-blue-500 bg-blue-50/70 ";
               }
-            } 
+            }
             // Current selection (not submitted)
             else if (selectedOption === option) {
               optionClass += "border-primary bg-primary/5 ";
@@ -198,29 +207,32 @@ export default function Questions({ id, question, options }: QuestionProps) {
             }
             // Other options
             else {
-              optionClass += (isAnsweredByAdmin || isAnsweredByUser)
-                ? "cursor-not-allowed bg-muted/20 " 
-                : "hover:bg-muted/20 cursor-pointer ";
+              optionClass +=
+                isAnsweredByAdmin || isAnsweredByUser || !isQuestionActive
+                  ? "cursor-not-allowed bg-muted/20 "
+                  : "hover:bg-muted/20 cursor-pointer ";
             }
-            
+
             return (
               <div key={index} className={optionClass}>
                 <RadioGroupItem
                   value={option}
                   id={`${option}-${id}`}
                   className="mr-1"
-                  disabled={isAnsweredByAdmin || isAnsweredByUser}
+                  disabled={
+                    isAnsweredByAdmin || isAnsweredByUser || !isQuestionActive
+                  }
                 />
                 <Label
                   htmlFor={`${option}-${id}`}
                   className={`flex-1 ${
-                    isAnsweredByAdmin || isAnsweredByUser
+                    isAnsweredByAdmin || isAnsweredByUser || !isQuestionActive
                       ? "cursor-not-allowed"
                       : "cursor-pointer"
                   } font-medium flex justify-between items-center text-foreground`}
                 >
                   <span>{option}</span>
-                  
+
                   <div className="flex items-center">
                     {/* "Your answer" badge */}
                     {userAnswer === option && (
@@ -261,16 +273,20 @@ export default function Questions({ id, question, options }: QuestionProps) {
                 <>
                   <CheckIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-medium">Congratulations! Your answer was correct.</p>
-                    <p className="mt-1">You&apos;ve earned points for this correct prediction.</p>
+                    <p className="font-medium">
+                      Your answer is correct, and you&apos;ve earned reward
+                      points
+                    </p>
                   </div>
                 </>
               ) : (
                 <>
                   <XIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-medium">Your prediction didn&apos;t match the outcome.</p>
-                    <p className="mt-1">The correct answer was: <span className="font-semibold">{question.answer}</span></p>
+                    <p className="font-medium">
+                      Your answer is incorrect. But don&apos;t worry, keep
+                      trying and earn more reward points! 😊
+                    </p>
                   </div>
                 </>
               )}
@@ -282,10 +298,7 @@ export default function Questions({ id, question, options }: QuestionProps) {
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-700 text-sm">
             <div className="flex items-start">
               <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-              <p>
-                This question has already been answered by the admin. Predictions are
-                closed for this question.
-              </p>
+              <p>Predictions are closed for this question.</p>
             </div>
           </div>
         )}
@@ -294,7 +307,19 @@ export default function Questions({ id, question, options }: QuestionProps) {
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
             <div className="flex items-start">
               <CheckCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-              <p>Your prediction has been submitted. Waiting for the final result.</p>
+              <p>
+                Your prediction has been submitted. Waiting for the final
+                result.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {!isQuestionActive && !isAnsweredByUser && !isAnsweredByAdmin && (
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-700 text-sm">
+            <div className="flex items-start">
+              <AlertTriangle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+              <p>Predictions are closed for this question.</p>
             </div>
           </div>
         )}
@@ -302,28 +327,39 @@ export default function Questions({ id, question, options }: QuestionProps) {
 
       <CardFooter className="flex justify-end pt-2">
         {!isAnsweredByUser && !isAnsweredByAdmin ? (
-          <Button
-            size="lg"
-            disabled={!selectedOption || isSubmitting}
-            className="font-medium"
-            onClick={handleSubmitAnswer}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              "Submit Prediction"
-            )}
-          </Button>
+          isQuestionActive ? (
+            <Button
+              size="lg"
+              disabled={!selectedOption || isSubmitting}
+              className="font-medium"
+              onClick={handleSubmitAnswer}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Prediction"
+              )}
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              disabled
+              variant="outline"
+              className="font-medium"
+            >
+              Prediction Closed
+            </Button>
+          )
         ) : isAnsweredByUser ? (
           <Button size="lg" disabled variant="outline" className="font-medium">
             Prediction Submitted
           </Button>
         ) : (
           <Button size="lg" disabled variant="outline" className="font-medium">
-            Predictions Closed
+            Prediction Closed
           </Button>
         )}
       </CardFooter>

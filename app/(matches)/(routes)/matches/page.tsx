@@ -11,7 +11,14 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, Trophy, AlertCircle, BarChart3, Loader2 } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Trophy,
+  AlertCircle,
+  BarChart3,
+  Loader2,
+} from "lucide-react";
 import Link from "next/link";
 import { Match, Question } from "@/utils/types";
 import Image from "next/image";
@@ -30,26 +37,25 @@ const teamImageMap: Record<string, string> = {
 };
 
 export default function Page() {
-  const [isFetching, setIsFetching] = useState(true)
+  const [isFetching, setIsFetching] = useState(true);
   const [filter, setFilter] = useState("ongoing");
   const [matchesData, setMatchesData] = useState<Match[]>([]);
-
 
   React.useEffect(() => {
     // Fetch matches data
     fetch("/api/matches")
       .then((res) => res.json())
-      .then((data) =>{
-        console.log("FETCHED")
-        setMatchesData(data)
+      .then((data) => {
+        console.log("FETCHED");
+        setMatchesData(data.reverse());
         setIsFetching(false);
       });
   }, []);
 
-  console.log("[ MATCH_DATA ] : " , matchesData);
+  console.log("[ MATCH_DATA ] : ", matchesData);
 
   const onGoingMatches = matchesData.filter((match) => {
-    return !(match.isCompleted);
+    return !match.isCompleted;
   });
 
   const completedMatches = matchesData.filter((match) => {
@@ -77,15 +83,15 @@ export default function Page() {
           const now = new Date();
           const dateA = new Date(a.date);
           const dateB = new Date(b.date);
-          
+
           // Check if match A is live (not completed and date is in the past or present)
           const isLiveA = !a.isCompleted && dateA <= now;
           // Check if match B is live (not completed and date is in the past or present)
           const isLiveB = !b.isCompleted && dateB <= now;
-          
+
           if (isLiveA && !isLiveB) return -1; // A is live, B is not -> A comes first
-          if (!isLiveA && isLiveB) return 1;  // B is live, A is not -> B comes first
-          
+          if (!isLiveA && isLiveB) return 1; // B is live, A is not -> B comes first
+
           // If both are live or both are not live, sort by date (most recent first)
           return dateA.getTime() - dateB.getTime();
         });
@@ -114,23 +120,22 @@ export default function Page() {
       </div>
 
       <div className="bg-gradient-to-r from-purple-800 to-pink-700 p-4 rounded-lg shadow-lg mb-6 text-center animate-pulse">
-      <p className="text-white text-lg font-bold flex items-center justify-center">
-        <span className="text-2xl mr-2">🎯</span> 
-        Ready to play? Answer the match questions below & claim your cash rewards!
-      </p>
-    </div>
+        <p className="text-white text-lg font-bold flex items-center justify-center">
+          <span className="text-2xl mr-2">🎯</span>
+          Ready to play? Answer the match questions below & claim your cash
+          rewards!
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {isFetching ? 
+        {isFetching ? (
           <>
-          <Card className="p-8 text-center md:col-span-2 flex flex-col items-center justify-center">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-            <p className="text-lg font-medium">Loading matches...</p>
-          </Card>
-        </>
-        : 
-        
-        getFilteredMatches().length === 0 ? (
+            <Card className="p-8 text-center md:col-span-2 flex flex-col items-center justify-center">
+              <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+              <p className="text-lg font-medium">Loading matches...</p>
+            </Card>
+          </>
+        ) : getFilteredMatches().length === 0 ? (
           <Card className="p-8 text-center md:col-span-2">
             <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground" />
             <p className="mt-4 text-lg">No matches found</p>
@@ -139,9 +144,7 @@ export default function Page() {
           getFilteredMatches().map((match) => (
             <MatchCard key={match.id} match={match as Match} />
           ))
-        )
-        
-        }
+        )}
       </div>
     </div>
   );
@@ -150,7 +153,7 @@ export default function Page() {
 function MatchCard({ match }: { match: Match }) {
   const now = new Date();
   const matchDate = new Date(match.date);
-  
+
   // Determine match status based on data
   const isUpcoming = matchDate > now;
   const isLive = !match.isCompleted && !isUpcoming;
@@ -192,7 +195,7 @@ function MatchCard({ match }: { match: Match }) {
   };
 
   return (
-    <div className="group h-full transition-all duration-300 hover:translate-x-1 px-8 py-5">
+    <div className="group h-full transition-all duration-300 hover:translate-x-1 px-0 py-5">
       <Card className="overflow-hidden h-full flex flex-col bg-purple-950 border border-purple-900 shadow-md transition-all duration-300 hover:shadow-xl">
         <CardHeader className="bg-purple-900/80 pb-2 border-b border-purple-800">
           <div className="flex justify-between items-center">
@@ -296,29 +299,12 @@ function MatchCard({ match }: { match: Match }) {
             <div className="mt-auto pt-4">
               <Separator className="my-4 bg-purple-800" />
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-pink-500/10 p-2 rounded-lg group-hover:bg-pink-500/20 transition-all duration-300">
-                      <BarChart3 className="h-4 w-4 text-pink-400 group-hover:text-pink-300" />
-                    </div>
-                    <h4 className="font-medium text-sm text-pink-100">
-                      Match Questions
-                    </h4>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="text-xs bg-purple-900 text-pink-100 border-purple-800"
-                  >
-                    {answeredCount}/{totalQuestions} Validated by admin
-                  </Badge>
-                </div>
-
-                <div className="w-full pl-12">
+                <div className="w-full pl-0">
                   <Link
                     href={`/matches/${match.id}`}
                     className="flex items-center justify-between p-4 text-sm font-medium border border-purple-800 rounded-md bg-purple-900/50 hover:bg-purple-800 transition-all duration-300 group-hover:border-purple-700"
                   >
-                    <span>View All Questions</span>
+                    <span className="font-bold">VIEW QUESTIONS</span>
                     <span className="text-pink-300 font-bold group-hover:translate-x-1 transition-transform">
                       →
                     </span>
