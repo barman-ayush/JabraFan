@@ -24,7 +24,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useUserContext } from "@/context/UserContext";
-import { Badge } from "@/components/ui/badge";
 
 type QuestionProps = {
   id: number;

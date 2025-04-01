@@ -97,8 +97,6 @@ export function MatchesManagement() {
         return;
       }
       
-      const { data } = receivedResponse;
-      
       // Update the match data in state with the updated question
       setMatches(prevMatches => {
         return prevMatches.map(match => {

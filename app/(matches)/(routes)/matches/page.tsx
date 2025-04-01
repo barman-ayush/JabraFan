@@ -16,7 +16,6 @@ import {
   Clock,
   Trophy,
   AlertCircle,
-  BarChart3,
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
@@ -171,11 +170,6 @@ function MatchCard({ match }: { match: Match }) {
     minute: "numeric",
     hour12: true,
   });
-
-  const answeredCount = match.questions.filter(
-    (q: Question) => q.status === "answered"
-  ).length;
-  const totalQuestions = match.questions.length;
 
   const teamColors: Record<string, string> = {
     "Mumbai Indians": "bg-blue-100 text-blue-800",
