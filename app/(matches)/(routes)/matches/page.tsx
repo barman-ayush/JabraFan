@@ -19,7 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
-import { Match, Question } from "@/utils/types";
+import { Match } from "@/utils/types";
 import Image from "next/image";
 
 const teamImageMap: Record<string, string> = {
