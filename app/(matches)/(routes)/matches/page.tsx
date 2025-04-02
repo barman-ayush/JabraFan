@@ -46,7 +46,11 @@ export default function Page() {
       .then((res) => res.json())
       .then((data) => {
         console.log("FETCHED");
-        setMatchesData(data.reverse());
+        // Sort matches by date (newest first)
+        const sortedMatches = [...data].sort((a, b) => {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
+        setMatchesData(sortedMatches);
         setIsFetching(false);
       });
   }, []);
@@ -73,11 +77,17 @@ export default function Page() {
   const getFilteredMatches = () => {
     switch (filter) {
       case "ongoing":
-        return onGoingMatches;
+        // Sort ongoing matches by date (newest first)
+        return [...onGoingMatches].sort((a, b) => {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
       case "completed":
-        return completedMatches;
+        // Sort completed matches by date (newest first)
+        return [...completedMatches].sort((a, b) => {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
       case "all":
-        // Sort all matches to show live matches first
+        // First prioritize live matches, then sort by date (newest first)
         return [...matchesData].sort((a, b) => {
           const now = new Date();
           const dateA = new Date(a.date);
@@ -92,10 +102,12 @@ export default function Page() {
           if (!isLiveA && isLiveB) return 1; // B is live, A is not -> B comes first
 
           // If both are live or both are not live, sort by date (most recent first)
-          return dateA.getTime() - dateB.getTime();
+          return dateB.getTime() - dateA.getTime(); // Changed to put newest first
         });
       default:
-        return matchesData;
+        return [...matchesData].sort((a, b) => {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
     }
   };
 
