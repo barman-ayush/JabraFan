@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
     try {
-        const { team1, team2, date } = await request.json();
+        const { team1, team2 } = await request.json();
 
         if (!team1 || !team2) {
             return NextResponse.json(
@@ -72,7 +72,6 @@ export async function POST(request: Request) {
 
 function getMockLiveScoreResponse(team1: string, team2: string) {
     // Generate realistic mock data based on team names
-    const now = new Date();
     const isMatchLive = Math.random() > 0.3; // 70% chance match is live
 
     // Generate random scores
