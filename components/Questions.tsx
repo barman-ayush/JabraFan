@@ -33,15 +33,13 @@ type QuestionProps = {
 
 export default function Questions({ id, question, options }: QuestionProps) {
   const { flash } = useFlash();
-  const { userData } = useUserContext();
+  const { userData , setUserData } = useUserContext();
   const [selectedOption, setSelectedOption] = React.useState<string | null>(
     null
   );
   const [userAnswer, setUserAnswer] = useState<string | null | undefined>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  console.log(" [ QUESTION_DATA ] : ", question);
 
   const isAnsweredByAdmin = question.status === "answered";
   const isAnsweredByUser = userAnswer !== null && userAnswer !== undefined;
@@ -64,12 +62,18 @@ export default function Questions({ id, question, options }: QuestionProps) {
           answer: selectedOption,
         }),
       });
+      const data = await response.json();
+      console.log("[ DATA ] : ", data);
+
       if (!response.ok) {
-        flash("Couldn't update answer, try again!", { variant: "error" });
+        flash(data.error, { variant: "error" });
         return;
       }
-      const data = await response.json();
-      if (data.success) setUserAnswer(selectedOption);
+      if (data.success){
+        setUserAnswer(selectedOption);
+        setUserData(data.updatedUserData)
+        
+      }
       flash("Prediction submitted successfully!", { variant: "info" });
     } catch (e: any) {
       console.log("Error ", e);
