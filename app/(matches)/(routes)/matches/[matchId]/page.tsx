@@ -21,6 +21,7 @@ import {
   Users,
   Gift,
   CheckCircle,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { Match, Question } from "@/utils/types";
@@ -42,11 +43,21 @@ const teamImageMap: Record<string, string> = {
   "Lucknow Super Giants": "/images/LSG.png",
 };
 
+interface LiveScore {
+  team1Score: string;
+  team2Score: string;
+  currentStatus: string;
+  isLive: boolean;
+  lastUpdated: string;
+}
+
 export default function MatchPage({ params }: { params: any }) {
   const { matchId } = params;
   const [questions, setQuestions] = React.useState<Question[]>([]);
   const [match, setMatch] = React.useState<Match>();
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [liveScore, setLiveScore] = React.useState<LiveScore | null>(null);
+  const [liveScoreLoading, setLiveScoreLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     async function getMatchData() {
@@ -59,11 +70,72 @@ export default function MatchPage({ params }: { params: any }) {
       if (matchData) {
         setMatch(matchData);
         setQuestions(matchData.questions.reverse() || []);
+        
+        // If match is live or completed, fetch live score immediately
+        if (matchData && !isUpcoming(new Date(matchData.date))) {
+          fetchLiveScore(matchData);
+        }
       }
 
       setLoading(false);
     });
   }, [matchId]);
+
+  const isUpcoming = (date: Date) => {
+    const now = new Date();
+    return date > now;
+  };
+
+  const fetchLiveScore = async (matchData: Match) => {
+    if (!matchData) return;
+    
+    setLiveScoreLoading(true);
+    try {
+      // Replace with your actual cricket API endpoint
+      const response = await fetch(`/api/cricket/live-score`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          team1: matchData.team1,
+          team2: matchData.team2,
+          date: matchData.date
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setLiveScore({
+          team1Score: data.team1Score || 'Yet to bat',
+          team2Score: data.team2Score || 'Yet to bat',
+          currentStatus: data.status || 'Score information unavailable',
+          isLive: data.isLive || false,
+          lastUpdated: new Date().toLocaleTimeString()
+        });
+      } else {
+        setLiveScore({
+          team1Score: 'Yet to bat',
+          team2Score: 'Yet to bat',
+          currentStatus: 'Unable to fetch live score',
+          isLive: false,
+          lastUpdated: new Date().toLocaleTimeString()
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching live score:', error);
+      setLiveScore({
+        team1Score: 'Yet to bat',
+        team2Score: 'Yet to bat',
+        currentStatus: 'Error fetching live score',
+        isLive: false,
+        lastUpdated: new Date().toLocaleTimeString()
+      });
+    } finally {
+      setLiveScoreLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -103,8 +175,8 @@ export default function MatchPage({ params }: { params: any }) {
   const now = new Date();
 
   // Determine match status based on data
-  const isUpcoming = matchDate > now;
-  const isLive = !match.isCompleted && !isUpcoming;
+  const isUpcomingMatch = isUpcoming(matchDate);
+  const isLive = !match.isCompleted && !isUpcomingMatch;
   const isCompleted = match.isCompleted;
 
   const formattedDate = matchDate.toLocaleDateString("en-US", {
@@ -198,11 +270,37 @@ export default function MatchPage({ params }: { params: any }) {
                 <h2 className="text-2xl font-bold text-pink-100">
                   {match.team1}
                 </h2>
+                {!isUpcomingMatch && (
+                  <p className="mt-2 font-semibold text-lg text-green-300">
+                    {liveScoreLoading ? (
+                      <span className="inline-block h-5 w-16 bg-purple-800/50 animate-pulse rounded"></span>
+                    ) : liveScore ? (
+                      liveScore.team1Score
+                    ) : (
+                      "Yet to bat"
+                    )}
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="text-xl font-bold text-pink-300 bg-purple-950 rounded-full p-3 border border-purple-800 shadow-md">
-              VS
+            <div className="text-center flex-col flex">
+              <div className="text-xl font-bold text-pink-300 bg-purple-950 rounded-full p-3 border border-purple-800 shadow-md mb-2">
+                VS
+              </div>
+              {!isUpcomingMatch && !liveScoreLoading && liveScore && (
+                <div className="mt-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => fetchLiveScore(match)}
+                    className="text-xs text-pink-300 p-1 h-auto"
+                  >
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Refresh
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="text-center flex-1">
@@ -225,9 +323,27 @@ export default function MatchPage({ params }: { params: any }) {
                 <h2 className="text-2xl font-bold text-pink-100">
                   {match.team2}
                 </h2>
+                {!isUpcomingMatch && (
+                  <p className="mt-2 font-semibold text-lg text-green-300">
+                    {liveScoreLoading ? (
+                      <span className="inline-block h-5 w-16 bg-purple-800/50 animate-pulse rounded"></span>
+                    ) : liveScore ? (
+                      liveScore.team2Score
+                    ) : (
+                      "Yet to bat"
+                    )}
+                  </p>
+                )}
               </div>
             </div>
           </div>
+
+          {!isUpcomingMatch && liveScore && (
+            <div className="mt-2 text-center border-t border-purple-800 pt-3">
+              <p className="text-pink-200 font-medium">{liveScore.currentStatus}</p>
+              <p className="text-xs text-pink-300 mt-1">Last updated: {liveScore.lastUpdated}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
