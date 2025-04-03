@@ -20,8 +20,6 @@ export async function POST(request: Request) {
         // - Sports API (https://sportsapi.io/)
 
         try {
-            // Replace the URL with your actual cricket API endpoint
-            // This is just an example structure
             const apiKey = process.env.CRICKET_API_KEY;
             const response = await fetch(`https://api.cricket-data.org/v1/matches?apikey=${apiKey}`, {
                 method: 'GET',

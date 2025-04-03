@@ -172,7 +172,6 @@ export default function MatchPage({ params }: { params: any }) {
   }
 
   const matchDate = new Date(match.date);
-  const now = new Date();
 
   // Determine match status based on data
   const isUpcomingMatch = isUpcoming(matchDate);
