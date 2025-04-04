@@ -78,7 +78,7 @@ export async function GET(request: Request) {
       }
     });
 
-    console.log("[ ANSWER ]", answer);
+    // console.log("[ ANSWER ]", answer);
 
     return NextResponse.json(
       { success: true, answer: answer },
