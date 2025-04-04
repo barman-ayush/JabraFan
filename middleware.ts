@@ -16,7 +16,7 @@ const publicRoutes = [
   '/terms',
   '/privacy',
   '/api/auth/parsecookie',
-  '/api/leaderboard'
+  '/api/leaderboard',
 ];
 
 const assetPatterns = [
