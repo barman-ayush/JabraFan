@@ -31,7 +31,7 @@ export async function GET() {
         questions: true,
       },
     });
-    
+
     // Always fetch from external service to get the latest matches
     const response = await fetch(
       `${process.env.AI_SERVICE_URL}/daily-live-schedule`
@@ -40,7 +40,9 @@ export async function GET() {
     const data: MatchResponse = await response.json();
     const res = data.data.sport_events;
     const backendMatches: Match[] = [];
-    
+
+    console.log("[DATA]", data);
+
     // Process backend matches
     res.forEach((element) => {
       const obj: Match = {
@@ -54,20 +56,22 @@ export async function GET() {
       };
       backendMatches.push(obj);
     });
-    
+
+
+
     // Create a map of existing db matches by team names for easy lookup
     const dbMatchMap = new Map();
     dbMatches.forEach(match => {
       const key = `${match.team1}-${match.team2}`;
       dbMatchMap.set(key, match);
     });
-    
+
     // Merge matches: prioritize DB matches when they exist
     const mergedMatches = backendMatches.map(match => {
       const key = `${match.team1}-${match.team2}`;
       return dbMatchMap.has(key) ? dbMatchMap.get(key) : match;
     });
-    
+
     return NextResponse.json(mergedMatches);
   } catch (error) {
     return NextResponse.json(
@@ -81,10 +85,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     console.log("[ MATCH_CREATION_PAYLOAD ] : ", body);
-    
+
     // Extract data from request body
     const { matchId, team1, team2, date, league, questions } = body;
-    
+
     // Create the match with its questions
     const createdMatch = await prismadb.matches.create({
       data: {
@@ -106,13 +110,13 @@ export async function POST(request: NextRequest) {
         questions: true,
       },
     });
-    
+
     return NextResponse.json(createdMatch);
   } catch (error) {
     // Fix error handling
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error("Error creating match:", errorMessage);
-    
+
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }

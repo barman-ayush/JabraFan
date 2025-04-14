@@ -1,0 +1,108 @@
+{
+"sport_event" : {
+    "id": "sr:match:58145131",
+    "tournament_round": {
+        "type": "group",
+        "number": 1
+    },
+    "season": {
+        "id": "sr:season:119197",
+        "name": "Indian Premier League 2025",
+        "start_date": "2025-03-22",
+        "end_date": "2025-05-25",
+        "year": "2025"
+    },
+    "scheduled": "2025-04-12T10:00:00+00:00",
+    "start_time_tbd": false,
+    "tournament": {
+        "id": "sr:tournament:2472",
+        "name": "Indian Premier League",
+        "type": "t20",
+        "gender": "men",
+        "sport": {
+            "id": "sr:sport:21",
+            "name": "Cricket"
+        },
+        "category": {
+            "id": "sr:category:497",
+            "name": "India",
+            "country_code": "IND"
+        }
+    },
+    "competitors": [
+        {
+            "id": "sr:competitor:877929",
+            "name": "Lucknow Super Giants",
+            "country": "India",
+            "country_code": "IND",
+            "abbreviation": "LSG",
+            "qualifier": "home",
+            "gender": "male"
+        },
+        {
+            "id": "sr:competitor:877927",
+            "name": "Gujarat Titans",
+            "country": "India",
+            "country_code": "IND",
+            "abbreviation": "GT",
+            "qualifier": "away",
+            "gender": "male"
+        }
+    ],
+    "sport_event_conditions": {
+        "weather_info": {
+            "rain_conditions": "no_rain",
+            "sky_conditions": "partly_cloudy",
+            "temperature_range": "warm",
+            "wind_conditions": "no_wind"
+        },
+        "pitch_info": {
+            "boundary_position": "normal",
+            "grass_cover": "normal",
+            "pitch_moisture": "normal",
+            "pitch_quality": "normal"
+        },
+        "outfield_info": {
+            "outfield_conditions": "normal"
+        },
+        "type": "t20",
+        "day_night": "day"
+    }
+},
+"sport_event_status" : 
+{
+    "match_status": "ended",
+    "status": "closed",
+    "display_score": "186/4",
+    "winner_id": "sr:competitor:877929",
+    "toss_won_by": "sr:competitor:877929",
+    "toss_decision": "bowl",
+    "current_inning": 2,
+    "display_overs": 19.3,
+    "required_run_rate": 0,
+    "run_rate": 9.54,
+    "allotted_overs": 20,
+    "period_scores": [
+        {
+            "home_score": 0,
+            "away_score": 180,
+            "type": "inning",
+            "number": 1,
+            "allotted_overs": 20,
+            "display_overs": 20,
+            "away_wickets": 6,
+            "display_score": "180/6"
+        },
+        {
+            "home_score": 186,
+            "away_score": 0,
+            "type": "inning",
+            "number": 2,
+            "allotted_overs": 20,
+            "display_overs": 19.3,
+            "home_wickets": 4,
+            "display_score": "186/4"
+        }
+    ]
+}
+}

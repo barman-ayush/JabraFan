@@ -21,6 +21,8 @@ import {
   Users,
   Gift,
   CheckCircle,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { Match, Question } from "@/utils/types";
@@ -28,6 +30,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchLeaderboard from "@/components/leaderboard-matches.component";
 import MatchEarnings from "@/components/match-earning.component";
 import Image from "next/image";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { motion, AnimatePresence } from "framer-motion";
 
 const teamImageMap: Record<string, string> = {
   "Mumbai Indians": "/images/MI.png",
@@ -42,33 +51,215 @@ const teamImageMap: Record<string, string> = {
   "Lucknow Super Giants": "/images/LSG.png",
 };
 
-export default function MatchPage({ params }: { params: any }) {
-  const { matchId } = params;
+export default function MatchPage({
+  params,
+}: {
+  params: Promise<{ matchId: string }>;
+}) {
+  const { matchId } = React.use(params);
   const [questions, setQuestions] = React.useState<Question[]>([]);
   const [match, setMatch] = React.useState<Match>();
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [scoreLoading, setScoreLoading] = React.useState<boolean>(true);
+  const [initialFetch, setInitialFetch] = React.useState<boolean>(true);
+  const [scoreError, setScoreError] = React.useState<boolean>(false);
+  const [liveScoreData, setLiveScoreData] = React.useState<{
+    team1?: {
+      id?: string;
+      name?: string;
+      score?: string;
+    };
+    team2?: {
+      id?: string;
+      name?: string;
+      score?: string;
+    };
+  }>({});
+
+  // Store previous score data for animation transitions
+  const [prevScoreData, setPrevScoreData] = React.useState<{
+    team1?: { score?: string };
+    team2?: { score?: string };
+  }>({});
+
+  const REFRESH_INTERVAL = 40 * 1000; // 40 seconds
 
   React.useEffect(() => {
     async function getMatchData() {
-      const response = await fetch(`/api/match/${matchId}`);
-      const data = await response.json();
-      return data;
+      try {
+        const response = await fetch(`/api/match/${matchId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch match data");
+        }
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching match data:", error);
+        return null;
+      }
     }
 
-    getMatchData().then((matchData: any) => {
-      if (matchData) {
-        setMatch(matchData);
-        setQuestions(matchData.questions.reverse() || []);
+    async function getLiveScoreData() {
+      try {
+        const scoreUrl =
+          process.env.NEXT_PUBLIC_AI_SERVICE_URL || process.env.AI_SERVICE_URL;
+
+        console.log("[URL] : ", scoreUrl);
+        if (!scoreUrl) {
+          console.warn("AI_SERVICE_URL is not defined");
+          throw new Error("Score service URL is not configured");
+        }
+
+        const response = await fetch(`${scoreUrl}live/${matchId}`);
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch live score data: ${response.status}`
+          );
+        }
+        const data = await response.json();
+        console.log("[LIVE SCORE DATA]:", data);
+        return data;
+      } catch (error) {
+        console.error("Error fetching live score data:", error);
+        setScoreError(true);
+        return null;
+      } finally {
+        setScoreLoading(false);
+      }
+    }
+
+    // Fetch match data first
+    getMatchData()
+      .then((matchData) => {
+        if (matchData) {
+          setMatch(matchData);
+          setQuestions(matchData.questions.reverse() || []);
+
+          // Only fetch score if match is live or completed
+          const matchDate = new Date(matchData.date);
+          const now = new Date();
+          if (matchDate <= now) {
+            // Match is either live or completed, fetch score
+            getLiveScoreData()
+              .then((scoreData) => {
+                if (scoreData) {
+                  setLiveScoreData(scoreData);
+                  // Set initial data as previous for future animations
+                  setPrevScoreData(scoreData);
+                  setInitialFetch(false);
+                }
+              })
+              .catch(() => {
+                setScoreError(true);
+              });
+          } else {
+            // Match is upcoming, no need to fetch score
+            setScoreLoading(false);
+            setInitialFetch(false);
+          }
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error in data fetching flow:", error);
+        setLoading(false);
+        setScoreLoading(false);
+        setInitialFetch(false);
+      });
+  }, [matchId]);
+
+  // Set up auto-refresh for live score data
+  React.useEffect(() => {
+    if (!match) return;
+
+    const matchDate = new Date(match.date);
+    const now = new Date();
+    const isMatchLiveOrCompleted = matchDate <= now;
+
+    // Only set up auto-refresh if match is live or completed
+    if (!isMatchLiveOrCompleted) return;
+
+    const refreshLiveScore = async () => {
+      try {
+        setScoreLoading(true);
+        const scoreUrl =
+          process.env.NEXT_PUBLIC_AI_SERVICE_URL || process.env.AI_SERVICE_URL;
+        if (!scoreUrl) {
+          throw new Error("Score service URL is not configured");
+        }
+
+        // Store current data as previous before fetching new data
+        setPrevScoreData(liveScoreData);
+
+        const response = await fetch(`${scoreUrl}live/${matchId}`);
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch live score data: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+        console.log("[REFRESHED LIVE SCORE]:", data);
+        setLiveScoreData(data);
+        setScoreError(false);
+      } catch (error) {
+        console.error("Error refreshing live score:", error);
+        setScoreError(true);
+      } finally {
+        setScoreLoading(false);
+      }
+    };
+
+    // Set up interval for auto-refresh
+    const intervalId = setInterval(refreshLiveScore, REFRESH_INTERVAL);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [match, matchId, liveScoreData]);
+
+  // Function to manually refresh score data
+  async function refreshScoreData() {
+    setScoreLoading(true);
+    setScoreError(false);
+
+    try {
+      // Store current data as previous before fetching new data
+      setPrevScoreData(liveScoreData);
+
+      const scoreUrl =
+        process.env.NEXT_PUBLIC_AI_SERVICE_URL || process.env.AI_SERVICE_URL;
+      if (!scoreUrl) {
+        throw new Error("Score service URL is not configured");
       }
 
-      setLoading(false);
-    });
-  }, [matchId]);
+      const response = await fetch(`${scoreUrl}live/${matchId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch live score data: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("[MANUALLY REFRESHED SCORE]:", data);
+      setLiveScoreData(data);
+    } catch (error) {
+      console.error("Error refreshing score data:", error);
+      setScoreError(true);
+    } finally {
+      setScoreLoading(false);
+    }
+  }
+
+  // Helper function to check if score has changed
+  const hasScoreChanged = (team: "team1" | "team2") => {
+    return prevScoreData[team]?.score !== liveScoreData[team]?.score;
+  };
 
   if (loading) {
     return (
       <div className="container mx-auto p-4 flex justify-center items-center h-48">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+        <motion.div
+          className="rounded-full h-8 w-8 border-t-2 border-primary"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        ></motion.div>
       </div>
     );
   }
@@ -76,25 +267,31 @@ export default function MatchPage({ params }: { params: any }) {
   if (!match) {
     return (
       <div className="container mx-auto p-4">
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle>Match Not Found</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center py-6">
-            <p className="text-lg text-muted-foreground">
-              The match you&apos;re looking for doesn&apos;t exist or has been
-              removed.
-            </p>
-          </CardContent>
-          <CardFooter className="flex justify-center pb-6">
-            <Button asChild variant="outline">
-              <Link href="/matches" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to matches
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle>Match Not Found</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center py-6">
+              <p className="text-lg text-muted-foreground">
+                The match you&apos;re looking for doesn&apos;t exist or has been
+                removed.
+              </p>
+            </CardContent>
+            <CardFooter className="flex justify-center pb-6">
+              <Button asChild variant="outline">
+                <Link href="/matches" className="flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to matches
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
       </div>
     );
   }
@@ -120,9 +317,159 @@ export default function MatchPage({ params }: { params: any }) {
     hour12: true,
   });
 
+  // Enhanced score display rendering with animations
+  const renderScoreDisplay = (team: "team1" | "team2", teamName: string) => {
+    // For upcoming matches
+    if (isUpcoming) {
+      return null;
+    }
+
+    // Handle initial fetch loading state
+    if (initialFetch && scoreLoading) {
+      return (
+        <motion.div
+          className="mt-2 bg-purple-800/50 px-4 py-1 rounded-full text-pink-100 font-semibold shadow-md flex items-center justify-center"
+          initial={{ opacity: 0.5 }}
+          animate={{ opacity: [0.5, 0.8, 0.5] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+        >
+          <div className="h-4 w-16 bg-purple-700/50 rounded"></div>
+        </motion.div>
+      );
+    }
+
+    // Handle error state
+    if (scoreError) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={refreshScoreData}
+                  className="mt-2 bg-purple-900 text-pink-200 border-purple-700 hover:bg-purple-800"
+                >
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  Refresh score
+                </Button>
+              </motion.div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Score data couldn't be loaded. Click to retry.</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    // Get current and previous scores
+    const currentScore = liveScoreData[team]?.score;
+    const previousScore = prevScoreData[team]?.score;
+    const scoreChanged = currentScore !== previousScore;
+
+    // Determine a key for animation (using score or a fallback)
+    const animationKey = `${team}-${currentScore || "no-score"}-${Date.now()}`;
+
+    console.log(
+      `[RENDER] ${team} score:`,
+      currentScore,
+      "previous:",
+      previousScore,
+      "changed:",
+      scoreChanged
+    );
+
+    if (!currentScore) {
+      return (
+        <motion.div
+          className="mt-2 bg-purple-800/30 px-4 py-1 rounded-full text-pink-100/70 font-semibold shadow-md"
+          initial={{ opacity: 0.7 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          Yet to bat
+        </motion.div>
+      );
+    }
+
+    // When updating, blur the loading indicator but keep old data visible
+    if (scoreLoading && !initialFetch) {
+      return (
+        <div className="flex flex-col items-center gap-1">
+          <div className="relative">
+            <motion.div
+              className="mt-2 bg-gradient-to-r from-purple-800 to-purple-700 border-purple-600/50 px-4 py-2 rounded-full text-pink-100 font-semibold shadow-md border"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 0.8 }}
+              transition={{ duration: 0.3 }}
+            >
+              {previousScore || currentScore}
+            </motion.div>
+
+            {/* Overlay refresh indicator */}
+            <motion.div
+              className="absolute top-0 right-0 h-4 w-4 bg-purple-600 rounded-full"
+              initial={{ opacity: 0.7 }}
+              animate={{
+                opacity: [0.7, 1, 0.7],
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.2,
+              }}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-center gap-1">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={animationKey}
+            className="mt-2 bg-gradient-to-r from-purple-800 to-purple-700 border-purple-600/50 px-4 py-2 rounded-full text-pink-100 font-semibold shadow-md border"
+            initial={scoreChanged ? { opacity: 0.5, y: -10 } : { opacity: 1 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{
+              type: "spring",
+              stiffness: 500,
+              damping: 30,
+            }}
+          >
+            {currentScore}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Add a subtle indicator when score changes */}
+        {scoreChanged && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-0 right-0 -mr-1 -mt-1 h-2 w-2 bg-green-400 rounded-full"
+          ></motion.div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto p-4 space-y-6 max-w-4xl">
-      <div className="flex items-center mb-6">
+      <motion.div
+        className="flex items-center mb-6"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <Button
           variant="ghost"
           size="sm"
@@ -134,168 +481,333 @@ export default function MatchPage({ params }: { params: any }) {
             Back to matches
           </Link>
         </Button>
-      </div>
+      </motion.div>
 
-      <Card className="shadow-sm bg-purple-950 border border-purple-900">
-        <CardHeader className="pb-2 border-b border-purple-800">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <div className="bg-pink-500/10 p-2 rounded-lg mr-2">
-                <Trophy className="h-5 w-5 text-pink-400" />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="bg-gradient-to-r from-purple-800 to-pink-700 p-4 rounded-lg shadow-lg mb-6 text-center animate-pulse">
+          <p className="text-white text-lg font-bold flex items-center justify-center">
+            <span className="text-2xl mr-2">🎯</span>
+            Ready to play? Answer the match questions below & claim your cash
+            rewards!
+          </p>
+        </div>
+        <Card className="shadow-sm bg-purple-950 border border-purple-900">
+          <CardHeader className="pb-2 border-b border-purple-800">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <motion.div
+                  className="bg-pink-500/10 p-2 rounded-lg mr-2"
+                  initial={{ rotate: -10, scale: 0.9 }}
+                  animate={{ rotate: 0, scale: 1 }}
+                  transition={{ duration: 0.5, type: "spring" }}
+                >
+                  <Trophy className="h-5 w-5 text-pink-400" />
+                </motion.div>
+                <CardTitle className="text-pink-100">{match.league}</CardTitle>
               </div>
-              <CardTitle className="text-pink-100">{match.league}</CardTitle>
-            </div>
-            {isCompleted ? (
-              <Badge
-                variant="secondary"
-                className="bg-purple-800 text-pink-100 hover:bg-purple-700"
-              >
-                <CheckCircle className="mr-1 h-3 w-3" />
-                Completed
-              </Badge>
-            ) : isLive ? (
-              <Badge
-                variant="outline"
-                className="bg-green-900 text-green-300 border-green-700 animate-pulse"
-              >
-                <Clock className="mr-1 h-3 w-3" />
-                Live
-              </Badge>
-            ) : (
-              <Badge
-                variant="outline"
-                className="flex items-center bg-purple-800 text-pink-100 border-purple-700"
-              >
-                <Clock className="mr-1 h-3 w-3" />
-                Upcoming
-              </Badge>
-            )}
-          </div>
-          <CardDescription className="flex items-center mt-2 text-pink-200">
-            <Calendar className="mr-1 h-4 w-4 text-pink-300" />
-            {formattedDate} at {formattedTime}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="bg-purple-900/50">
-          <div className="flex justify-center items-center gap-x-8 py-6">
-            <div className="text-center flex-1">
-              <div className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-purple-800 mb-3 bg-white/10 shadow-lg flex items-center justify-center">
-                  {teamImageMap[match.team1] ? (
-                    <Image
-                      src={teamImageMap[match.team1]}
-                      alt={match.team1}
-                      width={96}
-                      height={96}
-                      className="object-contain p-2"
-                    />
-                  ) : (
-                    <span className="text-2xl font-bold">
-                      {match.team1.substring(0, 2)}
-                    </span>
+              {isCompleted ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Badge
+                    variant="secondary"
+                    className="bg-purple-800 text-pink-100 hover:bg-purple-700"
+                  >
+                    <CheckCircle className="mr-1 h-3 w-3" />
+                    Completed
+                  </Badge>
+                </motion.div>
+              ) : isLive ? (
+                <div className="flex items-center gap-2">
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.05, 1],
+                      opacity: [0.9, 1, 0.9],
+                    }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 2,
+                      repeatType: "reverse",
+                    }}
+                  >
+                    <Badge
+                      variant="outline"
+                      className="bg-green-900 text-green-300 border-green-700"
+                    >
+                      <Clock className="mr-1 h-3 w-3" />
+                      Live
+                    </Badge>
+                  </motion.div>
+                  {!scoreLoading && !scoreError && (isLive || isCompleted) && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={refreshScoreData}
+                              className="p-0 h-8 w-8 rounded-full bg-purple-800/30 hover:bg-purple-700 text-pink-100"
+                            >
+                              <RefreshCw className="h-3 w-3" />
+                            </Button>
+                          </motion.div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Refresh score manually</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
                 </div>
-                <h2 className="text-2xl font-bold text-pink-100">
-                  {match.team1}
-                </h2>
-              </div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Badge
+                    variant="outline"
+                    className="flex items-center bg-purple-800 text-pink-100 border-purple-700"
+                  >
+                    <Clock className="mr-1 h-3 w-3" />
+                    Upcoming
+                  </Badge>
+                </motion.div>
+              )}
             </div>
-
-            <div className="text-xl font-bold text-pink-300 bg-purple-950 rounded-full p-3 border border-purple-800 shadow-md">
-              VS
-            </div>
-
-            <div className="text-center flex-1">
-              <div className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-purple-800 mb-3 bg-white/10 shadow-lg flex items-center justify-center">
-                  {teamImageMap[match.team2] ? (
-                    <Image
-                      src={teamImageMap[match.team2]}
-                      alt={match.team2}
-                      width={96}
-                      height={96}
-                      className="object-contain p-2"
-                    />
-                  ) : (
-                    <span className="text-2xl font-bold">
-                      {match.team2.substring(0, 2)}
-                    </span>
-                  )}
+            <CardDescription className="flex items-center mt-2 text-pink-200">
+              <Calendar className="mr-1 h-4 w-4 text-pink-300" />
+              {formattedDate} at {formattedTime}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="bg-purple-900/50">
+            <div className="flex justify-center items-center gap-x-8 py-6">
+              <motion.div
+                className="text-center flex-1"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <div className="flex flex-col items-center">
+                  <motion.div
+                    className="w-24 h-24 rounded-full overflow-hidden border-4 border-purple-800 mb-3 bg-white/10 shadow-lg flex items-center justify-center"
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                  >
+                    {teamImageMap[match.team1] ? (
+                      <Image
+                        src={teamImageMap[match.team1]}
+                        alt={match.team1}
+                        width={96}
+                        height={96}
+                        className="object-contain p-2"
+                      />
+                    ) : (
+                      <span className="text-2xl font-bold">
+                        {match.team1.substring(0, 2)}
+                      </span>
+                    )}
+                  </motion.div>
+                  <motion.h2
+                    className="text-2xl font-bold text-pink-100"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    {match.team1}
+                  </motion.h2>
+                  {renderScoreDisplay("team1", match.team1)}
                 </div>
-                <h2 className="text-2xl font-bold text-pink-100">
-                  {match.team2}
-                </h2>
-              </div>
+              </motion.div>
+
+              <motion.div
+                className="flex flex-col items-center"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+              >
+                <motion.div
+                  className="text-xl font-bold text-pink-300 bg-purple-950 rounded-full p-3 border border-purple-800 shadow-md mb-2"
+                  animate={{
+                    boxShadow: [
+                      "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      "0 6px 15px rgba(139, 92, 246, 0.3)",
+                      "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    ],
+                  }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 3,
+                  }}
+                >
+                  VS
+                </motion.div>
+                {scoreError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={refreshScoreData}
+                      className="mt-1 text-pink-200 hover:text-pink-100 hover:bg-purple-800 text-xs py-1 h-auto"
+                    >
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      Refresh Score
+                    </Button>
+                  </motion.div>
+                )}
+              </motion.div>
+
+              <motion.div
+                className="text-center flex-1"
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <div className="flex flex-col items-center">
+                  <motion.div
+                    className="w-24 h-24 rounded-full overflow-hidden border-4 border-purple-800 mb-3 bg-white/10 shadow-lg flex items-center justify-center"
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                  >
+                    {teamImageMap[match.team2] ? (
+                      <Image
+                        src={teamImageMap[match.team2]}
+                        alt={match.team2}
+                        width={96}
+                        height={96}
+                        className="object-contain p-2"
+                      />
+                    ) : (
+                      <span className="text-2xl font-bold">
+                        {match.team2.substring(0, 2)}
+                      </span>
+                    )}
+                  </motion.div>
+                  <motion.h2
+                    className="text-2xl font-bold text-pink-100"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    {match.team2}
+                  </motion.h2>
+                  {renderScoreDisplay("team2", match.team2)}
+                </div>
+              </motion.div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-      <Tabs defaultValue="questions" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="questions" className="flex items-center">
-            <Clock className="h-4 w-4 mr-2" />
-            Predictions
-          </TabsTrigger>
-          <TabsTrigger value="leaderboard" className="flex items-center">
-            <Users className="h-4 w-4 mr-2" />
-            Leaderboard
-          </TabsTrigger>
-          <TabsTrigger value="earnings" className="flex items-center">
-            <Gift className="h-4 w-4 mr-2" />
-            Rewards
-          </TabsTrigger>
-        </TabsList>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <Tabs defaultValue="questions" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="questions" className="flex items-center">
+              <Clock className="h-4 w-4 mr-2" />
+              Predictions
+            </TabsTrigger>
+            <TabsTrigger value="leaderboard" className="flex items-center">
+              <Users className="h-4 w-4 mr-2" />
+              Leaderboard
+            </TabsTrigger>
+            <TabsTrigger value="earnings" className="flex items-center">
+              <Gift className="h-4 w-4 mr-2" />
+              Rewards
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="questions" className="mt-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Match Predictions</h2>
-            <Badge variant="outline" className="text-xs">
-              {questions.length} predictions
-            </Badge>
-          </div>
+          <TabsContent value="questions" className="mt-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">Match Predictions</h2>
+              <Badge variant="outline" className="text-xs">
+                {questions.length} predictions
+              </Badge>
+            </div>
 
-          <div className="space-y-4">
-            {questions.length === 0 ? (
-              <Card className="shadow-sm">
-                <CardContent className="p-10 text-center">
-                  <p className="text-muted-foreground">
-                    No predictions available for this match
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              questions.map((question, index) => (
-                <Card key={question.id || index} className="shadow-sm">
-                  <CardContent className="p-6">
-                    <Questions
-                      id={index} // Using index for unique ID
-                      question={question}
-                      options={["yes", "no"]}
-                    />
+            <div className="space-y-4">
+              {questions.length === 0 ? (
+                <Card className="shadow-sm">
+                  <CardContent className="p-10 text-center">
+                    <p className="text-muted-foreground">
+                      No predictions available for this match
+                    </p>
                   </CardContent>
                 </Card>
-              ))
-            )}
-          </div>
-        </TabsContent>
+              ) : (
+                <motion.div
+                  variants={{
+                    hidden: { opacity: 0 },
+                    show: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.1,
+                      },
+                    },
+                  }}
+                  initial="hidden"
+                  animate="show"
+                >
+                  {questions.map((question, index) => (
+                    <motion.div
+                      key={question.id || index}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        show: { opacity: 1, y: 0 },
+                      }}
+                    >
+                      <Card className="shadow-sm">
+                        <CardContent className="p-6">
+                          <Questions
+                            id={index} // Using index for unique ID
+                            question={question}
+                            options={["yes", "no"]}
+                          />
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </div>
+          </TabsContent>
 
-        <TabsContent value="leaderboard" className="mt-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Match Standings</h2>
-          </div>
+          <TabsContent value="leaderboard" className="mt-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">Match Standings</h2>
+            </div>
 
-          <MatchLeaderboard matchId={matchId} matchDate={matchDate} />
-        </TabsContent>
+            <MatchLeaderboard matchId={matchId} matchDate={matchDate} />
+          </TabsContent>
 
-        <TabsContent value="earnings" className="mt-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Your Rewards</h2>
-          </div>
+          <TabsContent value="earnings" className="mt-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">Your Rewards</h2>
+            </div>
 
-          <MatchEarnings matchId={matchId} matchDate={matchDate} />
-        </TabsContent>
-      </Tabs>
+            <MatchEarnings matchId={matchId} matchDate={matchDate} />
+          </TabsContent>
+        </Tabs>
+      </motion.div>
     </div>
   );
 }

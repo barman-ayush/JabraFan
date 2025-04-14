@@ -63,7 +63,6 @@ export default function Questions({ id, question, options }: QuestionProps) {
         }),
       });
       const data = await response.json();
-      console.log("[ DATA ] : ", data);
 
       if (!response.ok) {
         flash(data.error, { variant: "error" });
@@ -99,7 +98,6 @@ export default function Questions({ id, question, options }: QuestionProps) {
         }
 
         const data = await response.json();
-        console.log(" [FETCHED_ANSWER_BY_USER] ", data);
 
         if (data.success && data.answer) {
           setUserAnswer(data.answer.answer);

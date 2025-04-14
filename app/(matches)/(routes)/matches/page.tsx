@@ -130,14 +130,6 @@ export default function Page() {
         </Tabs>
       </div>
 
-      <div className="bg-gradient-to-r from-purple-800 to-pink-700 p-4 rounded-lg shadow-lg mb-6 text-center animate-pulse">
-        <p className="text-white text-lg font-bold flex items-center justify-center">
-          <span className="text-2xl mr-2">🎯</span>
-          Ready to play? Answer the match questions below & claim your cash
-          rewards!
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {isFetching ? (
           <>
