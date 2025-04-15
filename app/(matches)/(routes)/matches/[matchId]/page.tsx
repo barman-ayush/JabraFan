@@ -37,6 +37,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
+import MatchCreditsCard from "@/components/match-credist.component";
 
 const teamImageMap: Record<string, string> = {
   "Mumbai Indians": "/images/MI.png",
@@ -489,6 +490,10 @@ export default function MatchPage({
             Ready to play? Answer the match questions below & claim your cash
             rewards!
           </p>
+        </div>
+
+        <div className="mb-6">
+          <MatchCreditsCard matchId={matchId} />
         </div>
         <Card className="shadow-sm bg-purple-950 border border-purple-900">
           <CardHeader className="pb-2 border-b border-purple-800">
