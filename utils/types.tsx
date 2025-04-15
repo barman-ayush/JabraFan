@@ -30,3 +30,11 @@ export type RedeemRequest = {
   processedAt?: string | null;
   rejectionReason?: string | null;
 };
+
+export type UserCredits = {
+  baseCredits: number;
+  bonusCredits: number;
+  totalCredits: number;
+  answeredQuestions: number;
+  correctAnswers: number;
+};

@@ -2,7 +2,7 @@
 "use client";
 
 import Questions from "@/components/Questions";
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -25,7 +25,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
-import { Match, Question } from "@/utils/types";
+import { Match, Question, UserCredits } from "@/utils/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchLeaderboard from "@/components/leaderboard-matches.component";
 import MatchEarnings from "@/components/match-earning.component";
@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import MatchCreditsCard from "@/components/match-credist.component";
+import { useUserContext } from "@/context/UserContext";
 
 const teamImageMap: Record<string, string> = {
   "Mumbai Indians": "/images/MI.png",
@@ -82,6 +83,44 @@ export default function MatchPage({
     team1?: { score?: string };
     team2?: { score?: string };
   }>({});
+
+  // Match Credits function Helpers
+
+  // Match Credits States
+  const { userData } = useUserContext();
+  const [credits, setCredits] = useState<UserCredits | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchUserCredits = async () => {
+    if (!userData?.id) return;
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `/api/match/${matchId}/user-stats?userId=${userData.id}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user statistics");
+      }
+
+      const result = await response.json();
+      setCredits({
+        baseCredits: result.data.baseCredits || 0,
+        bonusCredits: result.data.bonusCredits || 0,
+        totalCredits: result.data.totalCredits || 0,
+        answeredQuestions: result.data.answeredQuestions || 0,
+        correctAnswers: result.data.correctAnswers || 0,
+      });
+      setError(null);
+    } catch (err) {
+      setError("Could not load your credits. Please try again later.");
+      console.error("Error fetching user credits:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const REFRESH_INTERVAL = 40 * 1000; // 40 seconds
 
@@ -493,7 +532,11 @@ export default function MatchPage({
         </div>
 
         <div className="mb-6">
-          <MatchCreditsCard matchId={matchId} />
+          <MatchCreditsCard
+            matchId={matchId}
+            fetchUserCredits={fetchUserCredits}
+            stateArray={[{ credits }, { error }, { isLoading, setIsLoading }]}
+          />
         </div>
         <Card className="shadow-sm bg-purple-950 border border-purple-900">
           <CardHeader className="pb-2 border-b border-purple-800">
@@ -658,8 +701,7 @@ export default function MatchPage({
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ scale: 1.05 }}
-                  >
-                  </motion.div>
+                  ></motion.div>
                 )}
               </motion.div>
 
@@ -769,6 +811,7 @@ export default function MatchPage({
                       <Card className="shadow-sm">
                         <CardContent className="p-6">
                           <Questions
+                            fetchUserCredits={fetchUserCredits}
                             id={index} // Using index for unique ID
                             question={question}
                             options={["yes", "no"]}

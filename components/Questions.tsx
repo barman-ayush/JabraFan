@@ -29,9 +29,10 @@ type QuestionProps = {
   id: number;
   question: Question;
   options: string[];
+  fetchUserCredits : () => {}
 };
 
-export default function Questions({ id, question, options }: QuestionProps) {
+export default function Questions({ id, question, options , fetchUserCredits}: QuestionProps) {
   const { flash } = useFlash();
   const { userData , setUserData } = useUserContext();
   const [selectedOption, setSelectedOption] = React.useState<string | null>(
@@ -70,8 +71,9 @@ export default function Questions({ id, question, options }: QuestionProps) {
       }
       if (data.success){
         setUserAnswer(selectedOption);
-        setUserData(data.updatedUserData)
-        
+        setUserData(data.updatedUserData);
+        fetchUserCredits();
+
       }
       flash("Prediction submitted successfully!", { variant: "info" });
     } catch (e: any) {

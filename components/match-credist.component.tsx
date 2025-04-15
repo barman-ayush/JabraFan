@@ -6,52 +6,36 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Coins, AlertCircle, Loader2 } from "lucide-react";
 import { useUserContext } from "@/context/UserContext";
 import { motion } from "framer-motion";
+import { UserCredits } from "@/utils/types";
 
-type UserCredits = {
-  baseCredits: number;
-  bonusCredits: number;
-  totalCredits: number;
-  answeredQuestions: number;
-  correctAnswers: number;
+type CreditsState = {
+  credits: UserCredits | null;
 };
 
-const MatchCreditsCard = ({ matchId }: { matchId: string }) => {
+type ErrorState = {
+  error: string | null;
+};
+
+type LoadingState = {
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+type MatchCreditsProps = {
+  matchId: string;
+  fetchUserCredits: () => {};
+  stateArray: [CreditsState, ErrorState, LoadingState];
+};
+
+const MatchCreditsCard = ({
+  matchId,
+  fetchUserCredits,
+  stateArray,
+}: MatchCreditsProps) => {
   const { userData } = useUserContext();
-  const [credits, setCredits] = useState<UserCredits | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [{ credits }, { error }, { isLoading, setIsLoading }] = stateArray;
 
   useEffect(() => {
-    const fetchUserCredits = async () => {
-      if (!userData?.id) return;
-
-      try {
-        setIsLoading(true);
-        const response = await fetch(
-          `/api/match/${matchId}/user-stats?userId=${userData.id}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch user statistics");
-        }
-
-        const result = await response.json();
-        setCredits({
-          baseCredits: result.data.baseCredits || 0,
-          bonusCredits: result.data.bonusCredits || 0,
-          totalCredits: result.data.totalCredits || 0,
-          answeredQuestions: result.data.answeredQuestions || 0,
-          correctAnswers: result.data.correctAnswers || 0,
-        });
-        setError(null);
-      } catch (err) {
-        setError("Could not load your credits. Please try again later.");
-        console.error("Error fetching user credits:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (userData?.id && matchId) {
       fetchUserCredits();
     } else {
