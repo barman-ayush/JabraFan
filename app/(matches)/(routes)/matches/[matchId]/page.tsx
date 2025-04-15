@@ -344,7 +344,7 @@ export default function MatchPage({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={refreshScoreData}
@@ -352,7 +352,7 @@ export default function MatchPage({
                 >
                   <AlertCircle className="h-3 w-3 mr-1" />
                   Refresh score
-                </Button>
+                </Button> */}
               </motion.div>
             </TooltipTrigger>
             <TooltipContent>
@@ -659,15 +659,6 @@ export default function MatchPage({
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ scale: 1.05 }}
                   >
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={refreshScoreData}
-                      className="mt-1 text-pink-200 hover:text-pink-100 hover:bg-purple-800 text-xs py-1 h-auto"
-                    >
-                      <AlertCircle className="h-3 w-3 mr-1" />
-                      Refresh Score
-                    </Button>
                   </motion.div>
                 )}
               </motion.div>
