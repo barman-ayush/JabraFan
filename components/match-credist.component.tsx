@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coins, AlertCircle, Loader2 } from "lucide-react";
 import { useUserContext } from "@/context/UserContext";
@@ -23,7 +23,7 @@ type LoadingState = {
 
 type MatchCreditsProps = {
   matchId: string;
-  fetchUserCredits: () => {};
+  fetchUserCredits: () => Promise<void>;
   stateArray: [CreditsState, ErrorState, LoadingState];
 };
 

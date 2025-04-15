@@ -21,7 +21,6 @@ import {
   Users,
   Gift,
   CheckCircle,
-  AlertCircle,
   RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
@@ -531,7 +530,7 @@ export default function MatchPage({
           </p>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 sticky top-0">
           <MatchCreditsCard
             matchId={matchId}
             fetchUserCredits={fetchUserCredits}

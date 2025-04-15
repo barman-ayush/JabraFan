@@ -29,12 +29,17 @@ type QuestionProps = {
   id: number;
   question: Question;
   options: string[];
-  fetchUserCredits : () => {}
+  fetchUserCredits: () => Promise<void>;
 };
 
-export default function Questions({ id, question, options , fetchUserCredits}: QuestionProps) {
+export default function Questions({
+  id,
+  question,
+  options,
+  fetchUserCredits,
+}: QuestionProps) {
   const { flash } = useFlash();
-  const { userData , setUserData } = useUserContext();
+  const { userData, setUserData } = useUserContext();
   const [selectedOption, setSelectedOption] = React.useState<string | null>(
     null
   );
@@ -69,11 +74,10 @@ export default function Questions({ id, question, options , fetchUserCredits}: Q
         flash(data.error, { variant: "error" });
         return;
       }
-      if (data.success){
+      if (data.success) {
         setUserAnswer(selectedOption);
         setUserData(data.updatedUserData);
         fetchUserCredits();
-
       }
       flash("Prediction submitted successfully!", { variant: "info" });
     } catch (e: any) {
