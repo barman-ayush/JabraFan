@@ -247,11 +247,6 @@ export default function MatchPage({
     }
   }
 
-  // Helper function to check if score has changed
-  const hasScoreChanged = (team: "team1" | "team2") => {
-    return prevScoreData[team]?.score !== liveScoreData[team]?.score;
-  };
-
   if (loading) {
     return (
       <div className="container mx-auto p-4 flex justify-center items-center h-48">
@@ -318,7 +313,7 @@ export default function MatchPage({
   });
 
   // Enhanced score display rendering with animations
-  const renderScoreDisplay = (team: "team1" | "team2", teamName: string) => {
+  const renderScoreDisplay = (team: "team1" | "team2") => {
     // For upcoming matches
     if (isUpcoming) {
       return null;
@@ -627,7 +622,7 @@ export default function MatchPage({
                   >
                     {match.team1}
                   </motion.h2>
-                  {renderScoreDisplay("team1", match.team1)}
+                  {renderScoreDisplay("team1")}
                 </div>
               </motion.div>
 
@@ -707,7 +702,7 @@ export default function MatchPage({
                   >
                     {match.team2}
                   </motion.h2>
-                  {renderScoreDisplay("team2", match.team2)}
+                  {renderScoreDisplay("team2")}
                 </div>
               </motion.div>
             </div>
