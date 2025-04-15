@@ -355,7 +355,7 @@ export default function MatchPage({
               </motion.div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Score data couldn't be loaded. Click to retry.</p>
+              <p>Score data couldn&apos;t be loaded. Click to retry.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
