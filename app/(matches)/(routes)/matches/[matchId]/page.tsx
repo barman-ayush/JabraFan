@@ -372,35 +372,6 @@ export default function MatchPage({
       );
     }
 
-    // Handle error state
-    if (scoreError) {
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {/* <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={refreshScoreData}
-                  className="mt-2 bg-purple-900 text-pink-200 border-purple-700 hover:bg-purple-800"
-                >
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  Refresh score
-                </Button> */}
-              </motion.div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Score data couldn&apos;t be loaded. Click to retry.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    }
-
     // Get current and previous scores
     const currentScore = liveScoreData[team]?.score;
     const previousScore = prevScoreData[team]?.score;
@@ -529,14 +500,19 @@ export default function MatchPage({
             rewards!
           </p>
         </div>
-
-        <div className="mb-6 sticky top-0">
-          <MatchCreditsCard
-            matchId={matchId}
-            fetchUserCredits={fetchUserCredits}
-            stateArray={[{ credits }, { error }, { isLoading, setIsLoading }]}
-          />
-        </div>
+      </motion.div>
+      <div className="mb-6 sticky top-0 z-100" style={{zIndex : "100000"}}>
+        <MatchCreditsCard
+          matchId={matchId}
+          fetchUserCredits={fetchUserCredits}
+          stateArray={[{ credits }, { error }, { isLoading, setIsLoading }]}
+        />
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Card className="shadow-sm bg-purple-950 border border-purple-900">
           <CardHeader className="pb-2 border-b border-purple-800">
             <div className="flex justify-between items-center">
