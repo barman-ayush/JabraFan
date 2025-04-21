@@ -9,7 +9,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,22 +34,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import MatchCreditsCard from "@/components/match-credist.component";
 import { useUserContext } from "@/context/UserContext";
-
-const teamImageMap: Record<string, string> = {
-  "Mumbai Indians": "/images/MI.png",
-  "Chennai Super Kings": "/images/CSK.png",
-  "Royal Challengers Bengaluru": "/images/RCB.png",
-  "Kolkata Knight Riders": "/images/KKR.png",
-  "Delhi Capitals": "/images/DC.jpg",
-  "Sunrisers Hyderabad": "/images/SRH.png",
-  "Punjab Kings": "/images/PBKS.png",
-  "Rajasthan Royals": "/images/RR.png",
-  "Gujarat Titans": "/images/GT.png",
-  "Lucknow Super Giants": "/images/LSG.png",
-};
+import { teamImageMap } from "../../../../../data/ImageMap";
+import {
+  InitialScoreFetch,
+  MatchLoader,
+  RealTimeScoreLoading,
+} from "@/components/ErrorTemplates/loader-templates.component";
+import MatchNotFound from "@/components/ErrorTemplates/match-not-found.component";
+import ShowChanges from "@/components/post-match-changes.component";
 
 export default function MatchPage({
   params,
@@ -286,49 +280,9 @@ export default function MatchPage({
     }
   }
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-4 flex justify-center items-center h-48">
-        <motion.div
-          className="rounded-full h-8 w-8 border-t-2 border-primary"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        ></motion.div>
-      </div>
-    );
-  }
+  if (loading) return <MatchLoader />;
 
-  if (!match) {
-    return (
-      <div className="container mx-auto p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle>Match Not Found</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center py-6">
-              <p className="text-lg text-muted-foreground">
-                The match you&apos;re looking for doesn&apos;t exist or has been
-                removed.
-              </p>
-            </CardContent>
-            <CardFooter className="flex justify-center pb-6">
-              <Button asChild variant="outline">
-                <Link href="/matches" className="flex items-center gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to matches
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        </motion.div>
-      </div>
-    );
-  }
+  if (!match) return <MatchNotFound />;
 
   const matchDate = new Date(match.date);
   const now = new Date();
@@ -359,18 +313,7 @@ export default function MatchPage({
     }
 
     // Handle initial fetch loading state
-    if (initialFetch && scoreLoading) {
-      return (
-        <motion.div
-          className="mt-2 bg-purple-800/50 px-4 py-1 rounded-full text-pink-100 font-semibold shadow-md flex items-center justify-center"
-          initial={{ opacity: 0.5 }}
-          animate={{ opacity: [0.5, 0.8, 0.5] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-        >
-          <div className="h-4 w-16 bg-purple-700/50 rounded"></div>
-        </motion.div>
-      );
-    }
+    if (initialFetch && scoreLoading) return <InitialScoreFetch />;
 
     // Get current and previous scores
     const currentScore = liveScoreData[team]?.score;
@@ -403,67 +346,15 @@ export default function MatchPage({
     }
 
     // When updating, blur the loading indicator but keep old data visible
-    if (scoreLoading && !initialFetch) {
-      return (
-        <div className="flex flex-col items-center gap-1">
-          <div className="relative">
-            <motion.div
-              className="mt-2 bg-gradient-to-r from-purple-800 to-purple-700 border-purple-600/50 px-4 py-2 rounded-full text-pink-100 font-semibold shadow-md border"
-              initial={{ opacity: 1 }}
-              animate={{ opacity: 0.8 }}
-              transition={{ duration: 0.3 }}
-            >
-              {previousScore || currentScore}
-            </motion.div>
-
-            {/* Overlay refresh indicator */}
-            <motion.div
-              className="absolute top-0 right-0 h-4 w-4 bg-purple-600 rounded-full"
-              initial={{ opacity: 0.7 }}
-              animate={{
-                opacity: [0.7, 1, 0.7],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 1.2,
-              }}
-            />
-          </div>
-        </div>
-      );
-    }
+    if (scoreLoading && !initialFetch)
+      return <RealTimeScoreLoading score={previousScore || currentScore} />;
 
     return (
-      <div className="flex flex-col items-center gap-1">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={animationKey}
-            className="mt-2 bg-gradient-to-r from-purple-800 to-purple-700 border-purple-600/50 px-4 py-2 rounded-full text-pink-100 font-semibold shadow-md border"
-            initial={scoreChanged ? { opacity: 0.5, y: -10 } : { opacity: 1 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{
-              type: "spring",
-              stiffness: 500,
-              damping: 30,
-            }}
-          >
-            {currentScore}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Add a subtle indicator when score changes */}
-        {scoreChanged && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            transition={{ duration: 0.3 }}
-            className="absolute top-0 right-0 -mr-1 -mt-1 h-2 w-2 bg-green-400 rounded-full"
-          ></motion.div>
-        )}
-      </div>
+      <ShowChanges
+        scoreChanged={scoreChanged}
+        animationKey={animationKey}
+        currentScore={currentScore}
+      />
     );
   };
 
@@ -501,7 +392,7 @@ export default function MatchPage({
           </p>
         </div>
       </motion.div>
-      <div className="mb-6 sticky top-0 z-100" style={{zIndex : "100000"}}>
+      <div className="mb-6 sticky top-0 z-100" style={{ zIndex: "100000" }}>
         <MatchCreditsCard
           matchId={matchId}
           fetchUserCredits={fetchUserCredits}
