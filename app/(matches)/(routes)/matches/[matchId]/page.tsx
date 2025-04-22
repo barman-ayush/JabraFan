@@ -20,7 +20,7 @@ import {
   Users,
   Gift,
   CheckCircle,
-  RefreshCw,
+  // RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { Match, Question, UserCredits } from "@/utils/types";
@@ -28,24 +28,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchLeaderboard from "@/components/leaderboard-matches.component";
 import MatchEarnings from "@/components/match-earning.component";
 import Image from "next/image";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipProvider,
+//   TooltipTrigger,
+// } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
 import MatchCreditsCard from "@/components/match-credist.component";
 import { useUserContext } from "@/context/UserContext";
 import { teamImageMap } from "../../../../../data/ImageMap";
 import {
-  InitialScoreFetch,
+  // InitialScoreFetch,
   MatchLoader,
-  RealTimeScoreLoading,
+  // RealTimeScoreLoading,
 } from "@/components/ErrorTemplates/loader-templates.component";
 import MatchNotFound from "@/components/ErrorTemplates/match-not-found.component";
-import ShowChanges from "@/components/post-match-changes.component";
-
+// import ShowChanges from "@/components/post-match-changes.component";
 export default function MatchPage({
   params,
 }: {
@@ -55,27 +54,27 @@ export default function MatchPage({
   const [questions, setQuestions] = React.useState<Question[]>([]);
   const [match, setMatch] = React.useState<Match>();
   const [loading, setLoading] = React.useState<boolean>(true);
-  const [scoreLoading, setScoreLoading] = React.useState<boolean>(true);
-  const [initialFetch, setInitialFetch] = React.useState<boolean>(true);
-  const [scoreError, setScoreError] = React.useState<boolean>(false);
-  const [liveScoreData, setLiveScoreData] = React.useState<{
-    team1?: {
-      id?: string;
-      name?: string;
-      score?: string;
-    };
-    team2?: {
-      id?: string;
-      name?: string;
-      score?: string;
-    };
-  }>({});
+  // const [scoreLoading, setScoreLoading] = React.useState<boolean>(true);
+  // const [initialFetch, setInitialFetch] = React.useState<boolean>(true);
+  // const [scoreError, setScoreError] = React.useState<boolean>(false);
+  // const [liveScoreData, setLiveScoreData] = React.useState<{
+  //   team1?: {
+  //     id?: string;
+  //     name?: string;
+  //     score?: string;
+  //   };
+  //   team2?: {
+  //     id?: string;
+  //     name?: string;
+  //     score?: string;
+  //   };
+  // }>({});
 
-  // Store previous score data for animation transitions
-  const [prevScoreData, setPrevScoreData] = React.useState<{
-    team1?: { score?: string };
-    team2?: { score?: string };
-  }>({});
+  // // Store previous score data for animation transitions
+  // const [prevScoreData, setPrevScoreData] = React.useState<{
+  //   team1?: { score?: string };
+  //   team2?: { score?: string };
+  // }>({});
 
   // Match Credits function Helpers
 
@@ -186,11 +185,11 @@ export default function MatchPage({
             //   .catch(() => {
             //     setScoreError(true);
             //   });
-            console.log("LIVE MATCH DATA FEATURE IS DOWN TEMPORARILY")
+            console.log("LIVE MATCH DATA FEATURE IS DOWN TEMPORARILY");
           } else {
             // Match is upcoming, no need to fetch score
-            setScoreLoading(false);
-            setInitialFetch(false);
+            // setScoreLoading(false);
+            // setInitialFetch(false);
           }
         }
         setLoading(false);
@@ -198,8 +197,8 @@ export default function MatchPage({
       .catch((error) => {
         console.error("Error in data fetching flow:", error);
         setLoading(false);
-        setScoreLoading(false);
-        setInitialFetch(false);
+        // setScoreLoading(false);
+        // setInitialFetch(false);
       });
   }, [matchId]);
 
@@ -567,13 +566,13 @@ export default function MatchPage({
                 >
                   VS
                 </motion.div>
-                {scoreError && (
+                {/* {scoreError && (
                   <motion.div
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ scale: 1.05 }}
                   ></motion.div>
-                )}
+                )} */}
               </motion.div>
 
               <motion.div
