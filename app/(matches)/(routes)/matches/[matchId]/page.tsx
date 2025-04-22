@@ -115,7 +115,9 @@ export default function MatchPage({
     }
   };
 
-  const REFRESH_INTERVAL = 40 * 1000; // 40 seconds
+  // FETCH MATCH DATA FEATURE
+
+  // const REFRESH_INTERVAL = 40 * 1000; // 40 seconds
 
   React.useEffect(() => {
     async function getMatchData() {
@@ -131,34 +133,34 @@ export default function MatchPage({
       }
     }
 
-    async function getLiveScoreData() {
-      try {
-        const scoreUrl =
-          process.env.NEXT_PUBLIC_AI_SERVICE_URL || process.env.AI_SERVICE_URL;
+    // async function getLiveScoreData() {
+    //   try {
+    //     const scoreUrl =
+    //       process.env.NEXT_PUBLIC_AI_SERVICE_URL || process.env.AI_SERVICE_URL;
 
-        console.log("[URL] : ", scoreUrl);
-        if (!scoreUrl) {
-          console.warn("AI_SERVICE_URL is not defined");
-          throw new Error("Score service URL is not configured");
-        }
+    //     console.log("[URL] : ", scoreUrl);
+    //     if (!scoreUrl) {
+    //       console.warn("AI_SERVICE_URL is not defined");
+    //       throw new Error("Score service URL is not configured");
+    //     }
 
-        const response = await fetch(`${scoreUrl}live/${matchId}`);
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch live score data: ${response.status}`
-          );
-        }
-        const data = await response.json();
-        console.log("[LIVE SCORE DATA]:", data);
-        return data;
-      } catch (error) {
-        console.error("Error fetching live score data:", error);
-        setScoreError(true);
-        return null;
-      } finally {
-        setScoreLoading(false);
-      }
-    }
+    //     const response = await fetch(`${scoreUrl}live/${matchId}`);
+    //     if (!response.ok) {
+    //       throw new Error(
+    //         `Failed to fetch live score data: ${response.status}`
+    //       );
+    //     }
+    //     const data = await response.json();
+    //     console.log("[LIVE SCORE DATA]:", data);
+    //     return data;
+    //   } catch (error) {
+    //     console.error("Error fetching live score data:", error);
+    //     setScoreError(true);
+    //     return null;
+    //   } finally {
+    //     setScoreLoading(false);
+    //   }
+    // }
 
     // Fetch match data first
     getMatchData()
@@ -171,19 +173,20 @@ export default function MatchPage({
           const matchDate = new Date(matchData.date);
           const now = new Date();
           if (matchDate <= now) {
-            // Match is either live or completed, fetch score
-            getLiveScoreData()
-              .then((scoreData) => {
-                if (scoreData) {
-                  setLiveScoreData(scoreData);
-                  // Set initial data as previous for future animations
-                  setPrevScoreData(scoreData);
-                  setInitialFetch(false);
-                }
-              })
-              .catch(() => {
-                setScoreError(true);
-              });
+            // // Match is either live or completed, fetch score
+            // getLiveScoreData()
+            //   .then((scoreData) => {
+            //     if (scoreData) {
+            //       setLiveScoreData(scoreData);
+            //       // Set initial data as previous for future animations
+            //       setPrevScoreData(scoreData);
+            //       setInitialFetch(false);
+            //     }
+            //   })
+            //   .catch(() => {
+            //     setScoreError(true);
+            //   });
+            console.log("LIVE MATCH DATA FEATURE IS DOWN TEMPORARILY")
           } else {
             // Match is upcoming, no need to fetch score
             setScoreLoading(false);
@@ -200,85 +203,85 @@ export default function MatchPage({
       });
   }, [matchId]);
 
-  // Set up auto-refresh for live score data
-  React.useEffect(() => {
-    if (!match) return;
+  // // Set up auto-refresh for live score data
+  // React.useEffect(() => {
+  //   if (!match) return;
 
-    const matchDate = new Date(match.date);
-    const now = new Date();
-    const isMatchLiveOrCompleted = matchDate <= now;
+  //   const matchDate = new Date(match.date);
+  //   const now = new Date();
+  //   const isMatchLiveOrCompleted = matchDate <= now;
 
-    // Only set up auto-refresh if match is live or completed
-    if (!isMatchLiveOrCompleted) return;
+  //   // Only set up auto-refresh if match is live or completed
+  //   if (!isMatchLiveOrCompleted) return;
 
-    const refreshLiveScore = async () => {
-      try {
-        setScoreLoading(true);
-        const scoreUrl =
-          process.env.NEXT_PUBLIC_AI_SERVICE_URL || process.env.AI_SERVICE_URL;
-        if (!scoreUrl) {
-          throw new Error("Score service URL is not configured");
-        }
+  //   const refreshLiveScore = async () => {
+  //     try {
+  //       setScoreLoading(true);
+  //       const scoreUrl =
+  //         process.env.NEXT_PUBLIC_AI_SERVICE_URL || process.env.AI_SERVICE_URL;
+  //       if (!scoreUrl) {
+  //         throw new Error("Score service URL is not configured");
+  //       }
 
-        // Store current data as previous before fetching new data
-        setPrevScoreData(liveScoreData);
+  //       // Store current data as previous before fetching new data
+  //       setPrevScoreData(liveScoreData);
 
-        const response = await fetch(`${scoreUrl}live/${matchId}`);
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch live score data: ${response.status}`
-          );
-        }
+  //       const response = await fetch(`${scoreUrl}live/${matchId}`);
+  //       if (!response.ok) {
+  //         throw new Error(
+  //           `Failed to fetch live score data: ${response.status}`
+  //         );
+  //       }
 
-        const data = await response.json();
-        console.log("[REFRESHED LIVE SCORE]:", data);
-        setLiveScoreData(data);
-        setScoreError(false);
-      } catch (error) {
-        console.error("Error refreshing live score:", error);
-        setScoreError(true);
-      } finally {
-        setScoreLoading(false);
-      }
-    };
+  //       const data = await response.json();
+  //       console.log("[REFRESHED LIVE SCORE]:", data);
+  //       setLiveScoreData(data);
+  //       setScoreError(false);
+  //     } catch (error) {
+  //       console.error("Error refreshing live score:", error);
+  //       setScoreError(true);
+  //     } finally {
+  //       setScoreLoading(false);
+  //     }
+  //   };
 
-    // Set up interval for auto-refresh
-    const intervalId = setInterval(refreshLiveScore, REFRESH_INTERVAL);
+  //   // Set up interval for auto-refresh
+  //   const intervalId = setInterval(refreshLiveScore, REFRESH_INTERVAL);
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-  }, [match, matchId, liveScoreData]);
+  //   // Cleanup interval on component unmount
+  //   return () => clearInterval(intervalId);
+  // }, [match, matchId, liveScoreData]);
 
-  // Function to manually refresh score data
-  async function refreshScoreData() {
-    setScoreLoading(true);
-    setScoreError(false);
+  // // Function to manually refresh score data
+  // async function refreshScoreData() {
+  //   setScoreLoading(true);
+  //   setScoreError(false);
 
-    try {
-      // Store current data as previous before fetching new data
-      setPrevScoreData(liveScoreData);
+  //   try {
+  //     // Store current data as previous before fetching new data
+  //     setPrevScoreData(liveScoreData);
 
-      const scoreUrl =
-        process.env.NEXT_PUBLIC_AI_SERVICE_URL || process.env.AI_SERVICE_URL;
-      if (!scoreUrl) {
-        throw new Error("Score service URL is not configured");
-      }
+  //     const scoreUrl =
+  //       process.env.NEXT_PUBLIC_AI_SERVICE_URL || process.env.AI_SERVICE_URL;
+  //     if (!scoreUrl) {
+  //       throw new Error("Score service URL is not configured");
+  //     }
 
-      const response = await fetch(`${scoreUrl}live/${matchId}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch live score data: ${response.status}`);
-      }
+  //     const response = await fetch(`${scoreUrl}live/${matchId}`);
+  //     if (!response.ok) {
+  //       throw new Error(`Failed to fetch live score data: ${response.status}`);
+  //     }
 
-      const data = await response.json();
-      console.log("[MANUALLY REFRESHED SCORE]:", data);
-      setLiveScoreData(data);
-    } catch (error) {
-      console.error("Error refreshing score data:", error);
-      setScoreError(true);
-    } finally {
-      setScoreLoading(false);
-    }
-  }
+  //     const data = await response.json();
+  //     console.log("[MANUALLY REFRESHED SCORE]:", data);
+  //     setLiveScoreData(data);
+  //   } catch (error) {
+  //     console.error("Error refreshing score data:", error);
+  //     setScoreError(true);
+  //   } finally {
+  //     setScoreLoading(false);
+  //   }
+  // }
 
   if (loading) return <MatchLoader />;
 
@@ -305,58 +308,60 @@ export default function MatchPage({
     hour12: true,
   });
 
-  // Enhanced score display rendering with animations
-  const renderScoreDisplay = (team: "team1" | "team2") => {
-    // For upcoming matches
-    if (isUpcoming) {
-      return null;
-    }
+  // LIVE MATCH DATA FEATURE
 
-    // Handle initial fetch loading state
-    if (initialFetch && scoreLoading) return <InitialScoreFetch />;
+  // // Enhanced score display rendering with animations
+  // const renderScoreDisplay = (team: "team1" | "team2") => {
+  //   // For upcoming matches
+  //   if (isUpcoming) {
+  //     return null;
+  //   }
 
-    // Get current and previous scores
-    const currentScore = liveScoreData[team]?.score;
-    const previousScore = prevScoreData[team]?.score;
-    const scoreChanged = currentScore !== previousScore;
+  //   // Handle initial fetch loading state
+  //   if (initialFetch && scoreLoading) return <InitialScoreFetch />;
 
-    // Determine a key for animation (using score or a fallback)
-    const animationKey = `${team}-${currentScore || "no-score"}-${Date.now()}`;
+  //   // Get current and previous scores
+  //   const currentScore = liveScoreData[team]?.score;
+  //   const previousScore = prevScoreData[team]?.score;
+  //   const scoreChanged = currentScore !== previousScore;
 
-    console.log(
-      `[RENDER] ${team} score:`,
-      currentScore,
-      "previous:",
-      previousScore,
-      "changed:",
-      scoreChanged
-    );
+  //   // Determine a key for animation (using score or a fallback)
+  //   const animationKey = `${team}-${currentScore || "no-score"}-${Date.now()}`;
 
-    if (!currentScore) {
-      return (
-        <motion.div
-          className="mt-2 bg-purple-800/30 px-4 py-1 rounded-full text-pink-100/70 font-semibold shadow-md"
-          initial={{ opacity: 0.7 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          Yet to bat
-        </motion.div>
-      );
-    }
+  //   console.log(
+  //     `[RENDER] ${team} score:`,
+  //     currentScore,
+  //     "previous:",
+  //     previousScore,
+  //     "changed:",
+  //     scoreChanged
+  //   );
 
-    // When updating, blur the loading indicator but keep old data visible
-    if (scoreLoading && !initialFetch)
-      return <RealTimeScoreLoading score={previousScore || currentScore} />;
+  //   if (!currentScore) {
+  //     return (
+  //       <motion.div
+  //         className="mt-2 bg-purple-800/30 px-4 py-1 rounded-full text-pink-100/70 font-semibold shadow-md"
+  //         initial={{ opacity: 0.7 }}
+  //         animate={{ opacity: 1 }}
+  //         transition={{ duration: 0.3 }}
+  //       >
+  //         Yet to bat
+  //       </motion.div>
+  //     );
+  //   }
 
-    return (
-      <ShowChanges
-        scoreChanged={scoreChanged}
-        animationKey={animationKey}
-        currentScore={currentScore}
-      />
-    );
-  };
+  //   // When updating, blur the loading indicator but keep old data visible
+  //   if (scoreLoading && !initialFetch)
+  //     return <RealTimeScoreLoading score={previousScore || currentScore} />;
+
+  //   return (
+  //     <ShowChanges
+  //       scoreChanged={scoreChanged}
+  //       animationKey={animationKey}
+  //       currentScore={currentScore}
+  //     />
+  //   );
+  // };
 
   return (
     <div className="container mx-auto p-4 space-y-6 max-w-4xl">
@@ -453,7 +458,7 @@ export default function MatchPage({
                       Live
                     </Badge>
                   </motion.div>
-                  {!scoreLoading && !scoreError && (isLive || isCompleted) && (
+                  {/* {!scoreLoading && !scoreError && (isLive || isCompleted) && (
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -476,7 +481,7 @@ export default function MatchPage({
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                  )}
+                  )} */}
                 </div>
               ) : (
                 <motion.div
@@ -536,7 +541,7 @@ export default function MatchPage({
                   >
                     {match.team1}
                   </motion.h2>
-                  {renderScoreDisplay("team1")}
+                  {/* {renderScoreDisplay("team1")} */}
                 </div>
               </motion.div>
 
@@ -606,7 +611,7 @@ export default function MatchPage({
                   >
                     {match.team2}
                   </motion.h2>
-                  {renderScoreDisplay("team2")}
+                  {/* {renderScoreDisplay("team2")} */}
                 </div>
               </motion.div>
             </div>
