@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import Questions from "@/components/Questions";
 import React, { useState } from "react";
 import {
   Card,
@@ -10,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Calendar,
@@ -19,7 +17,6 @@ import {
   ArrowLeft,
   Users,
   Gift,
-  CheckCircle,
   // RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
@@ -27,7 +24,6 @@ import { Match, Question, UserCredits } from "@/utils/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchLeaderboard from "@/components/leaderboard-matches.component";
 import MatchEarnings from "@/components/match-earning.component";
-import Image from "next/image";
 // import {
 //   Tooltip,
 //   TooltipContent,
@@ -37,13 +33,18 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import MatchCreditsCard from "@/components/match-credist.component";
 import { useUserContext } from "@/context/UserContext";
-import { teamImageMap } from "../../../../../data/ImageMap";
 import {
   // InitialScoreFetch,
   MatchLoader,
   // RealTimeScoreLoading,
 } from "@/components/ErrorTemplates/loader-templates.component";
 import MatchNotFound from "@/components/ErrorTemplates/match-not-found.component";
+import { Completed, Live, Upcoming } from "@/components/custom-badge.component";
+import {
+  AnimatedTeamView,
+  AnimatedVersus,
+} from "@/components/team-image.component";
+import QuestionTab from "@/components/question-tab.component";
 // import ShowChanges from "@/components/post-match-changes.component";
 export default function MatchPage({
   params,
@@ -428,13 +429,7 @@ export default function MatchPage({
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <Badge
-                    variant="secondary"
-                    className="bg-purple-800 text-pink-100 hover:bg-purple-700"
-                  >
-                    <CheckCircle className="mr-1 h-3 w-3" />
-                    Completed
-                  </Badge>
+                  <Completed />
                 </motion.div>
               ) : isLive ? (
                 <div className="flex items-center gap-2">
@@ -449,13 +444,7 @@ export default function MatchPage({
                       repeatType: "reverse",
                     }}
                   >
-                    <Badge
-                      variant="outline"
-                      className="bg-green-900 text-green-300 border-green-700"
-                    >
-                      <Clock className="mr-1 h-3 w-3" />
-                      Live
-                    </Badge>
+                    <Live />
                   </motion.div>
                   {/* {!scoreLoading && !scoreError && (isLive || isCompleted) && (
                     <TooltipProvider>
@@ -488,13 +477,7 @@ export default function MatchPage({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <Badge
-                    variant="outline"
-                    className="flex items-center bg-purple-800 text-pink-100 border-purple-700"
-                  >
-                    <Clock className="mr-1 h-3 w-3" />
-                    Upcoming
-                  </Badge>
+                  <Upcoming />
                 </motion.div>
               )}
             </div>
@@ -505,114 +488,9 @@ export default function MatchPage({
           </CardHeader>
           <CardContent className="bg-purple-900/50">
             <div className="flex justify-center items-center gap-x-8 py-6">
-              <motion.div
-                className="text-center flex-1"
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                <div className="flex flex-col items-center">
-                  <motion.div
-                    className="w-24 h-24 rounded-full overflow-hidden border-4 border-purple-800 mb-3 bg-white/10 shadow-lg flex items-center justify-center"
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                  >
-                    {teamImageMap[match.team1] ? (
-                      <Image
-                        src={teamImageMap[match.team1]}
-                        alt={match.team1}
-                        width={96}
-                        height={96}
-                        className="object-contain p-2"
-                      />
-                    ) : (
-                      <span className="text-2xl font-bold">
-                        {match.team1.substring(0, 2)}
-                      </span>
-                    )}
-                  </motion.div>
-                  <motion.h2
-                    className="text-2xl font-bold text-pink-100"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {match.team1}
-                  </motion.h2>
-                  {/* {renderScoreDisplay("team1")} */}
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="flex flex-col items-center"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-              >
-                <motion.div
-                  className="text-xl font-bold text-pink-300 bg-purple-950 rounded-full p-3 border border-purple-800 shadow-md mb-2"
-                  animate={{
-                    boxShadow: [
-                      "0 4px 6px rgba(0, 0, 0, 0.1)",
-                      "0 6px 15px rgba(139, 92, 246, 0.3)",
-                      "0 4px 6px rgba(0, 0, 0, 0.1)",
-                    ],
-                  }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 3,
-                  }}
-                >
-                  VS
-                </motion.div>
-                {/* {scoreError && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.05 }}
-                  ></motion.div>
-                )} */}
-              </motion.div>
-
-              <motion.div
-                className="text-center flex-1"
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                <div className="flex flex-col items-center">
-                  <motion.div
-                    className="w-24 h-24 rounded-full overflow-hidden border-4 border-purple-800 mb-3 bg-white/10 shadow-lg flex items-center justify-center"
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                  >
-                    {teamImageMap[match.team2] ? (
-                      <Image
-                        src={teamImageMap[match.team2]}
-                        alt={match.team2}
-                        width={96}
-                        height={96}
-                        className="object-contain p-2"
-                      />
-                    ) : (
-                      <span className="text-2xl font-bold">
-                        {match.team2.substring(0, 2)}
-                      </span>
-                    )}
-                  </motion.div>
-                  <motion.h2
-                    className="text-2xl font-bold text-pink-100"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {match.team2}
-                  </motion.h2>
-                  {/* {renderScoreDisplay("team2")} */}
-                </div>
-              </motion.div>
+              <AnimatedTeamView teamName={match.team1} />
+              <AnimatedVersus />
+              <AnimatedTeamView teamName={match.team2} />
             </div>
           </CardContent>
         </Card>
@@ -640,74 +518,17 @@ export default function MatchPage({
           </TabsList>
 
           <TabsContent value="questions" className="mt-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">Match Predictions</h2>
-              <Badge variant="outline" className="text-xs">
-                {questions.length} predictions
-              </Badge>
-            </div>
-
-            <div className="space-y-4">
-              {questions.length === 0 ? (
-                <Card className="shadow-sm">
-                  <CardContent className="p-10 text-center">
-                    <p className="text-muted-foreground">
-                      No predictions available for this match
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <motion.div
-                  variants={{
-                    hidden: { opacity: 0 },
-                    show: {
-                      opacity: 1,
-                      transition: {
-                        staggerChildren: 0.1,
-                      },
-                    },
-                  }}
-                  initial="hidden"
-                  animate="show"
-                >
-                  {questions.map((question, index) => (
-                    <motion.div
-                      key={question.id || index}
-                      variants={{
-                        hidden: { opacity: 0, y: 20 },
-                        show: { opacity: 1, y: 0 },
-                      }}
-                    >
-                      <Card className="shadow-sm">
-                        <CardContent className="p-6">
-                          <Questions
-                            fetchUserCredits={fetchUserCredits}
-                            id={index} // Using index for unique ID
-                            question={question}
-                            options={["yes", "no"]}
-                          />
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-            </div>
+            <QuestionTab
+              questions={questions}
+              fetchUserCredits={fetchUserCredits}
+            />
           </TabsContent>
 
           <TabsContent value="leaderboard" className="mt-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">Match Standings</h2>
-            </div>
-
             <MatchLeaderboard matchId={matchId} matchDate={matchDate} />
           </TabsContent>
 
           <TabsContent value="earnings" className="mt-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">Your Rewards</h2>
-            </div>
-
             <MatchEarnings matchId={matchId} matchDate={matchDate} />
           </TabsContent>
         </Tabs>
