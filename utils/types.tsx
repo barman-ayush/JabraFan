@@ -1,3 +1,6 @@
+import { LucideProps } from "lucide-react";
+import { ForwardRefExoticComponent, RefAttributes } from "react";
+
 export type Question = {
   id: string;
   text: string;
@@ -38,3 +41,13 @@ export type UserCredits = {
   answeredQuestions: number;
   correctAnswers: number;
 };
+
+
+// Navigation Menu Props
+export type NavigatorItemProps = {
+  title: string;
+  url: string;
+  icon: ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+  >;
+}

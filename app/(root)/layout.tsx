@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import Navbar from "@/components/Navbar.component";
-import { useUserContext } from "@/context/UserContext";
 import React, { Fragment, Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation"; // Import useSearchParams
 import { useFlash } from "@/components/Flash.component";
@@ -11,24 +10,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const {setUserData } = useUserContext();
   const { flash } = useFlash(); // Get the flash function from your hook
   const searchParams = useSearchParams(); // Get search parameters from URL
-
-  useEffect(() => {
-    const parseData = async () => {
-      const response = await (
-        await fetch("/api/auth/parsecookie", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        })
-      ).json();
-      if (!response.success) return;
-      setUserData(response.userData);
-    };
-    parseData();
-  }, [setUserData]);
-
   // Check for isUnauthorized parameter in URL and show flash message
   useEffect(() => {
     const isUnauthorized = searchParams.get("isUnauthorized");
