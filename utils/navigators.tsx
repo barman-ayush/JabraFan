@@ -47,12 +47,12 @@ export const dugoutNavigators: NavigatorItemProps[] = [
   },
   {
     title: "Transfer/Injury",
-    url: "/news",
+    url: "/team-changes",
     icon: AlertTriangle,
   },
   {
     title: "Weekly Recap",
-    url: "/weekly-recap",
+    url: "/weekly",
     icon: CalendarCheck,
   },
 ];
