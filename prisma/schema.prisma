@@ -33,11 +33,11 @@ model Matches {
 }
 
 model Questions {
-  id       String  @id @default(cuid())
+  id       String   @id @default(cuid())
   text     String
   status   String
   answer   String?
-  isActive  Boolean? @default(true)
+  isActive Boolean? @default(true)
 
   matchId String
   match   Matches @relation(fields: [matchId], references: [id])
@@ -54,6 +54,7 @@ model Answers {
 
   questionId String
   answered   Questions @relation(fields: [questionId], references: [id])
+
   @@unique([questionId, userId])
 }
 
@@ -72,22 +73,34 @@ model RedeemRequests {
   requested User @relation(fields: [userId], references: [id])
 }
 
-model DugoutData{
-  id            String    @id @default(uuid())
-  uniqueKey     String    @unique
-  jsonData      Json      
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+model DugoutData {
+  id        String   @id @default(uuid())
+  uniqueKey String   @unique
+  jsonData  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
 model RisingStarsWeekData {
-  id                 String   @id @default(cuid())
-  week_key           String   @unique // Format: 'week_XX_YYYY' (e.g., 'week_18_2025')
-  data               Json     // Store the entire rising stars data structure as JSON
-  created_at         DateTime @default(now())
-  updated_at         DateTime @updatedAt
+  id         String   @id @default(cuid())
+  week_key   String   @unique // Format: 'week_XX_YYYY' (e.g., 'week_18_2025')
+  data       Json // Store the entire rising stars data structure as JSON
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@index([week_key])
 }
+
+model TeamChangesData {
+  id         String   @id @default(cuid())
+  date_key   String   @unique // Format: 'YYYY-MM-DD' (e.g., '2025-05-10')
+  data       Json // Store the entire team changes data structure as JSON
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([date_key])
+}
+
 // Commands for updating database on the basis of schema 
 // ( For migration )
 // npx prisma migrate dev --name your_migration_name

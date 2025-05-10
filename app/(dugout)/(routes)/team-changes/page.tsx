@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-
-import { User, Shield, Shirt, Award, Trophy } from "lucide-react";
+import { Trophy, CalendarIcon, Badge, MapPin } from "lucide-react";
 import { format } from "date-fns";
 
-import { MatchDay, MatchLineupData } from "@/utils/types";
+import { MatchDay, MatchLineupData, TeamChangeMatch } from "@/utils/types";
 import DatePickerTeamChanges from "@/components/date-picker-team-changes.component";
-import TeamChanges from "@/components/team-changes.component";
+import TeamLineupComponent from "@/components/team-lineup.component";
 
 const CricketFieldLineups = () => {
   const [matchData, setMatchData] = useState<MatchDay[]>([]);
@@ -249,13 +248,43 @@ const CricketFieldLineups = () => {
       ) : (
         <div className="space-y-8">
           {filteredData.map((day, dayIndex) => (
-            <TeamChanges
-              key={dayIndex}
-              day={day}
-              setAnimatingPlayers={setAnimatingPlayers}
-              setShowAnimation={setShowAnimation}
-              showAnimation={showAnimation}
-            />
+            <div key={dayIndex} className="space-y-6">
+              <div className="flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5 text-blue-400" />
+                <h2 className="text-xl font-semibold text-white">{day.date}</h2>
+              </div>
+
+              {day.matches.map((match: TeamChangeMatch, matchIndex: number) => {
+                return (
+                  <Card
+                    key={matchIndex}
+                    className="bg-gray-800 border-gray-700 overflow-hidden"
+                  >
+                    <div className="flex bg-gray-700 p-4 items-center justify-between">
+                      <div>
+                        <Badge className="bg-indigo-600 text-white mb-2">
+                          Match #{match.match_number}
+                        </Badge>
+                        <h3 className="text-xl font-bold text-white">
+                          {match.teams}
+                        </h3>
+                      </div>
+                      <div className="flex items-center text-gray-300">
+                        <MapPin className="h-4 w-4 mr-1 text-gray-400" />
+                        <span className="text-sm">{match.venue}</span>
+                      </div>
+                    </div>
+
+                    <TeamLineupComponent
+                      setAnimatingPlayers={setAnimatingPlayers}
+                      setShowAnimation={setShowAnimation}
+                      showAnimation={showAnimation}
+                      match={match}
+                    />
+                  </Card>
+                );
+              })}
+            </div>
           ))}
         </div>
       )}
